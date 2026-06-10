@@ -7,24 +7,21 @@ const galleryPhotos = [
 const gamePhotos: Record<string, string[]> = {
   ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
-  roblox: ["/roblox1.jpg", "/roblox2.jpg"],
+  roblox: ["/roblox1.jpg", "/roblox2.jpg", "/roblox3.jpg"],
 };
 
 const playClick = () => new Audio("/click.mp3").play();
 
 export default function App() {
-  // 🎮 TAB SYSTEM
   const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
-
-  // 🔍 LIGHTBOX
   const [preview, setPreview] = useState<string | null>(null);
 
   // 🌌 PARALLAX
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  // 🎬 EXPERIENCE TRANSITION
-  const [enterAnim, setEnterAnim] = useState(false);
+  // ⚡ LOADING SCREEN
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
@@ -35,105 +32,92 @@ export default function App() {
     };
 
     window.addEventListener("mousemove", move);
+
+    setTimeout(() => setLoading(false), 1200);
+
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
   return (
-    <div className="min-h-screen text-white relative overflow-x-hidden">
+    <div className="min-h-screen text-white relative overflow-x-hidden scroll-smooth">
 
-      {/* 🌌 PARALLAX BACKGROUND */}
+      {/* ⚡ LOADING INTRO */}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+          <div className="text-center animate-pulse">
+            <div className="text-xl tracking-widest">
+              FAJREZZZ EXPERIENCE
+            </div>
+            <div className="text-sm text-white/50 mt-2">
+              loading...
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🌌 BACKGROUND (CLEAN PARALLAX) */}
       <div className="fixed inset-0 -z-20 overflow-hidden">
 
         {/* base */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
-            transform: `translate(${mouse.x * 10}px, ${mouse.y * 10}px)`,
+            transform: `translate(${mouse.x * 6}px, ${mouse.y * 6}px)`,
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-purple-900/60 to-black/90" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900/40 to-black" />
         </div>
 
         {/* glow */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-transform duration-300 ease-out opacity-50"
           style={{
-            transform: `translate(${mouse.x * 25}px, ${mouse.y * 25}px)`,
+            transform: `translate(${mouse.x * 12}px, ${mouse.y * 12}px)`,
           }}
         >
-          <div className="absolute top-[-120px] left-[-120px] w-[450px] h-[450px] bg-purple-500/30 blur-3xl rounded-full" />
-          <div className="absolute bottom-[-120px] right-[-120px] w-[450px] h-[450px] bg-blue-500/30 blur-3xl rounded-full" />
+          <div className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] bg-indigo-500/20 blur-3xl rounded-full" />
+          <div className="absolute bottom-[-120px] right-[-120px] w-[350px] h-[350px] bg-blue-500/20 blur-3xl rounded-full" />
         </div>
 
         {/* particles */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-30"
           style={{
-            transform: `translate(${mouse.x * 40}px, ${mouse.y * 40}px)`,
+            transform: `translate(${mouse.x * 20}px, ${mouse.y * 20}px)`,
           }}
         >
-          <div className="absolute top-[20%] left-[30%] w-2 h-2 bg-white/40 rounded-full blur-sm animate-pulse" />
-          <div className="absolute top-[60%] left-[70%] w-2 h-2 bg-blue-300/40 rounded-full blur-sm animate-pulse" />
-          <div className="absolute top-[40%] left-[80%] w-2 h-2 bg-purple-300/40 rounded-full blur-sm animate-pulse" />
-          <div className="absolute top-[75%] left-[20%] w-3 h-3 bg-white/30 rounded-full blur-sm animate-pulse" />
+          <div className="absolute top-[25%] left-[35%] w-1.5 h-1.5 bg-white/40 rounded-full blur-sm" />
+          <div className="absolute top-[65%] left-[70%] w-1 h-1 bg-blue-300/40 rounded-full blur-sm" />
+          <div className="absolute top-[45%] left-[80%] w-1 h-1 bg-indigo-300/40 rounded-full blur-sm" />
         </div>
 
       </div>
 
-      {/* 🔥 ENTER EXPERIENCE ANIMATION */}
-      {enterAnim && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="text-center animate-pulse">
-            <div className="text-xl tracking-widest">ENTERING EXPERIENCE</div>
-            <div className="text-sm text-white/60 mt-2">
-              loading memories...
-            </div>
-          </div>
-
-          <div className="absolute w-[500px] h-[500px] bg-purple-500/30 blur-3xl rounded-full animate-ping" />
-        </div>
-      )}
-
-      {/* NAVBAR */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center gap-4 p-4 backdrop-blur-xl bg-black/60 border-b border-white/10">
+      {/* NAVBAR (GLASS UI) */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex justify-center gap-4 p-4 backdrop-blur-xl bg-white/5 border-b border-white/10">
 
         <button
-          onClick={() => {
-            playClick();
-            setActiveTab("watch");
-          }}
-          className={`px-4 py-2 rounded-full border ${
-            activeTab === "watch" ? "bg-white text-black" : ""
+          onClick={() => { playClick(); setActiveTab("watch"); }}
+          className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
+            activeTab === "watch" ? "bg-white text-black" : "border-white/20"
           }`}
         >
           Watch
         </button>
 
-        {/* 🎬 EXPERIENCE BUTTON (WITH TRANSITION) */}
         <button
-          onClick={() => {
-            playClick();
-            setEnterAnim(true);
-
-            setTimeout(() => {
-              setActiveTab("photo");
-              setEnterAnim(false);
-            }, 600);
-          }}
-          className={`px-4 py-2 rounded-full border ${
-            activeTab === "photo" ? "bg-white text-black" : ""
+          onClick={() => { playClick(); setActiveTab("photo"); }}
+          className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
+            activeTab === "photo" ? "bg-white text-black" : "border-white/20"
           }`}
         >
           Experience
         </button>
 
         <button
-          onClick={() => {
-            playClick();
-            setActiveTab("game");
-          }}
-          className={`px-4 py-2 rounded-full border ${
-            activeTab === "game" ? "bg-white text-black" : ""
+          onClick={() => { playClick(); setActiveTab("game"); }}
+          className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
+            activeTab === "game" ? "bg-white text-black" : "border-white/20"
           }`}
         >
           Games
@@ -145,10 +129,10 @@ export default function App() {
 
       {/* 🎥 WATCH */}
       {activeTab === "watch" && (
-        <section className="flex justify-center py-20">
-          <div className="w-[90%] max-w-[420px] aspect-[9/16]">
+        <section className="flex justify-center py-24 scroll-mt-24">
+          <div className="w-[90%] max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
             <iframe
-              className="w-full h-full rounded-2xl border border-white/10"
+              className="w-full h-full"
               src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
             />
           </div>
@@ -157,7 +141,7 @@ export default function App() {
 
       {/* 📸 EXPERIENCE */}
       {activeTab === "photo" && (
-        <section className="py-20 px-6">
+        <section className="py-24 px-6 scroll-mt-24">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
             {galleryPhotos.map((img, i) => (
@@ -168,7 +152,7 @@ export default function App() {
                   playClick();
                   setPreview(img);
                 }}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition animate-[fadeInUp_0.6s_ease-out]"
+                className="h-72 w-full object-cover rounded-2xl cursor-pointer border border-white/10 hover:scale-105 hover:-translate-y-1 transition duration-300"
               />
             ))}
 
@@ -176,22 +160,22 @@ export default function App() {
         </section>
       )}
 
-      {/* 🎮 GAMES */}
+      {/* 🎮 GAME */}
       {activeTab === "game" && (
-        <section className="py-20 text-center px-6">
+        <section className="py-24 text-center px-6 scroll-mt-24">
 
           {!selectedGame ? (
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
 
-              <div onClick={() => setSelectedGame("ml")} className="p-6 bg-blue-600 rounded-2xl cursor-pointer">
+              <div onClick={() => setSelectedGame("ml")} className="p-6 bg-blue-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Mobile Legends
               </div>
 
-              <div onClick={() => setSelectedGame("ff")} className="p-6 bg-red-600 rounded-2xl cursor-pointer">
+              <div onClick={() => setSelectedGame("ff")} className="p-6 bg-red-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Free Fire
               </div>
 
-              <div onClick={() => setSelectedGame("roblox")} className="p-6 bg-purple-600 rounded-2xl cursor-pointer">
+              <div onClick={() => setSelectedGame("roblox")} className="p-6 bg-purple-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Roblox
               </div>
 
@@ -199,7 +183,6 @@ export default function App() {
           ) : (
             <div>
 
-              {/* 🔙 BACK */}
               <button
                 onClick={() => {
                   playClick();
@@ -220,7 +203,7 @@ export default function App() {
                       playClick();
                       setPreview(img);
                     }}
-                    className="w-full aspect-[16/9] object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
+                    className="w-full aspect-[16/9] object-cover rounded-2xl cursor-pointer hover:scale-105 transition duration-300"
                   />
                 ))}
 
@@ -239,7 +222,7 @@ export default function App() {
         >
           <img
             src={preview}
-            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl"
+            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl animate-[fadeIn_0.2s_ease-out]"
           />
         </div>
       )}

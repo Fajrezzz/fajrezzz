@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const galleryPhotos = [
-  { src: "/1.jpg", caption: "Moment 1" },
-  { src: "/2.jpg", caption: "Moment 2" },
-  { src: "/3.jpg", caption: "Moment 3" },
-  { src: "/4.jpg", caption: "Moment 4" },
-  { src: "/5.jpg", caption: "Moment 5" },
-  { src: "/6.jpg", caption: "Moment 6" },
+  { src: "/1.jpg" },
+  { src: "/2.jpg" },
+  { src: "/3.jpg" },
+  { src: "/4.jpg" },
+  { src: "/5.jpg" },
+  { src: "/6.jpg" },
 ];
 
 const gamePhotos: Record<string, string[]> = {
@@ -17,88 +17,68 @@ const gamePhotos: Record<string, string[]> = {
 
 const playClick = () => new Audio("/click.mp3").play();
 
-function useTyping(text: string, speed = 55) {
-  const [t, setT] = useState("");
-  useEffect(() => {
-    let i = 0;
-    const id = setInterval(() => {
-      setT(text.slice(0, i));
-      i++;
-      if (i > text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text]);
-  return t;
-}
-
 export default function App() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedGame, setSelectedGame] = useState<string | null>(null);
-
-  // 🎬 WATCH MODE
-  const [watchMode, setWatchMode] = useState(false);
-
   const videoRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<HTMLDivElement>(null);
 
-  const title = useTyping("FAJREZZZ // DIGITAL EXPERIENCE", 55);
+  const [selectedGame, setSelectedGame] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const startWatch = () => {
+  const scrollTo = (ref: any) => {
     playClick();
-    setWatchMode(true);
-
-    // 🎥 scroll ke video
-    setTimeout(() => {
-      videoRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 300);
-
-    // 📸 ke gallery
-    setTimeout(() => {
-      galleryRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 2500);
-
-    // 🎮 ke games
-    setTimeout(() => {
-      gameRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 5000);
+    ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen text-white relative overflow-x-hidden">
+    <div className="min-h-screen text-white bg-black">
 
-      {/* BACKGROUND */}
-      <div className="fixed inset-0 -z-20 bg-gradient-to-br from-blue-900/40 via-purple-900/50 to-black/90" />
+      {/* 🌌 NAVBAR (STICKY MENU) */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center gap-4 p-4 backdrop-blur-xl bg-black/40 border-b border-white/10">
+
+        <button
+          onClick={() => scrollTo(videoRef)}
+          className="px-4 py-2 rounded-full border border-white/20 hover:bg-white/10"
+        >
+          1. Watch
+        </button>
+
+        <button
+          onClick={() => scrollTo(photoRef)}
+          className="px-4 py-2 rounded-full border border-white/20 hover:bg-white/10"
+        >
+          2. Experience
+        </button>
+
+        <button
+          onClick={() => scrollTo(gameRef)}
+          className="px-4 py-2 rounded-full border border-white/20 hover:bg-white/10"
+        >
+          3. Games
+        </button>
+
+      </div>
 
       {/* HERO */}
-      <section className="h-screen flex items-center justify-center text-center px-4">
-        <div className="backdrop-blur-2xl bg-white/5 p-10 rounded-3xl border border-white/10">
-          <h1 className="text-5xl font-bold">{title}</h1>
-          <p className="text-gray-300 mt-4">Cinematic Experience Mode</p>
-
-          {/* 🎬 WATCH BUTTON */}
-          <button
-            onClick={startWatch}
-            className="mt-8 px-6 py-3 bg-white text-black rounded-full hover:scale-105 transition"
-          >
-            WATCH EXPERIENCE
-          </button>
-        </div>
+      <section className="h-screen flex items-center justify-center pt-20">
+        <h1 className="text-4xl font-bold tracking-widest">
+          FAJREZZZ EXPERIENCE
+        </h1>
       </section>
 
-      {/* 🎥 VIDEO */}
-      <section ref={videoRef} className="py-24 flex justify-center">
+      {/* 🎥 VIDEO SECTION */}
+      <section ref={videoRef} className="min-h-screen flex items-center justify-center py-24">
         <div className="w-[90%] max-w-[420px] aspect-[9/16]">
           <iframe
-            className="w-full h-full rounded-2xl border"
+            className="w-full h-full rounded-2xl"
             src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
           />
         </div>
       </section>
 
-      {/* 📸 GALLERY */}
-      <section ref={galleryRef} className="py-24 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+      {/* 📸 PHOTO SECTION */}
+      <section ref={photoRef} className="min-h-screen py-24 px-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
           {galleryPhotos.map((p, i) => (
             <img
@@ -108,19 +88,19 @@ export default function App() {
                 playClick();
                 setSelectedImage(p.src);
               }}
-              className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
+              className="h-72 w-full object-cover rounded-2xl hover:scale-105 transition cursor-pointer"
             />
           ))}
 
         </div>
       </section>
 
-      {/* 🎮 GAMES (LAST EXPERIENCE) */}
-      <section ref={gameRef} className="py-24 text-center px-6">
+      {/* 🎮 GAME SECTION */}
+      <section ref={gameRef} className="min-h-screen py-24 text-center px-6">
 
         {!selectedGame ? (
           <div>
-            <h2 className="text-3xl mb-10">FINAL EXPERIENCE</h2>
+            <h2 className="text-3xl mb-10">GAMES</h2>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
 
@@ -167,6 +147,7 @@ export default function App() {
           <img src={selectedImage} className="max-w-[90%] max-h-[85%] rounded-2xl" />
         </div>
       )}
+
     </div>
   );
 }

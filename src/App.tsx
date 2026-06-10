@@ -13,13 +13,18 @@ const gamePhotos: Record<string, string[]> = {
 const playClick = () => new Audio("/click.mp3").play();
 
 export default function App() {
-  const [tab, setTab] = useState<"watch" | "photo" | "game">("watch");
+  // 🎮 TAB SYSTEM
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
+  // 🔍 LIGHTBOX
   const [preview, setPreview] = useState<string | null>(null);
 
-  // 🌌 PARALLAX STATE
+  // 🌌 PARALLAX
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  // 🎬 EXPERIENCE TRANSITION
+  const [enterAnim, setEnterAnim] = useState(false);
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
@@ -36,10 +41,10 @@ export default function App() {
   return (
     <div className="min-h-screen text-white relative overflow-x-hidden">
 
-      {/* 🌌 PARALLAX BACKGROUND (FULL UPGRADE) */}
+      {/* 🌌 PARALLAX BACKGROUND */}
       <div className="fixed inset-0 -z-20 overflow-hidden">
 
-        {/* base gradient */}
+        {/* base */}
         <div
           className="absolute inset-0"
           style={{
@@ -49,7 +54,7 @@ export default function App() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-purple-900/60 to-black/90" />
         </div>
 
-        {/* glow layer */}
+        {/* glow */}
         <div
           className="absolute inset-0"
           style={{
@@ -60,7 +65,7 @@ export default function App() {
           <div className="absolute bottom-[-120px] right-[-120px] w-[450px] h-[450px] bg-blue-500/30 blur-3xl rounded-full" />
         </div>
 
-        {/* particles layer */}
+        {/* particles */}
         <div
           className="absolute inset-0"
           style={{
@@ -75,21 +80,62 @@ export default function App() {
 
       </div>
 
+      {/* 🔥 ENTER EXPERIENCE ANIMATION */}
+      {enterAnim && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+          <div className="text-center animate-pulse">
+            <div className="text-xl tracking-widest">ENTERING EXPERIENCE</div>
+            <div className="text-sm text-white/60 mt-2">
+              loading memories...
+            </div>
+          </div>
+
+          <div className="absolute w-[500px] h-[500px] bg-purple-500/30 blur-3xl rounded-full animate-ping" />
+        </div>
+      )}
+
       {/* NAVBAR */}
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center gap-4 p-4 backdrop-blur-xl bg-black/60 border-b border-white/10">
 
-        <button onClick={() => { playClick(); setTab("watch"); }}
-          className={`px-4 py-2 rounded-full border ${tab === "watch" ? "bg-white text-black" : ""}`}>
+        <button
+          onClick={() => {
+            playClick();
+            setActiveTab("watch");
+          }}
+          className={`px-4 py-2 rounded-full border ${
+            activeTab === "watch" ? "bg-white text-black" : ""
+          }`}
+        >
           Watch
         </button>
 
-        <button onClick={() => { playClick(); setTab("photo"); }}
-          className={`px-4 py-2 rounded-full border ${tab === "photo" ? "bg-white text-black" : ""}`}>
+        {/* 🎬 EXPERIENCE BUTTON (WITH TRANSITION) */}
+        <button
+          onClick={() => {
+            playClick();
+            setEnterAnim(true);
+
+            setTimeout(() => {
+              setActiveTab("photo");
+              setEnterAnim(false);
+            }, 600);
+          }}
+          className={`px-4 py-2 rounded-full border ${
+            activeTab === "photo" ? "bg-white text-black" : ""
+          }`}
+        >
           Experience
         </button>
 
-        <button onClick={() => { playClick(); setTab("game"); }}
-          className={`px-4 py-2 rounded-full border ${tab === "game" ? "bg-white text-black" : ""}`}>
+        <button
+          onClick={() => {
+            playClick();
+            setActiveTab("game");
+          }}
+          className={`px-4 py-2 rounded-full border ${
+            activeTab === "game" ? "bg-white text-black" : ""
+          }`}
+        >
           Games
         </button>
 
@@ -98,7 +144,7 @@ export default function App() {
       <div className="h-20" />
 
       {/* 🎥 WATCH */}
-      {tab === "watch" && (
+      {activeTab === "watch" && (
         <section className="flex justify-center py-20">
           <div className="w-[90%] max-w-[420px] aspect-[9/16]">
             <iframe
@@ -109,8 +155,8 @@ export default function App() {
         </section>
       )}
 
-      {/* 📸 PHOTO */}
-      {tab === "photo" && (
+      {/* 📸 EXPERIENCE */}
+      {activeTab === "photo" && (
         <section className="py-20 px-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
@@ -122,7 +168,7 @@ export default function App() {
                   playClick();
                   setPreview(img);
                 }}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
+                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition animate-[fadeInUp_0.6s_ease-out]"
               />
             ))}
 
@@ -130,8 +176,8 @@ export default function App() {
         </section>
       )}
 
-      {/* 🎮 GAME */}
-      {tab === "game" && (
+      {/* 🎮 GAMES */}
+      {activeTab === "game" && (
         <section className="py-20 text-center px-6">
 
           {!selectedGame ? (
@@ -153,7 +199,7 @@ export default function App() {
           ) : (
             <div>
 
-              {/* 🔙 BACK (RESTORED + SAFE) */}
+              {/* 🔙 BACK */}
               <button
                 onClick={() => {
                   playClick();
@@ -200,4 +246,4 @@ export default function App() {
 
     </div>
   );
-        }
+}

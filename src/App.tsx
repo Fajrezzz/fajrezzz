@@ -9,14 +9,14 @@ const galleryPhotos = [
   { src: "/6.jpg", caption: "Moment 6" },
 ];
 
-// GAME PHOTOS
+// 🎮 GAME SYSTEM (UPDATED NAMING: ml1, ff1, roblox1)
 const gamePhotos: Record<string, string[]> = {
   ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
   roblox: ["/roblox1.jpg", "/roblox2.jpg", "/roblox3.jpg"],
 };
 
-// 🔊 click sound
+// 🔊 sound click
 const playClick = () => {
   const audio = new Audio("/click.mp3");
   audio.volume = 0.5;
@@ -24,7 +24,7 @@ const playClick = () => {
 };
 
 // typing effect
-function useTyping(text: string, speed = 70) {
+function useTyping(text: string, speed = 55) {
   const [t, setT] = useState("");
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function useTyping(text: string, speed = 70) {
   return t;
 }
 
-// fade in
+// fade in animation
 function FadeIn({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
@@ -75,11 +75,7 @@ export default function App() {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [entering, setEntering] = useState(false);
 
-  const title = useTyping("FAJREZZZ // DIGITAL EXPERIENCE", 60);
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
+  const title = useTyping("FAJREZZZ // DIGITAL EXPERIENCE", 55);
 
   const openGame = (game: string) => {
     playClick();
@@ -88,33 +84,23 @@ export default function App() {
     setTimeout(() => {
       setSelectedGame(game);
       setEntering(false);
-    }, 450);
+    }, 400);
   };
 
   return (
-    <div className="relative overflow-x-hidden text-white">
+    <div className="relative min-h-screen text-white overflow-x-hidden">
 
-      {/* 🌌 BACKGROUND UPDATED */}
+      {/* 🌌 BACKGROUND */}
       <div className="fixed inset-0 -z-20">
-        <video
-          autoPlay
-          loop
-          muted
-          className="w-full h-full object-cover opacity-30"
-        >
-          <source src="/bg.mp4" type="video/mp4" />
-        </video>
-
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/50 to-black/80" />
-
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/50 to-black/90" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.25),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.25),transparent_55%)]" />
       </div>
 
-      {/* ENTERING OVERLAY */}
+      {/* ENTER ANIMATION */}
       {entering && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-pulse">
-          <div className="text-white tracking-widest text-xl opacity-80">
-            ENTERING...
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-pulse">
+          <div className="text-xl tracking-widest opacity-80">
+            ENTERING GAME...
           </div>
         </div>
       )}
@@ -122,95 +108,48 @@ export default function App() {
       {/* HERO */}
       <section className="h-screen flex items-center justify-center text-center px-4">
         <div className="backdrop-blur-2xl bg-white/5 border border-white/10 p-12 rounded-3xl shadow-2xl">
-
-          <h1 className="text-4xl md:text-6xl font-bold tracking-widest">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-widest">
             {title}
           </h1>
 
           <p className="mt-4 text-gray-300">
-            A cinematic digital identity experience
+            Next Level Game UI Experience
           </p>
-
-          <div className="mt-10 flex gap-4 justify-center">
-            <button onClick={() => scrollTo("video")} className="px-6 py-3 bg-white text-black rounded-full">
-              Enter
-            </button>
-
-            <button onClick={() => scrollTo("gallery")} className="px-6 py-3 border border-white/20 rounded-full">
-              Explore
-            </button>
-
-            <button onClick={() => scrollTo("games")} className="px-6 py-3 border border-purple-400 rounded-full">
-              Games
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* VIDEO */}
-      <section id="video" className="py-28 flex justify-center">
-        <FadeIn>
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-3xl blur opacity-60" />
-
-            <div className="relative backdrop-blur-xl bg-black/30 p-4 rounded-3xl border border-white/10">
-              <iframe
-                src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
-                className="w-[320px] md:w-[420px] aspect-[9/16] rounded-2xl"
-              />
-            </div>
-          </div>
-        </FadeIn>
-      </section>
-
-      {/* ABOUT */}
-      <section className="py-24 text-center px-4">
-        <FadeIn>
-          <h2 className="text-3xl font-bold">Identity</h2>
-          <p className="max-w-xl mx-auto text-gray-400 mt-4">
-            This is not just a website. It is a digital presence.
-          </p>
-        </FadeIn>
-      </section>
-
-      {/* GALLERY */}
-      <section id="gallery" className="py-28 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6">
-          {galleryPhotos.map((p, i) => (
-            <FadeIn key={i}>
-              <div
-                onClick={() => {
-                  playClick();
-                  setSelectedImage(p.src);
-                }}
-                className="cursor-pointer rounded-2xl overflow-hidden"
-              >
-                <img src={p.src} className="h-72 w-full object-cover" />
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </section>
-
-      {/* GAME SECTION */}
-      <section id="games" className="py-28 text-center">
+      {/* 🎮 GAME SELECTOR */}
+      <section className="py-28 text-center px-6">
 
         {!selectedGame ? (
           <FadeIn>
-            <h2 className="text-3xl mb-10">Choose Your Game</h2>
+            <h2 className="text-3xl mb-12 tracking-widest">
+              SELECT YOUR GAME
+            </h2>
 
-            <div className="flex flex-wrap justify-center gap-6">
-              <button onClick={() => openGame("ml")} className="px-6 py-4 border rounded-xl hover:scale-105 transition">
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+
+              <div
+                onClick={() => openGame("ml")}
+                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500 to-indigo-600 hover:scale-105 transition"
+              >
                 Mobile Legends
-              </button>
+              </div>
 
-              <button onClick={() => openGame("ff")} className="px-6 py-4 border rounded-xl hover:scale-105 transition">
+              <div
+                onClick={() => openGame("ff")}
+                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-orange-500 to-red-600 hover:scale-105 transition"
+              >
                 Free Fire
-              </button>
+              </div>
 
-              <button onClick={() => openGame("roblox")} className="px-6 py-4 border rounded-xl hover:scale-105 transition">
+              <div
+                onClick={() => openGame("roblox")}
+                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500 to-pink-600 hover:scale-105 transition"
+              >
                 Roblox
-              </button>
+              </div>
+
             </div>
           </FadeIn>
         ) : (
@@ -225,14 +164,29 @@ export default function App() {
               ← Back
             </button>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 px-6">
+            <h2 className="text-2xl mb-6 tracking-widest">
+              GAME GALLERY
+            </h2>
+
+            {/* 🎮 IMAGES (ml1, ff1, roblox1) */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
               {gamePhotos[selectedGame].map((img, i) => (
-                <img
+                <div
                   key={i}
-                  src={img}
-                  className="rounded-2xl h-72 w-full object-cover"
-                />
+                  onClick={() => {
+                    playClick();
+                    setSelectedImage(img);
+                  }}
+                  className="group cursor-pointer rounded-2xl overflow-hidden border border-white/10"
+                >
+                  <img
+                    src={img}
+                    className="h-72 w-full object-cover scale-105 group-hover:scale-110 transition duration-500"
+                  />
+                </div>
               ))}
+
             </div>
           </FadeIn>
         )}
@@ -243,16 +197,19 @@ export default function App() {
       {selectedImage && (
         <div
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
         >
-          <img src={selectedImage} className="max-w-[90%] max-h-[85%]" />
+          <img
+            src={selectedImage}
+            className="max-w-[90%] max-h-[85%] rounded-2xl"
+          />
         </div>
       )}
 
       {/* FOOTER */}
       <footer className="py-20 text-center text-gray-400 tracking-widest">
-        FAJREZZZ // GOD MODE ACTIVE
+        FAJREZZZ // NEXT LEVEL SYSTEM ACTIVE
       </footer>
     </div>
   );
-    }
+  }

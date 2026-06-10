@@ -75,12 +75,18 @@ export default function App() {
           <div className="glassmorphism rounded-3xl p-4 golden-glow">
             <div className="relative pb-[56.25%] rounded-2xl overflow-hidden shadow-2xl">
               <iframe
-  src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfdi"
-  width="100%"
-  height="500"
+  src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
+  width="640"
+  height="360"
+  style={{
+    width: "100%",
+    height: "auto",
+    aspectRatio: "640 / 360"
+  }}
   allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
   allowFullScreen
-></iframe>
+  frameBorder="0"
+/>
             </div>
           </div>
         </FadeIn>

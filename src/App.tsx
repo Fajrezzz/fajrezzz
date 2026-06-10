@@ -73,18 +73,25 @@ export default function App() {
       <section id="video-section" className="py-20 px-4">
         <FadeIn className="max-w-4xl mx-auto">
           <div className="glassmorphism rounded-3xl p-4 golden-glow">
-  <div className="relative aspect-[9/16] max-w-sm mx-auto rounded-2xl overflow-hidden shadow-2xl">
+  <div
+    className="mx-auto rounded-2xl overflow-hidden shadow-2xl"
+    style={{
+      width: "100%",
+      maxWidth: "380px",
+    }}
+  >
     <iframe
       src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
-      className="absolute inset-0 w-full h-full"
+      style={{
+        width: "100%",
+        aspectRatio: "9 / 16",
+        border: "none",
+      }}
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
       allowFullScreen
-      frameBorder="0"
     />
   </div>
 </div>
-            </div>
-          </div>
         </FadeIn>
       </section>
 

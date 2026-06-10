@@ -16,52 +16,48 @@ export default function App() {
   const [tab, setTab] = useState<"watch" | "photo" | "game">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
-  // 🔥 GALLERY PRO STATE
+  // 🎬 CINEMATIC LIGHTBOX STATE
   const [preview, setPreview] = useState<string | null>(null);
-  const [previewList, setPreviewList] = useState<string[]>([]);
+  const [list, setList] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
 
-  const openPreview = (list: string[], i: number) => {
+  const open = (arr: string[], i: number) => {
     playClick();
-    setPreviewList(list);
+    setList(arr);
+    setIndex(i);
+    setPreview(arr[i]);
+  };
+
+  const next = () => {
+    const i = (index + 1) % list.length;
     setIndex(i);
     setPreview(list[i]);
   };
 
-  const next = () => {
-    const newIndex = (index + 1) % previewList.length;
-    setIndex(newIndex);
-    setPreview(previewList[newIndex]);
-  };
-
   const prev = () => {
-    const newIndex =
-      (index - 1 + previewList.length) % previewList.length;
-    setIndex(newIndex);
-    setPreview(previewList[newIndex]);
+    const i = (index - 1 + list.length) % list.length;
+    setIndex(i);
+    setPreview(list[i]);
   };
 
-  // ⌨️ keyboard support
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
+    const key = (e: KeyboardEvent) => {
       if (!preview) return;
-
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
       if (e.key === "Escape") setPreview(null);
     };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [preview, index, previewList]);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [preview, index]);
 
   return (
     <div className="min-h-screen text-white relative overflow-x-hidden">
 
-      {/* 🌌 BACKGROUND */}
+      {/* 🌌 CINEMATIC BACKGROUND */}
       <div className="fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/60 to-black/80" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.35),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.10),transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/60 to-black/90" />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-3xl" />
       </div>
 
       {/* NAV */}
@@ -98,7 +94,7 @@ export default function App() {
         </section>
       )}
 
-      {/* 📸 GALLERY PRO */}
+      {/* 📸 GALLERY CINEMATIC */}
       {tab === "photo" && (
         <section className="py-20 px-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -107,8 +103,8 @@ export default function App() {
               <img
                 key={i}
                 src={img}
-                onClick={() => openPreview(galleryPhotos, i)}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
+                onClick={() => open(galleryPhotos, i)}
+                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition duration-500"
               />
             ))}
 
@@ -116,7 +112,7 @@ export default function App() {
         </section>
       )}
 
-      {/* 🎮 GAME (still clickable) */}
+      {/* 🎮 GAME + RESTORED BACK BUTTON */}
       {tab === "game" && (
         <section className="py-20 text-center px-6">
 
@@ -137,41 +133,58 @@ export default function App() {
 
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div>
 
-              {gamePhotos[selectedGame].map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  onClick={() => openPreview(gamePhotos[selectedGame], i)}
-                  className="w-full aspect-[16/9] object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
-                />
-              ))}
+              {/* 🔙 BACK RESTORED */}
+              <button
+                onClick={() => {
+                  playClick();
+                  setSelectedGame(null);
+                }}
+                className="mb-8 px-5 py-2 border rounded-full hover:bg-white/10 transition"
+              >
+                ← Back to Games
+              </button>
 
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+                {gamePhotos[selectedGame].map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    onClick={() => open(gamePhotos[selectedGame], i)}
+                    className="w-full aspect-[16/9] object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
+                  />
+                ))}
+
+              </div>
             </div>
           )}
 
         </section>
       )}
 
-      {/* 🔥 GALLERY PRO LIGHTBOX */}
+      {/* 🔥 CINEMATIC LIGHTBOX (ULTRA MODE) */}
       {preview && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl">
+
+          {/* vignette */}
+          <div className="absolute inset-0 bg-radial-gradient opacity-40" />
 
           {/* image */}
           <img
             src={preview}
-            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl animate-pulse"
+            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl animate-[zoomIn_.25s_ease-out]"
           />
 
           {/* controls */}
-          <button onClick={prev} className="absolute left-5 text-3xl">‹</button>
-          <button onClick={next} className="absolute right-5 text-3xl">›</button>
+          <button onClick={prev} className="absolute left-6 text-4xl">‹</button>
+          <button onClick={next} className="absolute right-6 text-4xl">›</button>
 
           {/* close */}
           <button
             onClick={() => setPreview(null)}
-            className="absolute top-5 right-5 px-3 py-1 border rounded-full"
+            className="absolute top-6 right-6 px-3 py-1 border rounded-full"
           >
             ✕
           </button>

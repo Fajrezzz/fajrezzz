@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const galleryPhotos = [
-  "https://images.unsplash.com/photo-1529626455599-420b3a75a436?w=600&h=800&fit=crop",
-  "https://images.unsplash.com/photo-1518806118475-4c5c9b6c4f5c?w=600&h=800&fit=crop",
-  "https://images.unsplash.com/photo-1508264165352-25e40e306365?w=600&h=800&fit=crop",
-  "https://images.unsplash.com/photo-1507594658963-5c5d8b1b2b5c?w=600&h=800&fit=crop",
-  "https://images.unsplash.com/photo-1504703673-1172a4d4e8f5?w=600&h=800&fit=crop",
-  "https://images.unsplash.com/photo-1494831758665-7c5b1c5c5b5c?w=600&h=800&fit=crop",
+  "/foto1.jpg",
+  "/foto2.jpg",
+  "/foto3.jpg",
+  "/foto4.jpg",
+  "/foto5.jpg",
+  "/foto6.jpg",
 ];
 
 function FadeIn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -74,12 +74,9 @@ export default function App() {
         <FadeIn className="max-w-4xl mx-auto">
           <div className="glassmorphism rounded-3xl p-4 golden-glow">
             <div className="relative pb-[56.25%] rounded-2xl overflow-hidden shadow-2xl">
-              <iframe
-                src="https://www.youtube.com/embed/MLX11dz4ObY?autoplay=1&loop=1&playlist=MLX11dz4ObY"
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              <video controls width="100%">
+  <source src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd" type="video/mp4" />
+</video>
             </div>
           </div>
         </FadeIn>

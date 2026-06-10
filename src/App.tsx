@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const galleryPhotos = [
   "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg"
@@ -16,51 +16,66 @@ export default function App() {
   const [tab, setTab] = useState<"watch" | "photo" | "game">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
-  // 🎬 CINEMATIC LIGHTBOX STATE
   const [preview, setPreview] = useState<string | null>(null);
-  const [list, setList] = useState<string[]>([]);
-  const [index, setIndex] = useState(0);
 
-  const open = (arr: string[], i: number) => {
-    playClick();
-    setList(arr);
-    setIndex(i);
-    setPreview(arr[i]);
-  };
-
-  const next = () => {
-    const i = (index + 1) % list.length;
-    setIndex(i);
-    setPreview(list[i]);
-  };
-
-  const prev = () => {
-    const i = (index - 1 + list.length) % list.length;
-    setIndex(i);
-    setPreview(list[i]);
-  };
+  // 🌌 PARALLAX STATE
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      if (!preview) return;
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "Escape") setPreview(null);
+    const move = (e: MouseEvent) => {
+      setMouse({
+        x: (e.clientX / window.innerWidth - 0.5) * 2,
+        y: (e.clientY / window.innerHeight - 0.5) * 2,
+      });
     };
-    window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
-  }, [preview, index]);
+
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
 
   return (
     <div className="min-h-screen text-white relative overflow-x-hidden">
 
-      {/* 🌌 CINEMATIC BACKGROUND */}
-      <div className="fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/60 to-black/90" />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-3xl" />
+      {/* 🌌 PARALLAX BACKGROUND (FULL UPGRADE) */}
+      <div className="fixed inset-0 -z-20 overflow-hidden">
+
+        {/* base gradient */}
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${mouse.x * 10}px, ${mouse.y * 10}px)`,
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-purple-900/60 to-black/90" />
+        </div>
+
+        {/* glow layer */}
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${mouse.x * 25}px, ${mouse.y * 25}px)`,
+          }}
+        >
+          <div className="absolute top-[-120px] left-[-120px] w-[450px] h-[450px] bg-purple-500/30 blur-3xl rounded-full" />
+          <div className="absolute bottom-[-120px] right-[-120px] w-[450px] h-[450px] bg-blue-500/30 blur-3xl rounded-full" />
+        </div>
+
+        {/* particles layer */}
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${mouse.x * 40}px, ${mouse.y * 40}px)`,
+          }}
+        >
+          <div className="absolute top-[20%] left-[30%] w-2 h-2 bg-white/40 rounded-full blur-sm animate-pulse" />
+          <div className="absolute top-[60%] left-[70%] w-2 h-2 bg-blue-300/40 rounded-full blur-sm animate-pulse" />
+          <div className="absolute top-[40%] left-[80%] w-2 h-2 bg-purple-300/40 rounded-full blur-sm animate-pulse" />
+          <div className="absolute top-[75%] left-[20%] w-3 h-3 bg-white/30 rounded-full blur-sm animate-pulse" />
+        </div>
+
       </div>
 
-      {/* NAV */}
+      {/* NAVBAR */}
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center gap-4 p-4 backdrop-blur-xl bg-black/60 border-b border-white/10">
 
         <button onClick={() => { playClick(); setTab("watch"); }}
@@ -87,14 +102,14 @@ export default function App() {
         <section className="flex justify-center py-20">
           <div className="w-[90%] max-w-[420px] aspect-[9/16]">
             <iframe
-              className="w-full h-full rounded-2xl"
+              className="w-full h-full rounded-2xl border border-white/10"
               src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
             />
           </div>
         </section>
       )}
 
-      {/* 📸 GALLERY CINEMATIC */}
+      {/* 📸 PHOTO */}
       {tab === "photo" && (
         <section className="py-20 px-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -103,8 +118,11 @@ export default function App() {
               <img
                 key={i}
                 src={img}
-                onClick={() => open(galleryPhotos, i)}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition duration-500"
+                onClick={() => {
+                  playClick();
+                  setPreview(img);
+                }}
+                className="h-72 w-full object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
               />
             ))}
 
@@ -112,7 +130,7 @@ export default function App() {
         </section>
       )}
 
-      {/* 🎮 GAME + RESTORED BACK BUTTON */}
+      {/* 🎮 GAME */}
       {tab === "game" && (
         <section className="py-20 text-center px-6">
 
@@ -135,7 +153,7 @@ export default function App() {
           ) : (
             <div>
 
-              {/* 🔙 BACK RESTORED */}
+              {/* 🔙 BACK (RESTORED + SAFE) */}
               <button
                 onClick={() => {
                   playClick();
@@ -143,7 +161,7 @@ export default function App() {
                 }}
                 className="mb-8 px-5 py-2 border rounded-full hover:bg-white/10 transition"
               >
-                ← Back to Games
+                ← Back
               </button>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -152,7 +170,10 @@ export default function App() {
                   <img
                     key={i}
                     src={img}
-                    onClick={() => open(gamePhotos[selectedGame], i)}
+                    onClick={() => {
+                      playClick();
+                      setPreview(img);
+                    }}
                     className="w-full aspect-[16/9] object-cover rounded-2xl cursor-pointer hover:scale-105 transition"
                   />
                 ))}
@@ -164,34 +185,19 @@ export default function App() {
         </section>
       )}
 
-      {/* 🔥 CINEMATIC LIGHTBOX (ULTRA MODE) */}
+      {/* 🔍 LIGHTBOX */}
       {preview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl">
-
-          {/* vignette */}
-          <div className="absolute inset-0 bg-radial-gradient opacity-40" />
-
-          {/* image */}
+        <div
+          onClick={() => setPreview(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl"
+        >
           <img
             src={preview}
-            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl animate-[zoomIn_.25s_ease-out]"
+            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl"
           />
-
-          {/* controls */}
-          <button onClick={prev} className="absolute left-6 text-4xl">‹</button>
-          <button onClick={next} className="absolute right-6 text-4xl">›</button>
-
-          {/* close */}
-          <button
-            onClick={() => setPreview(null)}
-            className="absolute top-6 right-6 px-3 py-1 border rounded-full"
-          >
-            ✕
-          </button>
-
         </div>
       )}
 
     </div>
   );
-}
+        }

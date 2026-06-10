@@ -7,7 +7,7 @@ const galleryPhotos = [
 const gamePhotos: Record<string, string[]> = {
   ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
-  roblox: ["/roblox1.jpg", "/roblox2.jpg", "/roblox3.jpg"],
+  roblox: ["/roblox1.jpg", "/roblox2.jpg"],
 };
 
 const playClick = () => new Audio("/click.mp3").play();
@@ -20,8 +20,16 @@ export default function App() {
   // 🌌 PARALLAX
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  // ⚡ LOADING SCREEN
-  const [loading, setLoading] = useState(true);
+  // 🟡 FLOATING PARTICLES
+  const [particles, setParticles] = useState(
+    Array.from({ length: 12 }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      speed: 0.2 + Math.random() * 0.6,
+      dirX: Math.random() > 0.5 ? 1 : -1,
+      dirY: Math.random() > 0.5 ? 1 : -1,
+    }))
+  );
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
@@ -33,29 +41,37 @@ export default function App() {
 
     window.addEventListener("mousemove", move);
 
-    setTimeout(() => setLoading(false), 1200);
+    // particle animation loop
+    const interval = setInterval(() => {
+      setParticles((prev) =>
+        prev.map((p) => {
+          let nx = p.x + p.dirX * p.speed;
+          let ny = p.y + p.dirY * p.speed;
 
-    return () => window.removeEventListener("mousemove", move);
+          if (nx > 100 || nx < 0) p.dirX *= -1;
+          if (ny > 100 || ny < 0) p.dirY *= -1;
+
+          return {
+            ...p,
+            x: Math.max(0, Math.min(100, nx)),
+            y: Math.max(0, Math.min(100, ny)),
+            dirX: p.dirX,
+            dirY: p.dirY,
+          };
+        })
+      );
+    }, 40);
+
+    return () => {
+      window.removeEventListener("mousemove", move);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
     <div className="min-h-screen text-white relative overflow-x-hidden scroll-smooth">
 
-      {/* ⚡ LOADING INTRO */}
-      {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="text-center animate-pulse">
-            <div className="text-xl tracking-widest">
-              FAJREZZZ EXPERIENCE
-            </div>
-            <div className="text-sm text-white/50 mt-2">
-              loading...
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🌌 BACKGROUND (CLEAN PARALLAX) */}
+      {/* 🌌 BACKGROUND */}
       <div className="fixed inset-0 -z-20 overflow-hidden">
 
         {/* base */}
@@ -79,47 +95,44 @@ export default function App() {
           <div className="absolute bottom-[-120px] right-[-120px] w-[350px] h-[350px] bg-blue-500/20 blur-3xl rounded-full" />
         </div>
 
-        {/* particles */}
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            transform: `translate(${mouse.x * 20}px, ${mouse.y * 20}px)`,
-          }}
-        >
-          <div className="absolute top-[25%] left-[35%] w-1.5 h-1.5 bg-white/40 rounded-full blur-sm" />
-          <div className="absolute top-[65%] left-[70%] w-1 h-1 bg-blue-300/40 rounded-full blur-sm" />
-          <div className="absolute top-[45%] left-[80%] w-1 h-1 bg-indigo-300/40 rounded-full blur-sm" />
+        {/* 🟡 MOVING PARTICLES */}
+        <div className="absolute inset-0">
+          {particles.map((p, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-white/40 rounded-full blur-sm"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                transform: `translate(${mouse.x * 10}px, ${mouse.y * 10}px)`,
+              }}
+            />
+          ))}
         </div>
 
       </div>
 
-      {/* NAVBAR (GLASS UI) */}
+      {/* NAVBAR */}
       <div className="fixed top-0 left-0 right-0 z-40 flex justify-center gap-4 p-4 backdrop-blur-xl bg-white/5 border-b border-white/10">
 
-        <button
-          onClick={() => { playClick(); setActiveTab("watch"); }}
+        <button onClick={() => { playClick(); setActiveTab("watch"); }}
           className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
             activeTab === "watch" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+          }`}>
           Watch
         </button>
 
-        <button
-          onClick={() => { playClick(); setActiveTab("photo"); }}
+        <button onClick={() => { playClick(); setActiveTab("photo"); }}
           className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
             activeTab === "photo" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+          }`}>
           Experience
         </button>
 
-        <button
-          onClick={() => { playClick(); setActiveTab("game"); }}
+        <button onClick={() => { playClick(); setActiveTab("game"); }}
           className={`px-4 py-2 rounded-full border transition hover:scale-105 ${
             activeTab === "game" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+          }`}>
           Games
         </button>
 
@@ -129,31 +142,43 @@ export default function App() {
 
       {/* 🎥 WATCH */}
       {activeTab === "watch" && (
-        <section className="flex justify-center py-24 scroll-mt-24">
-          <div className="w-[90%] max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-            <iframe
-              className="w-full h-full"
-              src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
-            />
+        <section className="flex justify-center py-24">
+          <div className="relative w-[90%] max-w-[420px] aspect-[9/16]">
+
+            {/* 🟡 GOLD GLOW */}
+            <div className="absolute -inset-2 bg-yellow-400/20 blur-2xl rounded-3xl" />
+
+            <div className="relative rounded-2xl overflow-hidden border border-white/10">
+              <iframe
+                className="w-full h-full"
+                src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
+              />
+            </div>
           </div>
         </section>
       )}
 
       {/* 📸 EXPERIENCE */}
       {activeTab === "photo" && (
-        <section className="py-24 px-6 scroll-mt-24">
+        <section className="py-24 px-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
             {galleryPhotos.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                onClick={() => {
-                  playClick();
-                  setPreview(img);
-                }}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer border border-white/10 hover:scale-105 hover:-translate-y-1 transition duration-300"
-              />
+              <div key={i} className="relative group">
+
+                {/* 🟡 GOLD GLOW */}
+                <div className="absolute -inset-1 bg-yellow-400/10 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition" />
+
+                <img
+                  src={img}
+                  onClick={() => {
+                    playClick();
+                    setPreview(img);
+                  }}
+                  className="relative h-72 w-full object-cover rounded-2xl cursor-pointer border border-white/10 hover:scale-105 hover:-translate-y-1 transition duration-300"
+                />
+
+              </div>
             ))}
 
           </div>
@@ -162,20 +187,23 @@ export default function App() {
 
       {/* 🎮 GAME */}
       {activeTab === "game" && (
-        <section className="py-24 text-center px-6 scroll-mt-24">
+        <section className="py-24 text-center px-6">
 
           {!selectedGame ? (
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
 
-              <div onClick={() => setSelectedGame("ml")} className="p-6 bg-blue-600 rounded-2xl cursor-pointer hover:scale-105 transition">
+              <div onClick={() => setSelectedGame("ml")}
+                className="p-6 bg-blue-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Mobile Legends
               </div>
 
-              <div onClick={() => setSelectedGame("ff")} className="p-6 bg-red-600 rounded-2xl cursor-pointer hover:scale-105 transition">
+              <div onClick={() => setSelectedGame("ff")}
+                className="p-6 bg-red-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Free Fire
               </div>
 
-              <div onClick={() => setSelectedGame("roblox")} className="p-6 bg-purple-600 rounded-2xl cursor-pointer hover:scale-105 transition">
+              <div onClick={() => setSelectedGame("roblox")}
+                className="p-6 bg-purple-600 rounded-2xl cursor-pointer hover:scale-105 transition">
                 Roblox
               </div>
 
@@ -218,11 +246,11 @@ export default function App() {
       {preview && (
         <div
           onClick={() => setPreview(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
         >
           <img
             src={preview}
-            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl animate-[fadeIn_0.2s_ease-out]"
+            className="max-w-[90%] max-h-[80%] rounded-2xl shadow-2xl"
           />
         </div>
       )}

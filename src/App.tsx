@@ -7,7 +7,7 @@ const galleryPhotos = [
 const gamePhotos: Record<string, string[]> = {
   ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
-  roblox: ["/roblox1.jpg", "/roblox2.jpg", "/roblox3.jpg"],
+  roblox: ["/roblox1.jpg", "/roblox2.jpg"],
 };
 
 const playClick = () => new Audio("/click.mp3").play();
@@ -16,45 +16,41 @@ export default function App() {
   const [tab, setTab] = useState<"watch" | "photo" | "game">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
-  return (
-    <div className="min-h-screen text-white bg-black">
+  // 🔥 NEW: LIGHTBOX STATE
+  const [preview, setPreview] = useState<string | null>(null);
 
-      {/* 🔥 FIXED TOP TAB BAR */}
+  return (
+    <div className="min-h-screen text-white relative overflow-x-hidden">
+
+      {/* 🌌 BACKGROUND (UNCHANGED) */}
+      <div className="fixed inset-0 -z-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/60 to-black/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.35),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.10),transparent_60%)]" />
+      </div>
+
+      {/* NAV */}
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center gap-4 p-4 backdrop-blur-xl bg-black/60 border-b border-white/10">
 
-        <button
-          onClick={() => { playClick(); setTab("watch"); }}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "watch" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+        <button onClick={() => { playClick(); setTab("watch"); }}
+          className={`px-4 py-2 rounded-full border ${tab === "watch" ? "bg-white text-black" : "border-white/20"}`}>
           Watch
         </button>
 
-        <button
-          onClick={() => { playClick(); setTab("photo"); }}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "photo" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+        <button onClick={() => { playClick(); setTab("photo"); }}
+          className={`px-4 py-2 rounded-full border ${tab === "photo" ? "bg-white text-black" : "border-white/20"}`}>
           Experience
         </button>
 
-        <button
-          onClick={() => { playClick(); setTab("game"); }}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "game" ? "bg-white text-black" : "border-white/20"
-          }`}
-        >
+        <button onClick={() => { playClick(); setTab("game"); }}
+          className={`px-4 py-2 rounded-full border ${tab === "game" ? "bg-white text-black" : "border-white/20"}`}>
           Games
         </button>
 
       </div>
 
-      {/* HERO SPACER */}
       <div className="h-20" />
 
-      {/* 🎥 WATCH TAB */}
+      {/* 🎥 WATCH */}
       {tab === "watch" && (
         <section className="flex justify-center py-20">
           <div className="w-[90%] max-w-[420px] aspect-[9/16]">
@@ -66,7 +62,7 @@ export default function App() {
         </section>
       )}
 
-      {/* 📸 PHOTO TAB */}
+      {/* 📸 GALLERY (CLICKABLE) */}
       {tab === "photo" && (
         <section className="py-20 px-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -75,7 +71,11 @@ export default function App() {
               <img
                 key={i}
                 src={img}
-                className="h-72 w-full object-cover rounded-2xl hover:scale-105 transition"
+                onClick={() => {
+                  playClick();
+                  setPreview(img);
+                }}
+                className="h-72 w-full object-cover rounded-2xl hover:scale-105 transition cursor-pointer"
               />
             ))}
 
@@ -83,7 +83,7 @@ export default function App() {
         </section>
       )}
 
-      {/* 🎮 GAME TAB */}
+      {/* 🎮 GAME (16:9 FIX + CLICKABLE) */}
       {tab === "game" && (
         <section className="py-20 text-center px-6">
 
@@ -108,20 +108,51 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div>
 
-              {gamePhotos[selectedGame].map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  className="h-72 w-full object-cover rounded-2xl"
-                />
-              ))}
+              <button
+                onClick={() => {
+                  playClick();
+                  setSelectedGame(null);
+                }}
+                className="mb-8 px-4 py-2 border rounded-full"
+              >
+                ← Back
+              </button>
 
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+                {gamePhotos[selectedGame].map((img, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      playClick();
+                      setPreview(img);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <img
+                      src={img}
+                      className="w-full aspect-[16/9] object-cover rounded-2xl hover:scale-105 transition"
+                    />
+                  </div>
+                ))}
+
+              </div>
             </div>
           )}
 
         </section>
+      )}
+
+      {/* 🔍 LIGHTBOX (NEW) */}
+      {preview && (
+        <div
+          onClick={() => setPreview(null)}
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+        >
+          <img src={preview} className="max-w-[90%] max-h-[85%] rounded-2xl" />
+        </div>
       )}
 
     </div>

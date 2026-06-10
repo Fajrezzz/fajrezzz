@@ -9,24 +9,23 @@ const galleryPhotos = [
   { src: "/6.jpg", caption: "Moment 6" },
 ];
 
-// 🎮 GAME SYSTEM (UPDATED NAMING: ml1, ff1, roblox1)
+// 🎮 GAME SYSTEM
 const gamePhotos: Record<string, string[]> = {
   ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
-  roblox: ["/roblox1.jpg", "/roblox2.jpg", "/roblox3.jpg"],
+  roblox: ["/roblox1.jpg", "/roblox2.jpg"],
 };
 
-// 🔊 sound click
+// 🔊 sound
 const playClick = () => {
   const audio = new Audio("/click.mp3");
   audio.volume = 0.5;
   audio.play();
 };
 
-// typing effect
+// typing
 function useTyping(text: string, speed = 55) {
   const [t, setT] = useState("");
-
   useEffect(() => {
     let i = 0;
     const id = setInterval(() => {
@@ -34,14 +33,12 @@ function useTyping(text: string, speed = 55) {
       i++;
       if (i > text.length) clearInterval(id);
     }, speed);
-
     return () => clearInterval(id);
   }, [text]);
-
   return t;
 }
 
-// fade in animation
+// fade in
 function FadeIn({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
@@ -96,29 +93,19 @@ export default function App() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.25),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.25),transparent_55%)]" />
       </div>
 
-      {/* ENTER ANIMATION */}
-      {entering && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-pulse">
-          <div className="text-xl tracking-widest opacity-80">
-            ENTERING GAME...
-          </div>
-        </div>
-      )}
-
       {/* HERO */}
       <section className="h-screen flex items-center justify-center text-center px-4">
         <div className="backdrop-blur-2xl bg-white/5 border border-white/10 p-12 rounded-3xl shadow-2xl">
           <h1 className="text-5xl md:text-6xl font-bold tracking-widest">
             {title}
           </h1>
-
           <p className="mt-4 text-gray-300">
             Next Level Game UI Experience
           </p>
         </div>
       </section>
 
-      {/* 🎮 GAME SELECTOR */}
+      {/* 🎮 GAME SECTION */}
       <section className="py-28 text-center px-6">
 
         {!selectedGame ? (
@@ -131,21 +118,21 @@ export default function App() {
 
               <div
                 onClick={() => openGame("ml")}
-                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500 to-indigo-600 hover:scale-105 transition"
+                className="cursor-pointer p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 hover:scale-105 transition"
               >
                 Mobile Legends
               </div>
 
               <div
                 onClick={() => openGame("ff")}
-                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-orange-500 to-red-600 hover:scale-105 transition"
+                className="cursor-pointer p-6 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 hover:scale-105 transition"
               >
                 Free Fire
               </div>
 
               <div
                 onClick={() => openGame("roblox")}
-                className="cursor-pointer p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500 to-pink-600 hover:scale-105 transition"
+                className="cursor-pointer p-6 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 hover:scale-105 transition"
               >
                 Roblox
               </div>
@@ -164,12 +151,8 @@ export default function App() {
               ← Back
             </button>
 
-            <h2 className="text-2xl mb-6 tracking-widest">
-              GAME GALLERY
-            </h2>
-
-            {/* 🎮 IMAGES (ml1, ff1, roblox1) */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* 🎮 16:9 GAME GRID UPGRADE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
 
               {gamePhotos[selectedGame].map((img, i) => (
                 <div
@@ -178,12 +161,17 @@ export default function App() {
                     playClick();
                     setSelectedImage(img);
                   }}
-                  className="group cursor-pointer rounded-2xl overflow-hidden border border-white/10"
+                  className="cursor-pointer rounded-2xl overflow-hidden border border-white/10 group"
                 >
-                  <img
-                    src={img}
-                    className="h-72 w-full object-cover scale-105 group-hover:scale-110 transition duration-500"
-                  />
+
+                  {/* 🔥 16:9 FIX */}
+                  <div className="relative w-full aspect-video">
+                    <img
+                      src={img}
+                      className="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-110 transition duration-500"
+                    />
+                  </div>
+
                 </div>
               ))}
 
@@ -208,8 +196,8 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="py-20 text-center text-gray-400 tracking-widest">
-        FAJREZZZ // NEXT LEVEL SYSTEM ACTIVE
+        FAJREZZZ // DIGITAL EXPERIENCE ACTIVE
       </footer>
     </div>
   );
-  }
+}

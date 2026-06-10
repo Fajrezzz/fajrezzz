@@ -73,20 +73,16 @@ export default function App() {
       <section id="video-section" className="py-20 px-4">
         <FadeIn className="max-w-4xl mx-auto">
           <div className="glassmorphism rounded-3xl p-4 golden-glow">
-            <div className="relative pb-[56.25%] rounded-2xl overflow-hidden shadow-2xl">
-              <iframe
-  src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
-  width="640"
-  height="360"
-  style={{
-    width: "100%",
-    height: "auto",
-    aspectRatio: "640 / 360"
-  }}
-  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-  allowFullScreen
-  frameBorder="0"
-/>
+  <div className="relative aspect-[9/16] max-w-sm mx-auto rounded-2xl overflow-hidden shadow-2xl">
+    <iframe
+      src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
+      className="absolute inset-0 w-full h-full"
+      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+      allowFullScreen
+      frameBorder="0"
+    />
+  </div>
+</div>
             </div>
           </div>
         </FadeIn>

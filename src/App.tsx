@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 
 const galleryPhotos = [
-  "/1.jpg",
-  "/2.jpg",
-  "/3.jpg",
-  "/4.jpg",
-  "/5.jpg",
-  "/6.jpg",
+  { src: "/1.jpg", caption: "Moment 1" },
+  { src: "/2.jpg", caption: "Moment 2" },
+  { src: "/3.jpg", caption: "Moment 3" },
+  { src: "/4.jpg", caption: "Moment 4" },
+  { src: "/5.jpg", caption: "Moment 5" },
+  { src: "/6.jpg", caption: "Moment 6" },
 ];
 
-function FadeIn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+// Fade animation component
+function FadeIn({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -23,6 +30,7 @@ function FadeIn({ children, className = "" }: { children: React.ReactNode; class
       },
       { threshold: 0.1 }
     );
+
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
@@ -40,86 +48,104 @@ function FadeIn({ children, className = "" }: { children: React.ReactNode; class
 }
 
 export default function App() {
+  const [selectedImage, setSelectedImage] = useState<null | string>(null);
+
   const scrollToVideo = () => {
-    document.getElementById("video-section")?.scrollIntoView({ behavior: "smooth" });
+    document
+      .getElementById("video-section")
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="relative bg-black text-white overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center animate-zoom-bg"
-          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
-        >
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
-        </div>
+    <div className="bg-black text-white min-h-screen overflow-x-hidden">
 
-        <div className="relative z-10 text-center px-4 animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-gold drop-shadow-2xl">
-            FAJREZZZ FOR YOU <span className="text-red-500">❤️</span>
+      {/* HERO */}
+      <section className="h-screen flex flex-col items-center justify-center text-center relative">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-black/70" />
+
+        <div className="relative z-10">
+          <h1 className="text-5xl md:text-7xl font-bold">
+            FAJREZZZ <span className="text-red-500">❤️</span>
           </h1>
+
           <button
             onClick={scrollToVideo}
-            className="mt-12 px-8 py-4 bg-gold text-black font-semibold rounded-full text-lg hover:scale-105 transition-transform duration-300 shadow-lg shadow-yellow-500/30"
+            className="mt-10 px-6 py-3 bg-white text-black rounded-full font-semibold hover:scale-105 transition"
           >
             Watch Video
           </button>
         </div>
       </section>
 
-      {/* Video Section */}
-      <section id="video-section" className="py-20 px-4">
-        <FadeIn className="max-w-4xl mx-auto">
-          <div className="glassmorphism rounded-3xl p-4 golden-glow">
-  <div
-    className="mx-auto rounded-2xl overflow-hidden shadow-2xl"
-    style={{
-      width: "100%",
-      maxWidth: "380px",
-    }}
-  >
-    <iframe
-      src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
-      style={{
-        width: "100%",
-        aspectRatio: "9 / 16",
-        border: "none",
-      }}
-      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-      allowFullScreen
-    />
-  </div>
-</div>
+      {/* VIDEO */}
+      <section id="video-section" className="py-20 flex justify-center">
+        <FadeIn>
+          <div className="rounded-2xl overflow-hidden shadow-2xl w-[320px] md:w-[380px]">
+            <iframe
+              src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd"
+              className="w-full aspect-[9/16]"
+              allow="autoplay; fullscreen"
+            />
+          </div>
         </FadeIn>
       </section>
 
-      {/* Photo Gallery Section */}
+      {/* ABOUT */}
+      <section className="py-16 text-center px-4">
+        <FadeIn>
+          <h2 className="text-3xl font-bold mb-4 text-yellow-400">
+            About Me
+          </h2>
+          <p className="max-w-xl mx-auto text-gray-300">
+            Just a simple person who loves capturing moments and building cool
+            things with code.
+          </p>
+        </FadeIn>
+      </section>
+
+      {/* GALLERY */}
       <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {galleryPhotos.map((photo, index) => (
-              <FadeIn key={index}>
-                <div className="group relative overflow-hidden rounded-2xl shadow-xl transition-transform duration-500 hover:scale-[1.03]">
-                  <img
-                    src={photo}
-                    alt={`Photo ${index + 1}`}
-                    loading="lazy"
-                    className="w-full h-56 md:h-80 object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+          {galleryPhotos.map((photo, i) => (
+            <FadeIn key={i}>
+              <div
+                onClick={() => setSelectedImage(photo.src)}
+                className="relative cursor-pointer overflow-hidden rounded-xl group"
+              >
+                <img
+                  src={photo.src}
+                  className="w-full h-60 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 opacity-0 group-hover:opacity-100 transition">
+                  <p className="text-sm">{photo.caption}</p>
                 </div>
-              </FadeIn>
-            ))}
-          </div>
+              </div>
+            </FadeIn>
+          ))}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 text-center">
-        <p className="text-xl font-semibold text-gold">
-          FAJREZZZ <span className="text-red-500">❤️</span>
-        </p>
+      {/* LIGHTBOX */}
+      {selectedImage && (
+        <div
+          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+        >
+          <img
+            src={selectedImage}
+            className="max-w-[90%] max-h-[80%] rounded-xl"
+          />
+        </div>
+      )}
+
+      {/* FOOTER */}
+      <footer className="py-10 text-center text-gray-400">
+        FAJREZZZ ❤️
       </footer>
     </div>
   );

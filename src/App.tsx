@@ -116,8 +116,8 @@ function CursorGlow() {
         width: 20,
         height: 20,
         borderRadius: "50%",
-        background: "rgba(139,92,246,0.6)",
-        boxShadow: "0 0 20px 8px rgba(139,92,246,0.5)",
+        background: "rgba(0, 255, 200, 0.6)",
+        boxShadow: "0 0 20px 8px rgba(0, 255, 200, 0.5)",
         opacity: visible ? 1 : 0,
       }}
     />
@@ -143,77 +143,10 @@ function GalleryImage({ src, className }: { src: string; className?: string }) {
   );
 }
 
-// Shooting star component
-function ShootingStars() {
-  const [stars, setStars] = useState<{ id: number; top: number; left: number; delay: number }[]>([]);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const id = Date.now();
-      setStars(prev => [...prev, { id, top: Math.random() * 60, left: Math.random() * 80, delay: 0 }]);
-      setTimeout(() => {
-        setStars(prev => prev.filter(s => s.id !== id));
-      }, 1200);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-  return (
-    <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
-      {stars.map(s => (
-        <div
-          key={s.id}
-          style={{
-            position: "absolute",
-            top: `${s.top}%`,
-            left: `${s.left}%`,
-            width: "2px",
-            height: "80px",
-            background: "linear-gradient(to top, transparent, #fff, #c4b5fd)",
-            transform: "rotate(-45deg)",
-            animation: `shootingStar 1.2s ease-out forwards ${s.delay}s`,
-            opacity: 0.8,
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes shootingStar {
-          0% { transform: rotate(-45deg) translateX(0); opacity: 0.8; }
-          100% { transform: rotate(-45deg) translateX(-300px) translateY(300px); opacity: 0; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// Audio visualizer equalizer
-function Equalizer({ active }: { active: boolean }) {
-  return (
-    <div className="flex justify-center items-end gap-1 h-8 mt-1">
-      {[0,1,2,3,4].map(i => (
-        <div
-          key={i}
-          className="w-1.5 rounded-full bg-purple-400"
-          style={{
-            height: active ? `${12 + Math.sin(i * 1.2) * 8}px` : "4px",
-            transition: "height 0.2s ease",
-            animation: active ? `equalizer 0.8s ease-in-out infinite alternate ${i * 0.1}s` : "none",
-            boxShadow: "0 0 6px #a855f7",
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes equalizer {
-          0% { height: 6px; }
-          100% { height: 24px; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
-      {[...Array(8)].map((_, i) => (
+      {[...Array(6)].map((_, i) => (
         <div
           key={i}
           style={{
@@ -223,15 +156,15 @@ function Particles() {
             width: 2,
             height: 2,
             borderRadius: "50%",
-            background: "rgba(255,255,255,0.2)",
+            background: "rgba(255,255,255,0.15)",
             animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out infinite alternate`,
           }}
         />
       ))}
       <style>{`
         @keyframes particleFloat {
-          from { transform: translateY(0px); opacity: 0.3; }
-          to { transform: translateY(-20px); opacity: 0.7; }
+          from { transform: translateY(0px); opacity: 0.2; }
+          to { transform: translateY(-15px); opacity: 0.5; }
         }
       `}</style>
     </div>
@@ -271,7 +204,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // --- MUSIC STATE ---
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
   const [isMusicOn, setIsMusicOn] = useState(false);
 
@@ -327,13 +259,8 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  const getGradient = () => {
-    const h = getWIBHour();
-    if (h >= 5 && h < 11) return "linear-gradient(135deg, #ffd6a5, #f9c8e8, #b8c0ff)";
-    if (h >= 11 && h < 15) return "linear-gradient(135deg, #74ebd5, #9face6, #6a82fb)";
-    if (h >= 15 && h < 18) return "linear-gradient(135deg, #fbc2eb, #a18cd1, #fad0c4)";
-    return "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
-  };
+  // BACKGROUND LEMBUT CYAN-HIJAU-KUNING (tidak berat, tanpa animasi aurora)
+  const mainBg = "linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
 
   useEffect(() => {
     const visited = localStorage.getItem("fajrez_visited");
@@ -500,15 +427,6 @@ export default function App() {
     `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
 
   const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
-  const mainBg = getGradient();
-
-  // Aurora colors
-  const auroraColors = [
-    "rgba(99,102,241,0.15)",
-    "rgba(139,92,246,0.1)",
-    "rgba(244,114,182,0.08)",
-    "rgba(99,102,241,0.12)",
-  ];
 
   return (
     <div
@@ -523,33 +441,7 @@ export default function App() {
     >
       {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
 
-      {/* Aurora Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {auroraColors.map((color, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              top: `${10 + i * 25}%`,
-              left: `${5 + i * 20}%`,
-              width: "60vw",
-              height: "60vw",
-              background: color,
-              filter: "blur(60px)",
-              animation: `auroraFloat ${10 + i * 3}s ease-in-out infinite alternate`,
-              opacity: 0.7,
-            }}
-          />
-        ))}
-        <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
-        <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
-      </div>
-
       <style>{`
-        @keyframes auroraFloat {
-          0% { transform: translateY(0px) translateX(0px) scale(1); }
-          100% { transform: translateY(-20px) translateX(10px) scale(1.05); }
-        }
         @keyframes loadbar { from { width: 0%; } to { width: 100%; } }
         @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -558,23 +450,19 @@ export default function App() {
         @keyframes floatUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glowPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         @keyframes borderShimmer {
-          0% { border-color: rgba(99,102,241,0.3); box-shadow: 0 0 12px rgba(99,102,241,0.2); }
-          50% { border-color: rgba(139,92,246,0.8); box-shadow: 0 0 24px rgba(139,92,246,0.4); }
-          100% { border-color: rgba(99,102,241,0.3); box-shadow: 0 0 12px rgba(99,102,241,0.2); }
+          0% { border-color: rgba(0,255,200,0.3); box-shadow: 0 0 12px rgba(0,255,200,0.2); }
+          50% { border-color: rgba(0,255,200,0.8); box-shadow: 0 0 24px rgba(0,255,200,0.4); }
+          100% { border-color: rgba(0,255,200,0.3); box-shadow: 0 0 12px rgba(0,255,200,0.2); }
         }
         @keyframes rgbBorder {
-          0% { border-color: #ff0080; box-shadow: 0 0 15px #ff0080; }
-          33% { border-color: #00ff80; box-shadow: 0 0 15px #00ff80; }
-          66% { border-color: #0080ff; box-shadow: 0 0 15px #0080ff; }
-          100% { border-color: #ff0080; box-shadow: 0 0 15px #ff0080; }
+          0% { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
+          33% { border-color: #ccff00; box-shadow: 0 0 15px #ccff00; }
+          66% { border-color: #00ccff; box-shadow: 0 0 15px #00ccff; }
+          100% { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
         }
         @keyframes avatarGlow {
-          0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 40px rgba(99,102,241,0.2); }
-          50% { box-shadow: 0 0 30px rgba(139,92,246,0.6), 0 0 60px rgba(139,92,246,0.3); }
-        }
-        @keyframes conicRotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0%, 100% { box-shadow: 0 0 20px rgba(0,255,200,0.4), 0 0 40px rgba(0,255,200,0.2); }
+          50% { box-shadow: 0 0 30px rgba(0,255,200,0.6), 0 0 60px rgba(0,255,200,0.3); }
         }
         @keyframes cardIn {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
@@ -616,21 +504,12 @@ export default function App() {
         .glow-text { animation: glowPulse 2.5s ease-in-out infinite; }
         .btn-shimmer { animation: borderShimmer 2.5s ease-in-out infinite; }
         .avatar-glow { animation: avatarGlow 3s ease-in-out infinite; }
-        .conic-avatar {
-          position: absolute;
-          inset: -6px;
-          border-radius: 50%;
-          background: conic-gradient(from 0deg, #7c3aed, #ec4899, #3b82f6, #7c3aed);
-          animation: conicRotate 4s linear infinite;
-          filter: blur(10px);
-          opacity: 0.8;
-        }
         .card-in-1 { animation: cardIn 0.5s ease-out 0.1s both; }
         .card-in-2 { animation: cardIn 0.5s ease-out 0.25s both; }
         .card-in-3 { animation: cardIn 0.5s ease-out 0.4s both; }
         .card-in-4 { animation: cardIn 0.5s ease-out 0.55s both; }
         .shimmer-text {
-          background: linear-gradient(90deg, #818cf8 0%, #c4b5fd 40%, #ffffff 50%, #c4b5fd 60%, #818cf8 100%);
+          background: linear-gradient(90deg, #34d399 0%, #facc15 40%, #ffffff 50%, #facc15 60%, #34d399 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -639,31 +518,31 @@ export default function App() {
         .shake { animation: shake 0.5s ease-out; }
         .lock-pulse { animation: lockPulse 2s ease-in-out infinite; }
         .rgb-border {
-          border: 3px solid #ff0080;
+          border: 3px solid #00ffcc;
           animation: rgbBorder 4s linear infinite;
           transition: transform 0.3s ease;
         }
         .rgb-border:active { transform: scale(0.96); }
         .glass-card {
-          background: rgba(255, 255, 255, 0.06);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 1.5rem;
-          box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05);
+          box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
         }
         .glass-nav {
-          background: rgba(15,12,41,0.7);
+          background: rgba(10, 30, 25, 0.7);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border-top: 1px solid rgba(255,255,255,0.08);
+          border-top: 1px solid rgba(255,255,255,0.1);
         }
         .nav-btn-circle {
           width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center;
           font-size: 20px; cursor: pointer;
-          background: rgba(99,102,241,0.15);
-          border: 1px solid rgba(99,102,241,0.4);
+          background: rgba(0,255,200,0.1);
+          border: 1px solid rgba(0,255,200,0.4);
           color: white;
           transition: background 0.2s, transform 0.15s;
         }
@@ -675,14 +554,19 @@ export default function App() {
         }
         .social-card:hover {
           transform: scale(1.02);
-          box-shadow: 0 0 25px rgba(139,92,246,0.5), 0 0 45px rgba(99,102,241,0.3);
+          box-shadow: 0 0 20px rgba(0,255,200,0.4);
         }
         .social-card:active {
           transform: scale(0.97);
         }
       `}</style>
 
-      <ShootingStars />
+      {/* Latar belakang statis sederhana tanpa animasi berat */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute rounded-full" style={{ top: "-10%", left: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(0,255,200,0.08) 0%, transparent 70%)" }} />
+        <div className="absolute rounded-full" style={{ bottom: "-10%", right: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)" }} />
+      </div>
+
       <Particles />
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
@@ -691,7 +575,7 @@ export default function App() {
         <div
           className="fixed inset-0 z-[100] pointer-events-none"
           style={{
-            background: "radial-gradient(circle at 30% 40%, #ffffff 0%, #ffff99 25%, #c8a2ff 50%, #6666ff 80%, transparent 100%)",
+            background: "radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",
             animation: "lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out",
           }}
         />
@@ -701,7 +585,7 @@ export default function App() {
       {stage === "intro" && (
         <div
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
-          style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
+          style={{ background: "linear-gradient(135deg, #0d3b3b, #1a5c4a, #2b6b3a)", cursor: "auto" }}
         >
           <button
             onClick={toggleMusic}
@@ -712,21 +596,21 @@ export default function App() {
           </button>
 
           <Particles />
-          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(0,255,200,0.2) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
-            <div className="float-1 text-xs tracking-[0.3em] uppercase" style={{ color: "rgba(99,102,241,0.8)" }}>welcome to</div>
+            <div className="float-1 text-xs tracking-[0.3em] uppercase" style={{ color: "rgba(0,255,200,0.8)" }}>welcome to</div>
             <div className="float-2 flex flex-col items-center gap-1">
               <div className="text-5xl font-bold tracking-widest shimmer-text">FAJREZ</div>
-              <div className="text-lg tracking-[0.5em] uppercase glow-text" style={{ color: "rgba(196,181,253,0.7)" }}>for you</div>
+              <div className="text-lg tracking-[0.5em] uppercase glow-text" style={{ color: "rgba(255,255,255,0.7)" }}>for you</div>
             </div>
-            <div className="float-2 w-20 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.8), transparent)" }} />
+            <div className="float-2 w-20 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(0,255,200,0.8), transparent)" }} />
             <div className="float-2 text-sm" style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>an experience made for you</div>
             <button
               className="float-3 btn-shimmer mt-4 px-10 py-3 rounded-full text-sm font-semibold"
-              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.4)", color: "white", letterSpacing: "0.2em" }}
+              style={{ background: "rgba(0,255,200,0.12)", border: "1px solid rgba(0,255,200,0.4)", color: "white", letterSpacing: "0.2em" }}
               onClick={enterApp}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.25)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.12)")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,255,200,0.25)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,255,200,0.12)")}
             >
               ✦ Enter ✦
             </button>
@@ -741,7 +625,7 @@ export default function App() {
             <div className="text-xl font-bold tracking-widest mb-2 shimmer-text">FAJREZZZ EXPERIENCE</div>
             <div className="text-sm text-white/50">loading...</div>
             <div className="mt-4 w-32 h-1 bg-white/10 rounded-full mx-auto overflow-hidden">
-              <div className="h-full bg-indigo-400 rounded-full" style={{ animation: "loadbar 1.2s ease-out forwards" }} />
+              <div className="h-full bg-cyan-400 rounded-full" style={{ animation: "loadbar 1.2s ease-out forwards" }} />
             </div>
           </div>
         </div>
@@ -752,7 +636,7 @@ export default function App() {
         <>
           {/* WATCH */}
           {activeTab === "watch" && (
-            <section className="anim-slideup" key="watch" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+            <section className="anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
                 <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
                   <button className="nav-btn-circle" disabled={watchIndex === 0} onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }} style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}>←</button>
@@ -774,7 +658,7 @@ export default function App() {
 
           {/* EXPERIENCE */}
           {activeTab === "photo" && (
-            <section className="py-24 px-4 anim-slideup" key="photo" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+            <section className="py-24 px-4 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
                 {galleryPhotos.map((img, i) => {
                   const key = `gallery-${i}`;
@@ -808,18 +692,18 @@ export default function App() {
 
           {/* GAME */}
           {activeTab === "game" && (
-            <section className="py-24 text-center px-4 anim-slideup" key="game" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+            <section className="py-24 text-center px-4 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               {!selectedGame ? (
                 <>
                   <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-10">
                     {[
-                      { id: "ssstik.io_1781060165448_nrirrw", glow: "rgba(250,204,21,0.2)" },
-                      { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(59,130,246,0.2)" },
-                      { id: "VID-20260611-WA0005_sjippo", glow: "rgba(139,92,246,0.2)", full: true },
+                      { id: "ssstik.io_1781060165448_nrirrw", glow: "rgba(204,255,0,0.15)" },
+                      { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(0,255,200,0.15)" },
+                      { id: "VID-20260611-WA0005_sjippo", glow: "rgba(0,255,200,0.15)", full: true },
                     ].map((v, i) => (
                       <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""} glass-card overflow-hidden`} style={{ aspectRatio: "16/9" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} />
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" onContextMenu={(e) => e.preventDefault()}>
                           <iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" />
                         </div>
                       </div>
@@ -828,9 +712,9 @@ export default function App() {
                   <p className="text-white/40 text-sm mb-4 tracking-widest uppercase">Pilih Game</p>
                   <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto">
                     {[
-                      { key: "ml", label: "Mobile Legends", color: "#2563eb" },
-                      { key: "ff", label: "Free Fire", color: "#dc2626" },
-                      { key: "roblox", label: "Roblox", color: "#7c3aed" },
+                      { key: "ml", label: "Mobile Legends", color: "#059669" },
+                      { key: "ff", label: "Free Fire", color: "#16a34a" },
+                      { key: "roblox", label: "Roblox", color: "#65a30d" },
                     ].map((g) => (
                       <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold glass-card" style={{ background: g.color, transition: "transform 0.15s ease" }}>{g.label}</div>
                     ))}
@@ -869,18 +753,14 @@ export default function App() {
 
           {/* ABOUT */}
           {activeTab === "about" && (
-            <section className="py-24 px-6 anim-slideup" key="about" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+            <section className="py-24 px-6 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
-                {/* Avatar with RGB Aura */}
                 <div className="card-in-1 relative">
-                  <div className="w-28 h-28 rounded-full relative overflow-visible avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)", boxShadow: "0 0 30px rgba(139,92,246,0.5)" }}>
-                    <div className="conic-avatar" />
-                    <img src="/1.jpg" className="w-full h-full object-cover rounded-full relative z-10" onContextMenu={(e) => e.preventDefault()} draggable={false} />
+                  <div className="w-28 h-28 rounded-full overflow-hidden avatar-glow" style={{ border: "2px solid rgba(0,255,200,0.6)" }}>
+                    <img src="/1.jpg" className="w-full h-full object-cover" onContextMenu={(e) => e.preventDefault()} draggable={false} />
                   </div>
-                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)", zIndex: 20 }} />
+                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
                 </div>
-                {/* Audio Visualizer */}
-                <Equalizer active={isMusicOn} />
                 <div className="card-in-2 text-center">
                   <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
                   <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -899,10 +779,10 @@ export default function App() {
                 </div>
 
                 <div className="card-in-2 w-full text-center px-2">
-                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>“{dailyQuote}”</p>
+                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>“{dailyQuote}”</p>
                 </div>
 
-                <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
+                <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(0,255,200,0.4), transparent)" }} />
 
                 <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
                   {[
@@ -912,7 +792,7 @@ export default function App() {
                     { label: "Visitors", value: visitorCount },
                   ].map((s) => (
                     <div key={s.label} className="rounded-2xl py-3 glass-card">
-                      <div className="text-xl font-bold" style={{ color: "#a5b4fc" }}>{s.value}</div>
+                      <div className="text-xl font-bold" style={{ color: "#34d399" }}>{s.value}</div>
                       <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
                     </div>
                   ))}
@@ -923,7 +803,7 @@ export default function App() {
                   <div className="flex flex-col gap-2">
                     <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" />
                     <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10 resize-none" />
-                    <button onClick={sendGuestbook} disabled={sending} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>{sending ? "Mengirim..." : "Kirim 💌"}</button>
+                    <button onClick={sendGuestbook} disabled={sending} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(0,255,200,0.2)", border: "1px solid rgba(0,255,200,0.4)", color: "white" }}>{sending ? "Mengirim..." : "Kirim 💌"}</button>
                   </div>
                 </div>
 
@@ -931,13 +811,13 @@ export default function App() {
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
                   <div className="flex flex-col gap-2">
                     <input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" />
-                    <button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button>
+                    <button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(0,255,200,0.3)", border: "1px solid rgba(0,255,200,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button>
                   </div>
                   {aiResponses.length > 0 && (
                     <div className="mt-3 flex flex-col gap-3">
                       {aiResponses.map((res) => (
                         <div key={res.model} className="p-3 rounded-xl glass-card">
-                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>{res.model}</div>
+                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#34d399" : res.model === "Claude" ? "#facc15" : "#00ffcc" }}>{res.model}</div>
                           <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>{res.answer}</div>
                         </div>
                       ))}
@@ -985,7 +865,7 @@ export default function App() {
 
           {/* PRIVATE */}
           {activeTab === "private" && (
-            <section className="py-24 px-6 anim-slideup" key="private" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+            <section className="py-24 px-6 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               {!privateUnlocked ? (
                 <div className="max-w-sm mx-auto flex flex-col items-center gap-6 pt-10">
                   <div className="lock-pulse" style={{ fontSize: "56px" }}>🔒</div>
@@ -996,7 +876,7 @@ export default function App() {
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
                     <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none bg-white/5 border border-white/10" style={{ fontSize: "14px" }} />
                     {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
-                    <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
+                    <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(0,255,200,0.2)", border: "1px solid rgba(0,255,200,0.4)", color: "white" }}>Unlock</button>
                   </div>
                 </div>
               ) : (
@@ -1005,8 +885,8 @@ export default function App() {
                   <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     {privateVideos.map((id, i) => (
                       <div key={i} className="relative glass-card overflow-hidden" style={{ aspectRatio: "9/16" }}>
-                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
+                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(0,255,200,0.1)", filter: "blur(20px)" }} />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" onContextMenu={(e) => e.preventDefault()}>
                           <iframe className="w-full h-full" src={videoUrl(id)} allow="autoplay; fullscreen" />
                         </div>
                       </div>
@@ -1062,8 +942,8 @@ export default function App() {
             </div>
           )}
 
-          {/* BOTTOM NAVBAR - Premium Glass */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1 glass-nav" style={{ background: "rgba(15,12,41,0.7)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          {/* BOTTOM NAVBAR - Premium Glass Cyan */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1 glass-nav">
             {[
               { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
               { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
@@ -1076,14 +956,14 @@ export default function App() {
                   display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px",
                   color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)",
                   transition: "all 0.2s ease",
-                  background: activeTab === tab ? "rgba(255,255,255,0.1)" : "transparent",
-                  boxShadow: activeTab === tab ? "0 0 15px rgba(139,92,246,0.4)" : "none",
+                  background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent",
+                  boxShadow: activeTab === tab ? "0 0 12px rgba(0,255,200,0.3)" : "none",
                   transform: activeTab === tab ? "scale(1.05)" : "scale(1)",
                 }}
               >
                 {icon}
                 <span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>
-                {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(99,102,241,1)" }} />}
+                {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(0,255,200,1)" }} />}
               </button>
             ))}
           </div>

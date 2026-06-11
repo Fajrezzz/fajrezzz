@@ -1,7 +1,19 @@
 import { useEffect, useState, useRef } from "react";
 
 const galleryPhotos = [
-  "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg"
+  "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg",
+  "/7.jpg", "/8.jpg", "/9.jpg", "/10.jpg"
+];
+
+const watchVideos = [
+  "lv_7646454190348209425_20260610025241_ul4pfd",
+  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0023_nr83xb",
+  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0027_fmko3t",
+];
+
+const privateVideos = [
+  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0033_swyohd",
+  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0035_j8slum",
 ];
 
 const gamePhotos: Record<string, string[]> = {
@@ -9,6 +21,8 @@ const gamePhotos: Record<string, string[]> = {
   ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
   roblox: ["/roblox1.jpg", "/roblox2.jpg"],
 };
+
+const PRIVATE_PASSWORD = "fajrezforyou";
 
 const playClick = () => new Audio("/click.mp3").play();
 
@@ -26,13 +40,41 @@ function SkeletonImg({ src, className }: { src: string; className?: string }) {
   );
 }
 
+function Particles() {
+  return (
+    <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
+      {[...Array(18)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${Math.random() * 3 + 1}px`,
+            height: `${Math.random() * 3 + 1}px`,
+            borderRadius: "50%",
+            background: i % 3 === 0 ? "rgba(139,92,246,0.6)" : i % 3 === 1 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.3)",
+            animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out ${Math.random() * 4}s infinite alternate`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
-  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about">("watch");
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
+  const [watchIndex, setWatchIndex] = useState(0);
+  const [privateUnlocked, setPrivateUnlocked] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordShake, setPasswordShake] = useState(false);
+  const touchStartY = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   const enterApp = () => {
@@ -62,6 +104,18 @@ export default function App() {
   const swipeNext = () => {
     if (!preview) return;
     setPreview({ ...preview, index: (preview.index + 1) % preview.photos.length });
+  };
+
+  const submitPassword = () => {
+    if (passwordInput === PRIVATE_PASSWORD) {
+      playClick();
+      setPrivateUnlocked(true);
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+      setPasswordShake(true);
+      setTimeout(() => setPasswordShake(false), 500);
+    }
   };
 
   useEffect(() => {
@@ -101,6 +155,25 @@ export default function App() {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes particleFloat {
+          from { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+          to { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+        }
+        @keyframes shimmerText {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          20% { transform: translateX(-8px); }
+          40% { transform: translateX(8px); }
+          60% { transform: translateX(-6px); }
+          80% { transform: translateX(6px); }
+        }
+        @keyframes lockPulse {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.1); opacity: 1; }
+        }
         .anim-fadescale { animation: fadeScaleIn 0.3s ease-out forwards; }
         .anim-slideup { animation: slideUp 0.35s ease-out forwards; }
         .intro-out { animation: fadeOut 0.6s ease-in forwards; }
@@ -114,6 +187,15 @@ export default function App() {
         .card-in-2 { animation: cardIn 0.5s ease-out 0.25s both; }
         .card-in-3 { animation: cardIn 0.5s ease-out 0.4s both; }
         .card-in-4 { animation: cardIn 0.5s ease-out 0.55s both; }
+        .shimmer-text {
+          background: linear-gradient(90deg, #818cf8 0%, #c4b5fd 40%, #ffffff 50%, #c4b5fd 60%, #818cf8 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shimmerText 3s linear infinite;
+        }
+        .shake { animation: shake 0.5s ease-out; }
+        .lock-pulse { animation: lockPulse 2s ease-in-out infinite; }
       `}</style>
 
       {/* 🌌 BACKGROUND GLOW */}
@@ -123,23 +205,27 @@ export default function App() {
         <div className="absolute rounded-full" style={{ top: "40%", left: "30%", width: "30vw", height: "30vw", background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)", filter: "blur(30px)" }} />
       </div>
 
+      {/* ✨ PARTICLES */}
+      <Particles />
+
       {/* ✨ INTRO */}
       {stage === "intro" && (
         <div
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
           style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" }}
         >
-          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)", filter: "blur(50px)", pointerEvents: "none" }} />
+          <Particles />
+          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(50px)", pointerEvents: "none" }} />
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
             <div className="float-1 text-xs tracking-[0.3em] uppercase" style={{ color: "rgba(99,102,241,0.8)" }}>welcome to</div>
             <div className="float-2 flex flex-col items-center gap-1">
-              <div className="text-4xl font-bold tracking-widest" style={{ background: "linear-gradient(90deg, #818cf8, #c4b5fd, #818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundSize: "200% auto" }}>FAJREZ</div>
+              <div className="text-5xl font-bold tracking-widest shimmer-text">FAJREZ</div>
               <div className="text-lg tracking-[0.5em] uppercase glow-text" style={{ color: "rgba(196,181,253,0.7)" }}>for you</div>
             </div>
-            <div className="float-2 w-16 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)" }} />
+            <div className="float-2 w-20 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.8), transparent)" }} />
             <div className="float-2 text-sm" style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>an experience made for you</div>
             <button
-              className="float-3 btn-shimmer mt-4 px-10 py-3 rounded-full text-sm font-semibold tracking-widest uppercase"
+              className="float-3 btn-shimmer mt-4 px-10 py-3 rounded-full text-sm font-semibold"
               style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.4)", color: "white", letterSpacing: "0.2em", transition: "background 0.2s ease, transform 0.15s ease" }}
               onClick={enterApp}
               onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
@@ -147,7 +233,7 @@ export default function App() {
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.25)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.12)")}
             >
-              Enter
+              ✦ Enter ✦
             </button>
           </div>
         </div>
@@ -157,7 +243,7 @@ export default function App() {
       {stage === "loading" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", animation: "fadeIn 0.3s ease-out" }}>
           <div className="text-center">
-            <div className="text-xl font-bold tracking-widest mb-2" style={{ animation: "glowPulse 1.5s ease-in-out infinite" }}>FAJREZZZ EXPERIENCE</div>
+            <div className="text-xl font-bold tracking-widest mb-2 shimmer-text">FAJREZZZ EXPERIENCE</div>
             <div className="text-sm text-white/50">loading...</div>
             <div className="mt-4 w-32 h-1 bg-white/10 rounded-full mx-auto overflow-hidden">
               <div className="h-full bg-indigo-400 rounded-full" style={{ animation: "loadbar 1.2s ease-out forwards" }} />
@@ -169,11 +255,55 @@ export default function App() {
       {/* 📱 APP */}
       {stage === "app" && (
         <>
-          {/* 🎥 WATCH */}
+          {/* 🎥 WATCH — FYP Style */}
           {activeTab === "watch" && (
-            <section className="flex justify-center py-24 anim-slideup">
-              <div className="w-[90%] max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
-                <iframe className="w-full h-full" src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd" />
+            <section className="anim-slideup">
+              <div
+                className="relative"
+                style={{ height: "100dvh" }}
+                onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
+                onTouchEnd={(e) => {
+                  if (touchStartY.current === null) return;
+                  const diff = touchStartY.current - e.changedTouches[0].clientY;
+                  if (diff > 60 && watchIndex < watchVideos.length - 1) setWatchIndex(watchIndex + 1);
+                  if (diff < -60 && watchIndex > 0) setWatchIndex(watchIndex - 1);
+                  touchStartY.current = null;
+                }}
+              >
+                <div className="flex items-center justify-center h-full px-4">
+                  <div className="w-full max-w-[360px] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl relative" style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+                    <iframe
+                      key={watchIndex}
+                      className="w-full h-full"
+                      src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${watchVideos[watchIndex]}`}
+                    />
+                  </div>
+                </div>
+
+                {/* dots indicator */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+                  {watchVideos.map((_, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setWatchIndex(i)}
+                      style={{
+                        width: "6px",
+                        height: i === watchIndex ? "20px" : "6px",
+                        borderRadius: "3px",
+                        background: i === watchIndex ? "white" : "rgba(255,255,255,0.3)",
+                        transition: "all 0.2s ease",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* swipe hint */}
+                {watchIndex === 0 && (
+                  <div className="absolute bottom-28 left-0 right-0 flex justify-center" style={{ animation: "glowPulse 2s ease-in-out infinite" }}>
+                    <div className="text-xs text-white/40 tracking-widest">swipe up for next</div>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -263,36 +393,17 @@ export default function App() {
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
-
-                {/* Avatar */}
                 <div className="card-in-1 relative">
-                  <div
-                    className="w-28 h-28 rounded-full overflow-hidden avatar-glow"
-                    style={{ border: "2px solid rgba(139,92,246,0.6)" }}
-                  >
+                  <div className="w-28 h-28 rounded-full overflow-hidden avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)" }}>
                     <img src="/1.jpg" className="w-full h-full object-cover" />
                   </div>
-                  {/* online dot */}
-                  <div
-                    className="absolute bottom-1 right-1 w-4 h-4 rounded-full"
-                    style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }}
-                  />
+                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
                 </div>
-
-                {/* Name & bio */}
                 <div className="card-in-2 text-center">
-                  <div className="text-2xl font-bold tracking-wider mb-1" style={{ background: "linear-gradient(90deg, #818cf8, #c4b5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                    fajrezzz
-                  </div>
-                  <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    "living for the moments nobody else sees."
-                  </div>
+                  <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
+                  <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>"living for the moments nobody else sees."</div>
                 </div>
-
-                {/* Divider */}
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
-
-                {/* Stats */}
                 <div className="card-in-3 w-full grid grid-cols-3 gap-3 text-center">
                   {[
                     { label: "Photos", value: galleryPhotos.length },
@@ -305,49 +416,22 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
-                {/* Sosmed */}
                 <div className="card-in-4 w-full flex flex-col gap-3">
                   {[
                     {
-                      label: "TikTok",
-                      handle: "@fajrezforyou",
-                      url: "https://tiktok.com/@fajrezforyou",
-                      color: "#000000",
-                      border: "rgba(255,255,255,0.15)",
-                      icon: (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" />
-                        </svg>
-                      ),
+                      label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou",
+                      color: "#000000", border: "rgba(255,255,255,0.15)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg>,
                     },
                     {
-                      label: "Instagram",
-                      handle: "@fajrezforyou",
-                      url: "https://instagram.com/fajrezforyou",
-                      color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)",
-                      border: "rgba(253,29,29,0.3)",
-                      icon: (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="2" y="2" width="20" height="20" rx="5" />
-                          <circle cx="12" cy="12" r="4" />
-                          <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
-                        </svg>
-                      ),
+                      label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou",
+                      color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg>,
                     },
                   ].map((s) => (
-                    <a
-                      key={s.label}
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-4 p-4 rounded-2xl"
-                      style={{
-                        background: typeof s.color === "string" && s.color.startsWith("linear") ? s.color : s.color,
-                        border: `1px solid ${s.border}`,
-                        textDecoration: "none",
-                        transition: "transform 0.15s ease, opacity 0.15s ease",
-                      }}
+                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }}
                       onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
                       onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
                     >
@@ -366,8 +450,86 @@ export default function App() {
                     </a>
                   ))}
                 </div>
-
               </div>
+            </section>
+          )}
+
+          {/* 🔒 PRIVATE */}
+          {activeTab === "private" && (
+            <section className="py-24 px-6 anim-slideup">
+              {!privateUnlocked ? (
+                <div className="max-w-sm mx-auto flex flex-col items-center gap-6 pt-10">
+
+                  {/* lock icon */}
+                  <div className="lock-pulse" style={{ fontSize: "56px" }}>🔒</div>
+
+                  <div className="text-center">
+                    <div className="text-xl font-bold tracking-wider mb-1 shimmer-text">Private</div>
+                    <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
+                  </div>
+
+                  <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
+                    <input
+                      type="password"
+                      value={passwordInput}
+                      onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }}
+                      placeholder="Password..."
+                      className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)",
+                        transition: "border 0.2s ease",
+                        fontSize: "14px",
+                      }}
+                    />
+                    {passwordError && (
+                      <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>
+                        Wrong password. Try again.
+                      </div>
+                    )}
+                    <button
+                      onClick={submitPassword}
+                      className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer"
+                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white", transition: "background 0.2s ease" }}
+                      onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+                      onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
+                      Unlock
+                    </button>
+                  </div>
+
+                </div>
+              ) : (
+                <div className="anim-slideup">
+                  <div className="text-center mb-8">
+                    <div className="text-lg font-bold shimmer-text tracking-wider">Private 🔓</div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    {privateVideos.map((id, i) => (
+                      <div key={i} className="relative" style={{ aspectRatio: "9/16" }}>
+                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+                          <iframe
+                            className="w-full h-full"
+                            src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${id}`}
+                            allow="autoplay; fullscreen"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center mt-8">
+                    <button
+                      onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }}
+                      className="px-5 py-2 rounded-full text-xs"
+                      style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
+                    >
+                      🔒 Lock again
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
@@ -399,36 +561,25 @@ export default function App() {
 
           {/* 📱 BOTTOM NAVBAR */}
           <div
-            className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-2"
+            className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1"
             style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}
           >
             {[
-              {
-                tab: "watch" as const, label: "WATCH",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>,
-              },
-              {
-                tab: "photo" as const, label: "EXPERIENCE",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>,
-              },
-              {
-                tab: "game" as const, label: "GAMES",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg>,
-              },
-              {
-                tab: "about" as const, label: "ABOUT",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>,
-              },
+              { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
+              { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
+              { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
+              { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
+              { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
             ].map(({ tab, label, icon }) => (
               <button
                 key={tab}
                 onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", padding: "6px 12px", borderRadius: "16px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
                 onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
                 onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
               >
                 {icon}
-                <span style={{ fontSize: "8px", letterSpacing: "0.08em", fontWeight: 600 }}>{label}</span>
+                <span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>
                 {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(99,102,241,1)" }} />}
               </button>
             ))}
@@ -437,4 +588,4 @@ export default function App() {
       )}
     </div>
   );
-                  }
+}

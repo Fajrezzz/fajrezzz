@@ -26,66 +26,70 @@ const PRIVATE_PASSWORD = "fajrezforyou";
 
 const playClick = () => new Audio("/click.mp3").play();
 
-// 🎉 Confetti mini (pure CSS)
+// 🎉 Confetti mini (dikurangi jumlah & durasi untuk performa)
 function Confetti() {
   return (
     <div className="fixed inset-0 pointer-events-none z-[60]">
-      {[...Array(40)].map((_, i) => (
+      {[...Array(30)].map((_, i) => (
         <div
           key={i}
           style={{
             position: "absolute",
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 8 + 4}px`,
-            height: `${Math.random() * 4 + 2}px`,
+            width: `${Math.random() * 6 + 3}px`,
+            height: `${Math.random() * 3 + 2}px`,
             background: `hsl(${Math.random() * 360}, 80%, 65%)`,
             borderRadius: "2px",
-            animation: `confettiFall ${Math.random() * 2 + 2}s ease-out ${Math.random() * 0.5}s forwards`,
+            animation: `confettiFall ${Math.random() * 1.5 + 1.5}s ease-out ${Math.random() * 0.3}s forwards`,
             transform: `rotate(${Math.random() * 360}deg)`,
+            willChange: "transform",
           }}
         />
       ))}
       <style>{`
         @keyframes confettiFall {
           0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-          100% { opacity: 0; transform: translateY(80vh) rotate(720deg); }
+          100% { opacity: 0; transform: translateY(60vh) rotate(720deg); }
         }
       `}</style>
     </div>
   );
 }
 
-// ❤️ Floating heart animation
+// ❤️ Floating heart animation (sangat ringan)
 function FloatingHeart({ x, y }: { x: number; y: number }) {
   return (
     <div
       className="fixed pointer-events-none z-[65] text-2xl"
-      style={{
-        left: x,
-        top: y,
-        animation: "heartFloat 0.8s ease-out forwards",
-      }}
+      style={{ left: x, top: y, animation: "heartFloat 0.7s ease-out forwards" }}
     >
       ❤️
       <style>{`
         @keyframes heartFloat {
           0% { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+          100% { opacity: 0; transform: translateY(-30px) scale(1.3); }
         }
       `}</style>
     </div>
   );
 }
 
-// 🕒 Flip digit dengan animasi ulang setiap detik
+// 🕒 Flip digit dengan teks putih solid + glow (bukan shimmer-text)
 function FlipDigit({ value }: { value: string }) {
   return (
-    <span className="relative inline-block w-[1.1em] h-[1.2em] text-center font-mono font-bold text-4xl shimmer-text overflow-hidden">
+    <span
+      className="relative inline-flex items-center justify-center w-[1.1em] h-[1.2em] font-mono font-bold text-4xl"
+      style={{
+        color: "white",
+        textShadow: "0 0 12px rgba(168,85,247,0.7)",
+        overflow: "hidden",
+      }}
+    >
       <span
         key={value}
         className="absolute inset-0 flex items-center justify-center"
-        style={{ animation: "flipIn 0.3s ease-out" }}
+        style={{ animation: "flipIn 0.25s ease-out" }}
       >
         {value}
       </span>
@@ -105,17 +109,17 @@ function FlipClock({ time }: { time: string }) {
     <div className="flex items-center justify-center gap-[0.15em]">
       <FlipDigit value={digits[0]} />
       <FlipDigit value={digits[1]} />
-      <span className="text-3xl mx-[0.05em]">:</span>
+      <span className="text-3xl mx-[0.05em] text-white">:</span>
       <FlipDigit value={digits[2]} />
       <FlipDigit value={digits[3]} />
-      <span className="text-3xl mx-[0.05em]">:</span>
+      <span className="text-3xl mx-[0.05em] text-white">:</span>
       <FlipDigit value={digits[4]} />
       <FlipDigit value={digits[5]} />
     </div>
   );
 }
 
-// ⌨️ Typewriter text
+// ⌨️ Typewriter text (tetap)
 function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
@@ -136,7 +140,7 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   );
 }
 
-// 🖱️ Custom cursor (desktop only)
+// 🖱️ Custom cursor (khusus desktop, beban ringan)
 function CursorGlow() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
@@ -155,7 +159,6 @@ function CursorGlow() {
     };
   }, []);
 
-  if (typeof window === "undefined") return null;
   return (
     <div
       className="fixed pointer-events-none z-[70] transition-opacity duration-200"
@@ -168,12 +171,13 @@ function CursorGlow() {
         background: "rgba(139,92,246,0.6)",
         boxShadow: "0 0 20px 8px rgba(139,92,246,0.5)",
         opacity: visible ? 1 : 0,
+        willChange: "transform",
       }}
     />
   );
 }
 
-// Image dengan proteksi + watermark
+// Image dengan proteksi + watermark (tetap)
 function ImageWithWatermark({ src, className }: { src: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -199,10 +203,11 @@ function ImageWithWatermark({ src, className }: { src: string; className?: strin
   );
 }
 
+// Particles (dikurangi & ditambah will-change)
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
-      {[...Array(18)].map((_, i) => (
+      {[...Array(12)].map((_, i) => (
         <div
           key={i}
           style={{
@@ -214,6 +219,7 @@ function Particles() {
             borderRadius: "50%",
             background: i % 3 === 0 ? "rgba(139,92,246,0.6)" : i % 3 === 1 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.3)",
             animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out ${Math.random() * 4}s infinite alternate`,
+            willChange: "transform",
           }}
         />
       ))}
@@ -288,7 +294,7 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  // 📊 Visitor counter (unik per device, pakai localStorage)
+  // 📊 Visitor counter (unik per device)
   useEffect(() => {
     const visited = localStorage.getItem("fajrez_visited");
     if (!visited) {
@@ -298,7 +304,9 @@ export default function App() {
     }
   }, []);
 
-  // 🌅 Daily quote (array puitis, ganti tiap hari)
+  const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
+
+  // 🌅 Daily quote
   const dailyQuote = (() => {
     const quotes = [
       "Dalam diam aku merakit rindu, hanya untukmu.",
@@ -314,7 +322,7 @@ export default function App() {
     return quotes[dayIndex];
   })();
 
-  // ❤️ Load liked photos from localStorage
+  // ❤️ Load liked photos
   useEffect(() => {
     const stored = localStorage.getItem("fajrez_likes");
     if (stored) setLikedPhotos(JSON.parse(stored));
@@ -326,16 +334,13 @@ export default function App() {
     if (stored) setGuestbook(JSON.parse(stored));
   }, []);
 
-  // Suka foto (double tap)
   const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent, photoKey: string) => {
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    // Tambah heart
     const id = Date.now();
     setHearts(prev => [...prev, { id, x: clientX, y: clientY }]);
-    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== id)), 800);
+    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== id)), 700);
 
-    // Tambah like count
     const current = likedPhotos[photoKey] || 0;
     const updated = { ...likedPhotos, [photoKey]: current + 1 };
     setLikedPhotos(updated);
@@ -343,11 +348,10 @@ export default function App() {
     playClick();
   };
 
-  // Guestbook submit
   const addGuestEntry = () => {
     if (!guestName.trim() || !guestMessage.trim()) return;
     const newEntry = { name: guestName.trim(), msg: guestMessage.trim() };
-    const updated = [newEntry, ...guestbook].slice(0, 20); // max 20
+    const updated = [newEntry, ...guestbook].slice(0, 20);
     setGuestbook(updated);
     localStorage.setItem("fajrez_guestbook", JSON.stringify(updated));
     setGuestName("");
@@ -362,7 +366,6 @@ export default function App() {
       setStage("loading");
       setTimeout(() => {
         setStage("app");
-        // Confetti saat pertama masuk app
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
       }, 1200);
@@ -417,14 +420,17 @@ export default function App() {
   const videoUrl = (publicId: string) =>
     `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
 
-  const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
-
   return (
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
-      style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", userSelect: "none", WebkitTouchCallout: "none", cursor: "none" }}
+      style={{
+        background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+        cursor: "none",
+      }}
     >
-      {/* 🖱️ Custom cursor (hidden on touch devices) */}
+      {/* Cursor hanya di desktop */}
       {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
 
       <style>{`
@@ -450,7 +456,7 @@ export default function App() {
         }
         @keyframes particleFloat {
           from { transform: translateY(0px) translateX(0px); opacity: 0.3; }
-          to { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+          to { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
         }
         @keyframes shimmerText {
           0% { background-position: -200% center; }
@@ -502,23 +508,16 @@ export default function App() {
         .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
       `}</style>
 
-      {/* 🌌 BACKGROUND GLOW */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {/* 🌌 BACKGROUND GLOW (GPU‑accelerated) */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ transform: "translateZ(0)" }}>
         <div className="absolute rounded-full" style={{ top: "-10%", left: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)", filter: "blur(40px)" }} />
         <div className="absolute rounded-full" style={{ bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)", filter: "blur(40px)" }} />
         <div className="absolute rounded-full" style={{ top: "40%", left: "30%", width: "30vw", height: "30vw", background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)", filter: "blur(30px)" }} />
       </div>
 
-      {/* ✨ PARTICLES */}
       <Particles />
-
-      {/* 🎉 CONFETTI */}
       {showConfetti && <Confetti />}
-
-      {/* ❤️ Floating hearts */}
-      {hearts.map(h => (
-        <FloatingHeart key={h.id} x={h.x} y={h.y} />
-      ))}
+      {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
 
       {/* ✨ INTRO */}
       {stage === "intro" && (
@@ -526,8 +525,6 @@ export default function App() {
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
           style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
         >
-          <Particles />
-          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(50px)", pointerEvents: "none" }} />
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
             <div className="float-1 text-xs tracking-[0.3em] uppercase" style={{ color: "rgba(99,102,241,0.8)" }}>welcome to</div>
             <div className="float-2 flex flex-col items-center gap-1">
@@ -538,12 +535,10 @@ export default function App() {
             <div className="float-2 text-sm" style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>an experience made for you</div>
             <button
               className="float-3 btn-shimmer mt-4 px-10 py-3 rounded-full text-sm font-semibold"
-              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.4)", color: "white", letterSpacing: "0.2em", transition: "background 0.2s ease, transform 0.15s ease" }}
+              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.4)", color: "white", letterSpacing: "0.2em" }}
               onClick={enterApp}
               onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
               onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.25)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.12)")}
             >
               ✦ Enter ✦
             </button>
@@ -572,64 +567,24 @@ export default function App() {
             <section className="anim-slideup">
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
                 <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
-                  <button
-                    className="nav-btn-circle"
-                    disabled={watchIndex === 0}
-                    onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }}
-                    style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}
-                  >
-                    ←
-                  </button>
-
-                  <div
-                    className="flex-1 rounded-2xl overflow-hidden shadow-2xl relative"
-                    style={{ aspectRatio: "9/16", border: "1px solid rgba(255,255,255,0.12)" }}
-                    onContextMenu={(e) => e.preventDefault()}
-                  >
-                    <iframe
-                      key={watchIndex}
-                      className="w-full h-full"
-                      src={videoUrl(watchVideos[watchIndex])}
-                      allow="autoplay; fullscreen"
-                    />
+                  <button className="nav-btn-circle" disabled={watchIndex === 0} onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }} style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}>←</button>
+                  <div className="flex-1 rounded-2xl overflow-hidden shadow-2xl relative" style={{ aspectRatio: "9/16", border: "1px solid rgba(255,255,255,0.12)" }} onContextMenu={(e) => e.preventDefault()}>
+                    <iframe key={watchIndex} className="w-full h-full" src={videoUrl(watchVideos[watchIndex])} allow="autoplay; fullscreen" />
                     <div className="absolute inset-0 pointer-events-none" />
                   </div>
-
-                  <button
-                    className="nav-btn-circle"
-                    disabled={watchIndex === watchVideos.length - 1}
-                    onClick={() => { playClick(); setWatchIndex(i => Math.min(i + 1, watchVideos.length - 1)); }}
-                    style={{ opacity: watchIndex === watchVideos.length - 1 ? 0.3 : 1 }}
-                  >
-                    →
-                  </button>
+                  <button className="nav-btn-circle" disabled={watchIndex === watchVideos.length - 1} onClick={() => { playClick(); setWatchIndex(i => Math.min(i + 1, watchVideos.length - 1)); }} style={{ opacity: watchIndex === watchVideos.length - 1 ? 0.3 : 1 }}>→</button>
                 </div>
-
                 <div className="flex gap-2 mt-5">
                   {watchVideos.map((_, i) => (
-                    <div
-                      key={i}
-                      onClick={() => { playClick(); setWatchIndex(i); }}
-                      style={{
-                        width: i === watchIndex ? "20px" : "6px",
-                        height: "6px",
-                        borderRadius: "3px",
-                        background: i === watchIndex ? "white" : "rgba(255,255,255,0.3)",
-                        transition: "all 0.2s ease",
-                        cursor: "pointer",
-                      }}
-                    />
+                    <div key={i} onClick={() => { playClick(); setWatchIndex(i); }} style={{ width: i === watchIndex ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === watchIndex ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease", cursor: "pointer" }} />
                   ))}
                 </div>
-
-                <div className="mt-3 text-xs tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  {watchIndex + 1} / {watchVideos.length}
-                </div>
+                <div className="mt-3 text-xs tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>{watchIndex + 1} / {watchVideos.length}</div>
               </div>
             </section>
           )}
 
-          {/* 📸 EXPERIENCE (Galeri dengan love) */}
+          {/* 📸 EXPERIENCE */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
@@ -644,21 +599,15 @@ export default function App() {
                       onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
                       onDoubleClick={(e) => handleDoubleTap(e, key)}
                       onTouchEnd={(e) => {
-                        // double tap deteksi untuk mobile
                         const now = Date.now();
                         const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
-                        if (now - lastTap < 300) {
-                          handleDoubleTap(e, key);
-                        }
+                        if (now - lastTap < 300) handleDoubleTap(e, key);
                         (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                       }}
                     >
                       <ImageWithWatermark src={img} className="h-48 w-full object-cover" />
-                      {/* Like counter */}
                       {likeCount > 0 && (
-                        <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
-                          ❤️ {likeCount}
-                        </div>
+                        <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>
                       )}
                     </div>
                   );
@@ -667,7 +616,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 🎮 GAME (dengan love di foto game) */}
+          {/* 🎮 GAME */}
           {activeTab === "game" && (
             <section className="py-24 text-center px-4 anim-slideup">
               {!selectedGame ? (
@@ -693,14 +642,7 @@ export default function App() {
                       { key: "ff", label: "Free Fire", color: "#dc2626" },
                       { key: "roblox", label: "Roblox", color: "#7c3aed" },
                     ].map((g) => (
-                      <div
-                        key={g.key}
-                        onClick={() => { playClick(); setSelectedGame(g.key); }}
-                        className="p-4 rounded-2xl cursor-pointer text-sm font-semibold"
-                        style={{ background: g.color, transition: "transform 0.15s ease" }}
-                        onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.94)")}
-                        onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                      >
+                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold" style={{ background: g.color, transition: "transform 0.15s ease" }} onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.94)")} onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}>
                         {g.label}
                       </div>
                     ))}
@@ -714,27 +656,9 @@ export default function App() {
                       const key = `game-${selectedGame}-${i}`;
                       const likeCount = likedPhotos[key] || 0;
                       return (
-                        <div
-                          key={i}
-                          className="cursor-pointer rounded-2xl overflow-hidden relative group"
-                          style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
-                          onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
-                          onDoubleClick={(e) => handleDoubleTap(e, key)}
-                          onTouchEnd={(e) => {
-                            const now = Date.now();
-                            const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
-                            if (now - lastTap < 300) {
-                              handleDoubleTap(e, key);
-                            }
-                            (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
-                          }}
-                        >
+                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative group" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }} onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0"); if (now - lastTap < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}>
                           <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
-                          {likeCount > 0 && (
-                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
-                              ❤️ {likeCount}
-                            </div>
-                          )}
+                          {likeCount > 0 && <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>}
                         </div>
                       );
                     })}
@@ -744,7 +668,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 👤 ABOUT – with everything */}
+          {/* 👤 ABOUT */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -761,20 +685,12 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 🕒 JAM WIB FLIP */}
+                {/* 🕒 JAM WIB FLIP (sekarang angka jelas) */}
                 <div className="card-in-2 w-full text-center">
                   <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>
                     {greet()}
                   </div>
-                  <div
-                    className="py-4 px-6 rounded-2xl mx-auto inline-block"
-                    style={{
-                      background: "rgba(99,102,241,0.08)",
-                      border: "1px solid rgba(139,92,246,0.3)",
-                      boxShadow: "0 8px 24px rgba(99,102,241,0.15)",
-                      minWidth: "200px",
-                    }}
-                  >
+                  <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
                     <FlipClock time={getWIB()} />
                     <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
                       {getWIBDate()} · WIB
@@ -784,14 +700,11 @@ export default function App() {
 
                 {/* 🌅 Daily Quote */}
                 <div className="card-in-2 w-full text-center px-2">
-                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>
-                    “{dailyQuote}”
-                  </p>
+                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>“{dailyQuote}”</p>
                 </div>
 
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
 
-                {/* 📊 Stats + Visitor */}
                 <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
                   {[
                     { label: "Photos", value: galleryPhotos.length },
@@ -810,30 +723,10 @@ export default function App() {
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
                   <div className="flex flex-col gap-2 mb-4">
-                    <input
-                      placeholder="Nama"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
-                    />
-                    <textarea
-                      placeholder="Tulis pesan..."
-                      value={guestMessage}
-                      onChange={(e) => setGuestMessage(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }}
-                    />
-                    <button
-                      onClick={addGuestEntry}
-                      className="py-2 rounded-xl text-sm font-semibold btn-shimmer"
-                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}
-                    >
-                      Kirim 💌
-                    </button>
+                    <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
+                    <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }} />
+                    <button onClick={addGuestEntry} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Kirim 💌</button>
                   </div>
-                  {/* Daftar pesan */}
                   <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
                     {guestbook.map((entry, idx) => (
                       <div key={idx} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -846,34 +739,14 @@ export default function App() {
 
                 <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
                   {[
-                    {
-                      label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou",
-                      color: "#000000", border: "rgba(255,255,255,0.15)",
-                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg>,
-                    },
-                    {
-                      label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou",
-                      color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)",
-                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg>,
-                    },
+                    { label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou", color: "#000000", border: "rgba(255,255,255,0.15)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg> },
+                    { label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg> },
                   ].map((s) => (
-                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 rounded-2xl"
-                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }}
-                      onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
-                      onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                    >
+                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }} onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")} onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}>
                       <div style={{ color: "white" }}>{s.icon}</div>
                       <div>
                         <div className="text-sm font-semibold text-white">{s.label}</div>
                         <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{s.handle}</div>
-                      </div>
-                      <div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
                       </div>
                     </a>
                   ))}
@@ -893,70 +766,33 @@ export default function App() {
                     <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
                   </div>
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
-                    <input
-                      type="password"
-                      value={passwordInput}
-                      onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }}
-                      placeholder="Password..."
-                      className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none"
-                      style={{
-                        background: "rgba(255,255,255,0.06)",
-                        border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)",
-                        transition: "border 0.2s ease",
-                        fontSize: "14px",
-                      }}
-                    />
-                    {passwordError && (
-                      <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>
-                        Wrong password. Try again.
-                      </div>
-                    )}
-                    <button
-                      onClick={submitPassword}
-                      className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer"
-                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white", transition: "background 0.2s ease" }}
-                      onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
-                      onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                    >
-                      Unlock
-                    </button>
+                    <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none" style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }} />
+                    {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
+                    <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
                   </div>
                 </div>
               ) : (
                 <div className="anim-slideup">
-                  <div className="text-center mb-8">
-                    <div className="text-lg font-bold shimmer-text tracking-wider">Private 🔓</div>
-                  </div>
+                  <div className="text-center mb-8"><div className="text-lg font-bold shimmer-text tracking-wider">Private 🔓</div></div>
                   <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     {privateVideos.map((id, i) => (
                       <div key={i} className="relative" style={{ aspectRatio: "9/16" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
                         <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
-                          <iframe
-                            className="w-full h-full"
-                            src={videoUrl(id)}
-                            allow="autoplay; fullscreen"
-                          />
+                          <iframe className="w-full h-full" src={videoUrl(id)} allow="autoplay; fullscreen" />
                         </div>
                       </div>
                     ))}
                   </div>
                   <div className="text-center mt-8">
-                    <button
-                      onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }}
-                      className="px-5 py-2 rounded-full text-xs"
-                      style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
-                    >
-                      🔒 Lock again
-                    </button>
+                    <button onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }} className="px-5 py-2 rounded-full text-xs" style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}>🔒 Lock again</button>
                   </div>
                 </div>
               )}
             </section>
           )}
 
-          {/* 🔍 LIGHTBOX (dengan love) */}
+          {/* 🔍 LIGHTBOX */}
           {preview && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center"
@@ -980,41 +816,20 @@ export default function App() {
                   style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
-                  onDoubleClick={(e) => {
-                    const key = `preview-${preview.photos[preview.index]}`;
-                    handleDoubleTap(e, key);
-                  }}
+                  onDoubleClick={(e) => handleDoubleTap(e, `preview-${preview.photos[preview.index]}`)}
                   onTouchEnd={(e) => {
                     const now = Date.now();
                     const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
-                    if (now - lastTap < 300) {
-                      const key = `preview-${preview.photos[preview.index]}`;
-                      handleDoubleTap(e, key);
-                    }
+                    if (now - lastTap < 300) handleDoubleTap(e, `preview-${preview.photos[preview.index]}`);
                     (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                   }}
                 />
-                <div
-                  className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none"
-                  style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)", letterSpacing: "0.04em" }}
-                >
-                  © FAJREZ FOR YOU
-                </div>
-                {/* Like count di lightbox */}
-                {preview && (() => {
-                  const key = `preview-${preview.photos[preview.index]}`;
-                  const count = likedPhotos[key] || 0;
-                  return count > 0 ? (
-                    <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
-                      ❤️ {count}
-                    </div>
-                  ) : null;
-                })()}
+                <div className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none" style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>© FAJREZ FOR YOU</div>
               </div>
               <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
               <div className="absolute bottom-6 flex gap-2">
                 {preview.photos.map((_, i) => (
-                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease" }} />
+                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)" }} />
                 ))}
               </div>
               <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm" style={{ background: "rgba(255,255,255,0.1)" }}>✕</button>
@@ -1022,10 +837,7 @@ export default function App() {
           )}
 
           {/* 📱 BOTTOM NAVBAR */}
-          <div
-            className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1"
-            style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}
-          >
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1" style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             {[
               { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
               { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },

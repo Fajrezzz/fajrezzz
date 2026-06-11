@@ -204,6 +204,40 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // 🎵 Audio otomatis dari awal
+  const bgMusicRef = useRef(new Audio("/Fajri.mp3"));
+  const [musicStarted, setMusicStarted] = useState(false);
+
+  useEffect(() => {
+    const audio = bgMusicRef.current;
+    audio.loop = true;
+    audio.volume = 0.4;
+
+    const startMusic = () => {
+      if (!musicStarted) {
+        audio.play().then(() => setMusicStarted(true)).catch(() => {});
+      }
+    };
+
+    // Coba langsung
+    startMusic();
+
+    // Fallback: mulai setelah interaksi pertama
+    const handleUserInteraction = () => {
+      startMusic();
+      document.removeEventListener("click", handleUserInteraction);
+      document.removeEventListener("touchstart", handleUserInteraction);
+    };
+    document.addEventListener("click", handleUserInteraction);
+    document.addEventListener("touchstart", handleUserInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleUserInteraction);
+      document.removeEventListener("touchstart", handleUserInteraction);
+      audio.pause();
+    };
+  }, []);
+
   const getWIB = () =>
     time.toLocaleTimeString("id-ID", {
       timeZone: "Asia/Jakarta",
@@ -343,27 +377,26 @@ export default function App() {
     }, 1500);
     playClick();
   };
-  
+
   const enterApp = () => {
-  playClick();
-  setStage("loading");
-  setTimeout(() => {
-    setLightning(true);
-    const audio = new Audio("/thunder.mp3");
-    audio.play();
-    // hentikan suara setelah 0,3 detik agar lebih pendek
+    playClick();
+    setStage("loading");
     setTimeout(() => {
-      audio.pause();
-      audio.currentTime = 0;
-    }, 900);
-    setTimeout(() => {
-      setLightning(false);
-      setStage("app");
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-    }, 800);
-  }, 1000);
-};
+      setLightning(true);
+      const audio = new Audio("/thunder.mp3");
+      audio.play();
+      setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }, 600);
+      setTimeout(() => {
+        setLightning(false);
+        setStage("app");
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }, 800);
+    }, 1000);
+  };
 
   const openPreview = (photos: string[], index: number) => {
     setPreview({ photos, index });
@@ -525,7 +558,6 @@ export default function App() {
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
 
-      {/* ⚡ OVERLAY PETIR (muncul di loading & app) */}
       {lightning && (
         <div
           className="fixed inset-0 z-[100] pointer-events-none"
@@ -565,7 +597,7 @@ export default function App() {
         </div>
       )}
 
-      {/* LOADING + PETIR DI SINI */}
+      {/* LOADING */}
       {stage === "loading" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: mainBg, animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">
@@ -748,62 +780,24 @@ export default function App() {
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
                   <div className="flex flex-col gap-2">
-                    <input
-                      placeholder="Nama"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
-                    />
-                    <textarea
-                      placeholder="Tulis pesan..."
-                      value={guestMessage}
-                      onChange={(e) => setGuestMessage(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }}
-                    />
-                    <button
-                      onClick={sendGuestbook}
-                      disabled={sending}
-                      className="py-2 rounded-xl text-sm font-semibold btn-shimmer"
-                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}
-                    >
-                      {sending ? "Mengirim..." : "Kirim 💌"}
-                    </button>
+                    <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
+                    <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }} />
+                    <button onClick={sendGuestbook} disabled={sending} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>{sending ? "Mengirim..." : "Kirim 💌"}</button>
                   </div>
                 </div>
 
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
                   <div className="flex flex-col gap-2">
-                    <input
-                      placeholder="Tanyakan sesuatu..."
-                      value={aiQuestion}
-                      onChange={(e) => setAiQuestion(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") askAI(); }}
-                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
-                    />
-                    <button
-                      onClick={askAI}
-                      disabled={aiLoading}
-                      className="py-2 rounded-xl text-sm font-semibold"
-                      style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}
-                    >
-                      {aiLoading ? "Berpikir..." : "Tanya AI Battle"}
-                    </button>
+                    <input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
+                    <button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button>
                   </div>
                   {aiResponses.length > 0 && (
                     <div className="mt-3 flex flex-col gap-3">
                       {aiResponses.map((res) => (
                         <div key={res.model} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>
-                            {res.model}
-                          </div>
-                          <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
-                            {res.answer}
-                          </div>
+                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>{res.model}</div>
+                          <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>{res.answer}</div>
                         </div>
                       ))}
                     </div>
@@ -859,15 +853,7 @@ export default function App() {
                     <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
                   </div>
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
-                    <input
-                      type="password"
-                      value={passwordInput}
-                      onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }}
-                      placeholder="Password..."
-                      className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none"
-                      style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }}
-                    />
+                    <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none" style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }} />
                     {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
                     <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
                   </div>

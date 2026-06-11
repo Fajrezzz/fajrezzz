@@ -344,27 +344,23 @@ export default function App() {
     playClick();
   };
 
-  // ⚡ Enter + jeda 1 detik + flash warna biru-ungu-kuning-putih
+  // ⚡ ENTER: langsung loading, jeda 1 detik, flash petir + suara, lalu lanjut
   const enterApp = () => {
     playClick();
-    // jeda 1 detik sebelum petir
+    // langsung masuk loading
+    setStage("loading");
+    // jeda 1 detik di loading, lalu petir
     setTimeout(() => {
       setLightning(true);
       new Audio("/thunder.mp3").play();
-      // durasi flash 800ms
+      // durasi flash 800ms, lalu matikan dan masuk app
       setTimeout(() => {
         setLightning(false);
-        setIntroOut(true);
-        setTimeout(() => {
-          setStage("loading");
-          setTimeout(() => {
-            setStage("app");
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
-          }, 1200);
-        }, 600);
-      }, 1500);
-    }, 2000);
+        setStage("app");
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }, 800);
+    }, 1000);
   };
 
   const openPreview = (photos: string[], index: number) => {
@@ -527,7 +523,7 @@ export default function App() {
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
 
-      {/* ⚡ OVERLAY PETIR WARNA-WARNI */}
+      {/* ⚡ OVERLAY PETIR (muncul di loading & app) */}
       {lightning && (
         <div
           className="fixed inset-0 z-[100] pointer-events-none"
@@ -567,7 +563,7 @@ export default function App() {
         </div>
       )}
 
-      {/* LOADING */}
+      {/* LOADING + PETIR DI SINI */}
       {stage === "loading" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: mainBg, animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">

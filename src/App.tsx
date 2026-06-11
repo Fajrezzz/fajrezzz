@@ -259,8 +259,13 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  // BACKGROUND LEMBUT CYAN-HIJAU-KUNING (tidak berat, tanpa animasi aurora)
-  const mainBg = "linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
+  // Background dinamis: khusus tab photo pakai ungu-putih-hitam, lainnya cyan-hijau-kuning
+  const getBackground = () => {
+    if (activeTab === "photo") {
+      return "linear-gradient(135deg, #0f0f0f 0%, #1e1b4b 30%, #d8b4fe 80%, #ffffff 100%)";
+    }
+    return "linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
+  };
 
   useEffect(() => {
     const visited = localStorage.getItem("fajrez_visited");
@@ -432,7 +437,7 @@ export default function App() {
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
       style={{
-        background: mainBg,
+        background: getBackground(),
         backgroundAttachment: "fixed",
         userSelect: "none",
         WebkitTouchCallout: "none",
@@ -561,7 +566,6 @@ export default function App() {
         }
       `}</style>
 
-      {/* Latar belakang statis sederhana tanpa animasi berat */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute rounded-full" style={{ top: "-10%", left: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(0,255,200,0.08) 0%, transparent 70%)" }} />
         <div className="absolute rounded-full" style={{ bottom: "-10%", right: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)" }} />
@@ -620,7 +624,7 @@ export default function App() {
 
       {/* LOADING */}
       {stage === "loading" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: mainBg, animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: getBackground(), animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">
             <div className="text-xl font-bold tracking-widest mb-2 shimmer-text">FAJREZZZ EXPERIENCE</div>
             <div className="text-sm text-white/50">loading...</div>
@@ -656,7 +660,7 @@ export default function App() {
             </section>
           )}
 
-          {/* EXPERIENCE */}
+          {/* EXPERIENCE (background ungu-putih-hitam via getBackground) */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">

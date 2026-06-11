@@ -358,4 +358,9 @@ export default function App() {
                       </div>
                       <div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          </>
+      )}
+    </div>
+  );
+                        }
  

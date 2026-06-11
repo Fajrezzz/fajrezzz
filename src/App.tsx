@@ -76,6 +76,47 @@ export default function App() {
   const [passwordShake, setPasswordShake] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
+  // 🕒 WIB real-time
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getWIB = () => {
+    return time.toLocaleTimeString("id-ID", {
+      timeZone: "Asia/Jakarta",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+  };
+
+  const getWIBDate = () =>
+    time.toLocaleDateString("id-ID", {
+      timeZone: "Asia/Jakarta",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+  const getWIBHour = () => {
+    const wib = new Date(
+      time.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    );
+    return wib.getHours();
+  };
+
+  const greet = () => {
+    const h = getWIBHour();
+    if (h >= 5 && h < 11) return "Selamat pagi ☀️";
+    if (h >= 11 && h < 15) return "Selamat siang 🌤️";
+    if (h >= 15 && h < 18) return "Selamat sore 🌅";
+    return "Selamat malam 🌙";
+  };
+
   const enterApp = () => {
     playClick();
     setIntroOut(true);
@@ -412,7 +453,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 👤 ABOUT */}
+          {/* 👤 ABOUT – now with 🕒 real-time WIB */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -426,6 +467,30 @@ export default function App() {
                   <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
                   <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>"living for the moments nobody else sees."</div>
                 </div>
+
+                {/* 🕒 JAM WIB & SALAM */}
+                <div className="card-in-2 w-full text-center">
+                  <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>
+                    {greet()}
+                  </div>
+                  <div
+                    className="py-4 px-6 rounded-2xl mx-auto inline-block"
+                    style={{
+                      background: "rgba(99,102,241,0.08)",
+                      border: "1px solid rgba(139,92,246,0.3)",
+                      boxShadow: "0 8px 24px rgba(99,102,241,0.15)",
+                      minWidth: "180px",
+                    }}
+                  >
+                    <div className="text-4xl font-mono font-bold tracking-[0.2em] shimmer-text">
+                      {getWIB()}
+                    </div>
+                    <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      {getWIBDate()} · WIB
+                    </div>
+                  </div>
+                </div>
+
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
                 <div className="card-in-3 w-full grid grid-cols-3 gap-3 text-center">
                   {[

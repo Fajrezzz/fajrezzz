@@ -358,9 +358,83 @@ export default function App() {
                       </div>
                       <div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          </>
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+
+              </div>
+            </section>
+          )}
+
+          {/* 🔍 LIGHTBOX */}
+          {preview && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center"
+              style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
+              onClick={closePreview}
+              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+              onTouchEnd={(e) => {
+                if (touchStartX.current === null) return;
+                const diff = touchStartX.current - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 50) diff > 0 ? swipeNext() : swipePrev();
+                touchStartX.current = null;
+              }}
+            >
+              <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>‹</button>
+              <img key={preview.index} src={preview.photos[preview.index]} onClick={(e) => e.stopPropagation()} className="anim-fadescale" style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)" }} />
+              <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
+              <div className="absolute bottom-6 flex gap-2">
+                {preview.photos.map((_, i) => (
+                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease" }} />
+                ))}
+              </div>
+              <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm" style={{ background: "rgba(255,255,255,0.1)" }}>✕</button>
+            </div>
+          )}
+
+          {/* 📱 BOTTOM NAVBAR */}
+          <div
+            className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-2"
+            style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {[
+              {
+                tab: "watch" as const, label: "WATCH",
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>,
+              },
+              {
+                tab: "photo" as const, label: "EXPERIENCE",
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>,
+              },
+              {
+                tab: "game" as const, label: "GAMES",
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg>,
+              },
+              {
+                tab: "about" as const, label: "ABOUT",
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>,
+              },
+            ].map(({ tab, label, icon }) => (
+              <button
+                key={tab}
+                onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", padding: "6px 12px", borderRadius: "16px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
+                onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
+                onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                {icon}
+                <span style={{ fontSize: "8px", letterSpacing: "0.08em", fontWeight: 600 }}>{label}</span>
+                {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(99,102,241,1)" }} />}
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
-                        }
- 
+                  }

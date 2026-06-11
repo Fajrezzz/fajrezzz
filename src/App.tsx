@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 const galleryPhotos = [
   "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg",
@@ -26,7 +26,131 @@ const PRIVATE_PASSWORD = "fajrezforyou";
 
 const playClick = () => new Audio("/click.mp3").play();
 
-function SkeletonImg({ src, className }: { src: string; className?: string }) {
+// 🎉 Confetti mini (pure CSS)
+function Confetti() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[60]">
+      {[...Array(40)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${Math.random() * 8 + 4}px`,
+            height: `${Math.random() * 4 + 2}px`,
+            background: `hsl(${Math.random() * 360}, 80%, 65%)`,
+            borderRadius: "2px",
+            animation: `confettiFall ${Math.random() * 2 + 2}s ease-out ${Math.random() * 0.5}s forwards`,
+            transform: `rotate(${Math.random() * 360}deg)`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes confettiFall {
+          0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+          100% { opacity: 0; transform: translateY(80vh) rotate(720deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// 🕒 Flip clock digit
+function FlipDigit({ value }: { value: string }) {
+  return (
+    <span className="relative inline-block w-[1.1em] h-[1.2em] text-center font-mono font-bold text-4xl shimmer-text overflow-hidden">
+      <span className="absolute inset-0 flex items-center justify-center">{value}</span>
+      <span className="absolute inset-0 flex items-center justify-center" style={{ backfaceVisibility: "hidden", animation: "flipIn 0.4s ease-out" }}>
+        {value}
+      </span>
+      <style>{`
+        @keyframes flipIn {
+          0% { transform: rotateX(90deg); opacity: 0; }
+          100% { transform: rotateX(0deg); opacity: 1; }
+        }
+      `}</style>
+    </span>
+  );
+}
+
+function FlipClock({ time }: { time: string }) {
+  // time format "HH:mm:ss"
+  const digits = time.replace(/:/g, "").split("");
+  return (
+    <div className="flex items-center justify-center gap-[0.15em]">
+      <FlipDigit value={digits[0]} />
+      <FlipDigit value={digits[1]} />
+      <span className="text-3xl mx-[0.05em]">:</span>
+      <FlipDigit value={digits[2]} />
+      <FlipDigit value={digits[3]} />
+      <span className="text-3xl mx-[0.05em]">:</span>
+      <FlipDigit value={digits[4]} />
+      <FlipDigit value={digits[5]} />
+    </div>
+  );
+}
+
+// ⌨️ Typewriter text
+function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayed(text.slice(0, i + 1));
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return (
+    <span>
+      {displayed}
+      <span className="animate-pulse" style={{ color: "rgba(255,255,255,0.6)" }}>|</span>
+    </span>
+  );
+}
+
+// 🖱️ Custom cursor (desktop only)
+function CursorGlow() {
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
+      setVisible(true);
+    };
+    const leave = () => setVisible(false);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseleave", leave);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseleave", leave);
+    };
+  }, []);
+
+  if (typeof window === "undefined") return null;
+  return (
+    <div
+      className="fixed pointer-events-none z-[70] transition-opacity duration-200"
+      style={{
+        left: pos.x - 10,
+        top: pos.y - 10,
+        width: 20,
+        height: 20,
+        borderRadius: "50%",
+        background: "rgba(139,92,246,0.6)",
+        boxShadow: "0 0 20px 8px rgba(139,92,246,0.5)",
+        opacity: visible ? 1 : 0,
+      }}
+    />
+  );
+}
+
+// Image dengan proteksi + watermark
+function ImageWithWatermark({ src, className }: { src: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
     <div className="relative overflow-hidden rounded-2xl w-full h-full">
@@ -35,7 +159,18 @@ function SkeletonImg({ src, className }: { src: string; className?: string }) {
         src={src}
         onLoad={() => setLoaded(true)}
         className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+        draggable={false}
+        style={{ userSelect: "none", WebkitTouchCallout: "none" }}
       />
+      <div
+        className="absolute bottom-1 right-1 text-[10px] font-semibold opacity-40 select-none"
+        style={{ color: "white", textShadow: "0 1px 3px rgba(0,0,0,0.7)", letterSpacing: "0.05em" }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        © FAJREZ FOR YOU
+      </div>
     </div>
   );
 }
@@ -75,6 +210,9 @@ export default function App() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordShake, setPasswordShake] = useState(false);
   const touchStartX = useRef<number | null>(null);
+
+  // 🎉 confetti state
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // 🕒 WIB real-time
   const [time, setTime] = useState(new Date());
@@ -151,6 +289,9 @@ export default function App() {
       playClick();
       setPrivateUnlocked(true);
       setPasswordError(false);
+      // 🎉 Trigger confetti
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
     } else {
       setPasswordError(true);
       setPasswordShake(true);
@@ -169,11 +310,17 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [preview]);
 
+  const videoUrl = (publicId: string) =>
+    `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
+
   return (
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
-      style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" }}
+      style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", userSelect: "none", WebkitTouchCallout: "none", cursor: "none" }}
     >
+      {/* 🖱️ Custom cursor (hidden on touch devices) */}
+      {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
+
       <style>{`
         @keyframes loadbar { from { width: 0%; } to { width: 100%; } }
         @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
@@ -259,11 +406,14 @@ export default function App() {
       {/* ✨ PARTICLES */}
       <Particles />
 
+      {/* 🎉 CONFETTI */}
+      {showConfetti && <Confetti />}
+
       {/* ✨ INTRO */}
       {stage === "intro" && (
         <div
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
-          style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" }}
+          style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
         >
           <Particles />
           <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(50px)", pointerEvents: "none" }} />
@@ -292,7 +442,7 @@ export default function App() {
 
       {/* ⚡ LOADING */}
       {stage === "loading" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", animation: "fadeIn 0.3s ease-out" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">
             <div className="text-xl font-bold tracking-widest mb-2 shimmer-text">FAJREZZZ EXPERIENCE</div>
             <div className="text-sm text-white/50">loading...</div>
@@ -310,9 +460,7 @@ export default function App() {
           {activeTab === "watch" && (
             <section className="anim-slideup">
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
-                {/* Player row */}
                 <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
-                  {/* Prev button */}
                   <button
                     className="nav-btn-circle"
                     disabled={watchIndex === 0}
@@ -322,20 +470,20 @@ export default function App() {
                     ←
                   </button>
 
-                  {/* Video */}
                   <div
-                    className="flex-1 rounded-2xl overflow-hidden shadow-2xl"
+                    className="flex-1 rounded-2xl overflow-hidden shadow-2xl relative"
                     style={{ aspectRatio: "9/16", border: "1px solid rgba(255,255,255,0.12)" }}
+                    onContextMenu={(e) => e.preventDefault()}
                   >
                     <iframe
                       key={watchIndex}
                       className="w-full h-full"
-                      src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${watchVideos[watchIndex]}`}
+                      src={videoUrl(watchVideos[watchIndex])}
                       allow="autoplay; fullscreen"
                     />
+                    <div className="absolute inset-0 pointer-events-none" />
                   </div>
 
-                  {/* Next button */}
                   <button
                     className="nav-btn-circle"
                     disabled={watchIndex === watchVideos.length - 1}
@@ -346,7 +494,6 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Dot indicators */}
                 <div className="flex gap-2 mt-5">
                   {watchVideos.map((_, i) => (
                     <div
@@ -364,7 +511,6 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Video counter */}
                 <div className="mt-3 text-xs tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>
                   {watchIndex + 1} / {watchVideos.length}
                 </div>
@@ -385,7 +531,7 @@ export default function App() {
                     onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
                     onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
                   >
-                    <SkeletonImg src={img} className="h-48 w-full object-cover" />
+                    <ImageWithWatermark src={img} className="h-48 w-full object-cover" />
                   </div>
                 ))}
               </div>
@@ -405,8 +551,8 @@ export default function App() {
                     ].map((v, i) => (
                       <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""}`} style={{ aspectRatio: "16/9" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} />
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-                          <iframe className="w-full h-full" src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${v.id}`} allow="autoplay; fullscreen" />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
+                          <iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" />
                         </div>
                       </div>
                     ))}
@@ -444,7 +590,7 @@ export default function App() {
                         onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
                         onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
                       >
-                        <SkeletonImg src={img} className="w-full aspect-video object-cover" />
+                        <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
                       </div>
                     ))}
                   </div>
@@ -453,22 +599,24 @@ export default function App() {
             </section>
           )}
 
-          {/* 👤 ABOUT – now with 🕒 real-time WIB */}
+          {/* 👤 ABOUT – with flip clock & typewriter */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
                 <div className="card-in-1 relative">
                   <div className="w-28 h-28 rounded-full overflow-hidden avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)" }}>
-                    <img src="/1.jpg" className="w-full h-full object-cover" />
+                    <img src="/1.jpg" className="w-full h-full object-cover" onContextMenu={(e) => e.preventDefault()} draggable={false} />
                   </div>
                   <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
                 </div>
                 <div className="card-in-2 text-center">
                   <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
-                  <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>"living for the moments nobody else sees."</div>
+                  <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    <Typewriter text="living for the moments nobody else sees." speed={60} />
+                  </div>
                 </div>
 
-                {/* 🕒 JAM WIB & SALAM */}
+                {/* 🕒 JAM WIB FLIP */}
                 <div className="card-in-2 w-full text-center">
                   <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>
                     {greet()}
@@ -479,12 +627,10 @@ export default function App() {
                       background: "rgba(99,102,241,0.08)",
                       border: "1px solid rgba(139,92,246,0.3)",
                       boxShadow: "0 8px 24px rgba(99,102,241,0.15)",
-                      minWidth: "180px",
+                      minWidth: "200px",
                     }}
                   >
-                    <div className="text-4xl font-mono font-bold tracking-[0.2em] shimmer-text">
-                      {getWIB()}
-                    </div>
+                    <FlipClock time={getWIB()} />
                     <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
                       {getWIBDate()} · WIB
                     </div>
@@ -592,10 +738,10 @@ export default function App() {
                     {privateVideos.map((id, i) => (
                       <div key={i} className="relative" style={{ aspectRatio: "9/16" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
                           <iframe
                             className="w-full h-full"
-                            src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${id}`}
+                            src={videoUrl(id)}
                             allow="autoplay; fullscreen"
                           />
                         </div>
@@ -622,6 +768,7 @@ export default function App() {
               className="fixed inset-0 z-50 flex items-center justify-center"
               style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
               onClick={closePreview}
+              onContextMenu={(e) => e.preventDefault()}
               onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
               onTouchEnd={(e) => {
                 if (touchStartX.current === null) return;
@@ -631,7 +778,22 @@ export default function App() {
               }}
             >
               <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>‹</button>
-              <img key={preview.index} src={preview.photos[preview.index]} onClick={(e) => e.stopPropagation()} className="anim-fadescale" style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)" }} />
+              <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+                <img
+                  key={preview.index}
+                  src={preview.photos[preview.index]}
+                  className="anim-fadescale"
+                  style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  draggable={false}
+                />
+                <div
+                  className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none"
+                  style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)", letterSpacing: "0.04em" }}
+                >
+                  © FAJREZ FOR YOU
+                </div>
+              </div>
               <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
               <div className="absolute bottom-6 flex gap-2">
                 {preview.photos.map((_, i) => (

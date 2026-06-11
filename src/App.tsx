@@ -26,7 +26,7 @@ const PRIVATE_PASSWORD = "fajrezforyou";
 
 const playClick = () => new Audio("/click.mp3").play();
 
-// 🎉 Confetti mini (dikurangi jumlah & durasi untuk performa)
+// 🎉 Confetti mini
 function Confetti() {
   return (
     <div className="fixed inset-0 pointer-events-none z-[60]">
@@ -37,89 +37,48 @@ function Confetti() {
             position: "absolute",
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 6 + 3}px`,
-            height: `${Math.random() * 3 + 2}px`,
+            width: `${Math.random() * 6 + 4}px`,
+            height: `${Math.random() * 4 + 2}px`,
             background: `hsl(${Math.random() * 360}, 80%, 65%)`,
             borderRadius: "2px",
-            animation: `confettiFall ${Math.random() * 1.5 + 1.5}s ease-out ${Math.random() * 0.3}s forwards`,
+            animation: `confettiFall ${Math.random() * 2 + 2}s ease-out ${Math.random() * 0.5}s forwards`,
             transform: `rotate(${Math.random() * 360}deg)`,
-            willChange: "transform",
           }}
         />
       ))}
       <style>{`
         @keyframes confettiFall {
           0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-          100% { opacity: 0; transform: translateY(60vh) rotate(720deg); }
+          100% { opacity: 0; transform: translateY(80vh) rotate(720deg); }
         }
       `}</style>
     </div>
   );
 }
 
-// ❤️ Floating heart animation (sangat ringan)
+// ❤️ Floating heart
 function FloatingHeart({ x, y }: { x: number; y: number }) {
   return (
     <div
       className="fixed pointer-events-none z-[65] text-2xl"
-      style={{ left: x, top: y, animation: "heartFloat 0.7s ease-out forwards" }}
+      style={{
+        left: x,
+        top: y,
+        animation: "heartFloat 0.8s ease-out forwards",
+      }}
     >
       ❤️
       <style>{`
         @keyframes heartFloat {
           0% { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(-30px) scale(1.3); }
+          100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
         }
       `}</style>
     </div>
   );
 }
 
-// 🕒 Flip digit dengan teks putih solid + glow (bukan shimmer-text)
-function FlipDigit({ value }: { value: string }) {
-  return (
-    <span
-      className="relative inline-flex items-center justify-center w-[1.1em] h-[1.2em] font-mono font-bold text-4xl"
-      style={{
-        color: "white",
-        textShadow: "0 0 12px rgba(168,85,247,0.7)",
-        overflow: "hidden",
-      }}
-    >
-      <span
-        key={value}
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ animation: "flipIn 0.25s ease-out" }}
-      >
-        {value}
-      </span>
-      <style>{`
-        @keyframes flipIn {
-          0% { transform: rotateX(90deg); opacity: 0; }
-          100% { transform: rotateX(0deg); opacity: 1; }
-        }
-      `}</style>
-    </span>
-  );
-}
-
-function FlipClock({ time }: { time: string }) {
-  const digits = time.replace(/:/g, "").split("");
-  return (
-    <div className="flex items-center justify-center gap-[0.15em]">
-      <FlipDigit value={digits[0]} />
-      <FlipDigit value={digits[1]} />
-      <span className="text-3xl mx-[0.05em] text-white">:</span>
-      <FlipDigit value={digits[2]} />
-      <FlipDigit value={digits[3]} />
-      <span className="text-3xl mx-[0.05em] text-white">:</span>
-      <FlipDigit value={digits[4]} />
-      <FlipDigit value={digits[5]} />
-    </div>
-  );
-}
-
-// ⌨️ Typewriter text (tetap)
+// ⌨️ Typewriter
 function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
@@ -131,7 +90,6 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
     }, speed);
     return () => clearInterval(interval);
   }, [text, speed]);
-
   return (
     <span>
       {displayed}
@@ -140,11 +98,10 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   );
 }
 
-// 🖱️ Custom cursor (khusus desktop, beban ringan)
+// 🖱️ Custom cursor
 function CursorGlow() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     const move = (e: MouseEvent) => {
       setPos({ x: e.clientX, y: e.clientY });
@@ -158,7 +115,7 @@ function CursorGlow() {
       window.removeEventListener("mouseleave", leave);
     };
   }, []);
-
+  if (typeof window === "undefined") return null;
   return (
     <div
       className="fixed pointer-events-none z-[70] transition-opacity duration-200"
@@ -171,13 +128,12 @@ function CursorGlow() {
         background: "rgba(139,92,246,0.6)",
         boxShadow: "0 0 20px 8px rgba(139,92,246,0.5)",
         opacity: visible ? 1 : 0,
-        willChange: "transform",
       }}
     />
   );
 }
 
-// Image dengan proteksi + watermark (tetap)
+// Image dengan watermark + proteksi
 function ImageWithWatermark({ src, className }: { src: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -203,26 +159,31 @@ function ImageWithWatermark({ src, className }: { src: string; className?: strin
   );
 }
 
-// Particles (dikurangi & ditambah will-change)
+// Partikel ringan
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
-      {[...Array(12)].map((_, i) => (
+      {[...Array(8)].map((_, i) => (
         <div
           key={i}
           style={{
             position: "absolute",
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 3 + 1}px`,
-            height: `${Math.random() * 3 + 1}px`,
+            width: 2,
+            height: 2,
             borderRadius: "50%",
-            background: i % 3 === 0 ? "rgba(139,92,246,0.6)" : i % 3 === 1 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.3)",
-            animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out ${Math.random() * 4}s infinite alternate`,
-            willChange: "transform",
+            background: "rgba(255,255,255,0.2)",
+            animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out infinite alternate`,
           }}
         />
       ))}
+      <style>{`
+        @keyframes particleFloat {
+          from { transform: translateY(0px); opacity: 0.3; }
+          to { transform: translateY(-20px); opacity: 0.7; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -241,19 +202,16 @@ export default function App() {
   const [passwordShake, setPasswordShake] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
-  // 🎉 confetti state
   const [showConfetti, setShowConfetti] = useState(false);
-
-  // ❤️ love state
   const [likedPhotos, setLikedPhotos] = useState<Record<string, number>>({});
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
 
-  // 📝 guestbook
+  // Buku tamu state
   const [guestName, setGuestName] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
-  const [guestbook, setGuestbook] = useState<{ name: string; msg: string }[]>([]);
+  const [sending, setSending] = useState(false);
 
-  // 🕒 WIB real-time
+  // 🕒 Jam real-time (fix: tampilkan detik)
   const [time, setTime] = useState(new Date());
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -280,9 +238,7 @@ export default function App() {
     });
 
   const getWIBHour = () => {
-    const wib = new Date(
-      time.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-    );
+    const wib = new Date(time.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
     return wib.getHours();
   };
 
@@ -294,7 +250,7 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  // 📊 Visitor counter (unik per device)
+  // 📊 Visitor counter
   useEffect(() => {
     const visited = localStorage.getItem("fajrez_visited");
     if (!visited) {
@@ -303,8 +259,6 @@ export default function App() {
       localStorage.setItem("fajrez_visited", "true");
     }
   }, []);
-
-  const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
 
   // 🌅 Daily quote
   const dailyQuote = (() => {
@@ -322,25 +276,18 @@ export default function App() {
     return quotes[dayIndex];
   })();
 
-  // ❤️ Load liked photos
   useEffect(() => {
     const stored = localStorage.getItem("fajrez_likes");
     if (stored) setLikedPhotos(JSON.parse(stored));
   }, []);
 
-  // 💬 Load guestbook
-  useEffect(() => {
-    const stored = localStorage.getItem("fajrez_guestbook");
-    if (stored) setGuestbook(JSON.parse(stored));
-  }, []);
-
+  // Double tap love handler
   const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent, photoKey: string) => {
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
     const id = Date.now();
     setHearts(prev => [...prev, { id, x: clientX, y: clientY }]);
-    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== id)), 700);
-
+    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== id)), 800);
     const current = likedPhotos[photoKey] || 0;
     const updated = { ...likedPhotos, [photoKey]: current + 1 };
     setLikedPhotos(updated);
@@ -348,15 +295,35 @@ export default function App() {
     playClick();
   };
 
-  const addGuestEntry = () => {
+  // Buku tamu kirim ke email via FormSubmit
+  const sendGuestbook = async () => {
     if (!guestName.trim() || !guestMessage.trim()) return;
-    const newEntry = { name: guestName.trim(), msg: guestMessage.trim() };
-    const updated = [newEntry, ...guestbook].slice(0, 20);
-    setGuestbook(updated);
-    localStorage.setItem("fajrez_guestbook", JSON.stringify(updated));
-    setGuestName("");
-    setGuestMessage("");
-    playClick();
+    setSending(true);
+    try {
+      // Endpoint FormSubmit – otomatis kirim ke email yang terdaftar (fajrezzz22@gmail.com)
+      const response = await fetch("https://formsubmit.co/ajax/fajrezzz22@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: guestName.trim(),
+          message: guestMessage.trim(),
+          _subject: "Pesan Buku Tamu dari FAJREZ FOR YOU",
+          _captcha: "false", // matikan captcha
+        }),
+      });
+      if (response.ok) {
+        alert("Pesan terkirim! 🎉");
+        setGuestName("");
+        setGuestMessage("");
+        playClick();
+      } else {
+        alert("Gagal mengirim. Coba lagi nanti.");
+      }
+    } catch (err) {
+      alert("Gagal mengirim. Periksa koneksi.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const enterApp = () => {
@@ -420,17 +387,13 @@ export default function App() {
   const videoUrl = (publicId: string) =>
     `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
 
+  const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
+
   return (
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
-      style={{
-        background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
-        userSelect: "none",
-        WebkitTouchCallout: "none",
-        cursor: "none",
-      }}
+      style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", userSelect: "none", WebkitTouchCallout: "none", cursor: "none" }}
     >
-      {/* Cursor hanya di desktop */}
       {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
 
       <style>{`
@@ -453,10 +416,6 @@ export default function App() {
         @keyframes cardIn {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes particleFloat {
-          from { transform: translateY(0px) translateX(0px); opacity: 0.3; }
-          to { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
         }
         @keyframes shimmerText {
           0% { background-position: -200% center; }
@@ -508,23 +467,24 @@ export default function App() {
         .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
       `}</style>
 
-      {/* 🌌 BACKGROUND GLOW (GPU‑accelerated) */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ transform: "translateZ(0)" }}>
-        <div className="absolute rounded-full" style={{ top: "-10%", left: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)", filter: "blur(40px)" }} />
-        <div className="absolute rounded-full" style={{ bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)", filter: "blur(40px)" }} />
-        <div className="absolute rounded-full" style={{ top: "40%", left: "30%", width: "30vw", height: "30vw", background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)", filter: "blur(30px)" }} />
+      {/* Background glow – ringan */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
+        <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
       </div>
 
       <Particles />
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
 
-      {/* ✨ INTRO */}
+      {/* INTRO */}
       {stage === "intro" && (
         <div
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
           style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
         >
+          <Particles />
+          <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
             <div className="float-1 text-xs tracking-[0.3em] uppercase" style={{ color: "rgba(99,102,241,0.8)" }}>welcome to</div>
             <div className="float-2 flex flex-col items-center gap-1">
@@ -537,8 +497,8 @@ export default function App() {
               className="float-3 btn-shimmer mt-4 px-10 py-3 rounded-full text-sm font-semibold"
               style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.4)", color: "white", letterSpacing: "0.2em" }}
               onClick={enterApp}
-              onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-              onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.25)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(99,102,241,0.12)")}
             >
               ✦ Enter ✦
             </button>
@@ -546,7 +506,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ⚡ LOADING */}
+      {/* LOADING */}
       {stage === "loading" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">
@@ -559,10 +519,10 @@ export default function App() {
         </div>
       )}
 
-      {/* 📱 APP */}
+      {/* APP */}
       {stage === "app" && (
         <>
-          {/* 🎥 WATCH */}
+          {/* WATCH */}
           {activeTab === "watch" && (
             <section className="anim-slideup">
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
@@ -584,7 +544,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 📸 EXPERIENCE */}
+          {/* EXPERIENCE */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
@@ -592,10 +552,7 @@ export default function App() {
                   const key = `gallery-${i}`;
                   const likeCount = likedPhotos[key] || 0;
                   return (
-                    <div
-                      key={i}
-                      className="cursor-pointer rounded-2xl overflow-hidden relative group"
-                      style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                    <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
                       onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
                       onDoubleClick={(e) => handleDoubleTap(e, key)}
                       onTouchEnd={(e) => {
@@ -616,7 +573,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 🎮 GAME */}
+          {/* GAME */}
           {activeTab === "game" && (
             <section className="py-24 text-center px-4 anim-slideup">
               {!selectedGame ? (
@@ -642,9 +599,7 @@ export default function App() {
                       { key: "ff", label: "Free Fire", color: "#dc2626" },
                       { key: "roblox", label: "Roblox", color: "#7c3aed" },
                     ].map((g) => (
-                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold" style={{ background: g.color, transition: "transform 0.15s ease" }} onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.94)")} onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}>
-                        {g.label}
-                      </div>
+                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold" style={{ background: g.color, transition: "transform 0.15s ease" }}>{g.label}</div>
                     ))}
                   </div>
                 </>
@@ -656,9 +611,20 @@ export default function App() {
                       const key = `game-${selectedGame}-${i}`;
                       const likeCount = likedPhotos[key] || 0;
                       return (
-                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative group" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }} onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0"); if (now - lastTap < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}>
+                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                          onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
+                          onDoubleClick={(e) => handleDoubleTap(e, key)}
+                          onTouchEnd={(e) => {
+                            const now = Date.now();
+                            const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                            if (now - lastTap < 300) handleDoubleTap(e, key);
+                            (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                          }}
+                        >
                           <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
-                          {likeCount > 0 && <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>}
+                          {likeCount > 0 && (
+                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>
+                          )}
                         </div>
                       );
                     })}
@@ -668,7 +634,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 👤 ABOUT */}
+          {/* ABOUT */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -685,26 +651,25 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 🕒 JAM WIB FLIP (sekarang angka jelas) */}
+                {/* JAM DIGITAL REAL-TIME (fix detik) */}
                 <div className="card-in-2 w-full text-center">
-                  <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>
-                    {greet()}
-                  </div>
+                  <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div>
                   <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
-                    <FlipClock time={getWIB()} />
-                    <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      {getWIBDate()} · WIB
+                    <div className="text-4xl font-mono font-bold tracking-[0.15em] shimmer-text">
+                      {getWIB()}
                     </div>
+                    <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>{getWIBDate()} · WIB</div>
                   </div>
                 </div>
 
-                {/* 🌅 Daily Quote */}
+                {/* Daily Quote */}
                 <div className="card-in-2 w-full text-center px-2">
                   <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>“{dailyQuote}”</p>
                 </div>
 
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
 
+                {/* Stats */}
                 <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
                   {[
                     { label: "Photos", value: galleryPhotos.length },
@@ -719,34 +684,67 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* 💬 Buku Tamu */}
+                {/* BUKU TAMU (kirim ke fajrezzz22@gmail.com) */}
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
-                  <div className="flex flex-col gap-2 mb-4">
-                    <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
-                    <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }} />
-                    <button onClick={addGuestEntry} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Kirim 💌</button>
-                  </div>
-                  <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-                    {guestbook.map((entry, idx) => (
-                      <div key={idx} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <div className="text-xs font-semibold" style={{ color: "#c4b5fd" }}>{entry.name}</div>
-                        <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>{entry.msg}</div>
-                      </div>
-                    ))}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      placeholder="Nama"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
+                    />
+                    <textarea
+                      placeholder="Tulis pesan..."
+                      value={guestMessage}
+                      onChange={(e) => setGuestMessage(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }}
+                    />
+                    <button
+                      onClick={sendGuestbook}
+                      disabled={sending}
+                      className="py-2 rounded-xl text-sm font-semibold btn-shimmer"
+                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}
+                    >
+                      {sending ? "Mengirim..." : "Kirim 💌"}
+                    </button>
                   </div>
                 </div>
 
+                {/* Social links */}
                 <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
                   {[
-                    { label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou", color: "#000000", border: "rgba(255,255,255,0.15)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg> },
-                    { label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg> },
+                    {
+                      label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou",
+                      color: "#000000", border: "rgba(255,255,255,0.15)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg>,
+                    },
+                    {
+                      label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou",
+                      color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg>,
+                    },
                   ].map((s) => (
-                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }} onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")} onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}>
+                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 rounded-2xl"
+                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }}
+                      onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+                      onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
                       <div style={{ color: "white" }}>{s.icon}</div>
                       <div>
                         <div className="text-sm font-semibold text-white">{s.label}</div>
                         <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{s.handle}</div>
+                      </div>
+                      <div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
                       </div>
                     </a>
                   ))}
@@ -755,7 +753,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 🔒 PRIVATE */}
+          {/* PRIVATE */}
           {activeTab === "private" && (
             <section className="py-24 px-6 anim-slideup">
               {!privateUnlocked ? (
@@ -766,7 +764,15 @@ export default function App() {
                     <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
                   </div>
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
-                    <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none" style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }} />
+                    <input
+                      type="password"
+                      value={passwordInput}
+                      onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }}
+                      placeholder="Password..."
+                      className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }}
+                    />
                     {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
                     <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
                   </div>
@@ -792,11 +798,9 @@ export default function App() {
             </section>
           )}
 
-          {/* 🔍 LIGHTBOX */}
+          {/* LIGHTBOX */}
           {preview && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center"
-              style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
+            <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
               onClick={closePreview}
               onContextMenu={(e) => e.preventDefault()}
               onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
@@ -809,48 +813,45 @@ export default function App() {
             >
               <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>‹</button>
               <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
-                <img
-                  key={preview.index}
-                  src={preview.photos[preview.index]}
-                  className="anim-fadescale"
-                  style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
+                <img key={preview.index} src={preview.photos[preview.index]} className="anim-fadescale" style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
-                  onDoubleClick={(e) => handleDoubleTap(e, `preview-${preview.photos[preview.index]}`)}
+                  onDoubleClick={(e) => { const key = `preview-${preview.photos[preview.index]}`; handleDoubleTap(e, key); }}
                   onTouchEnd={(e) => {
                     const now = Date.now();
                     const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
-                    if (now - lastTap < 300) handleDoubleTap(e, `preview-${preview.photos[preview.index]}`);
+                    if (now - lastTap < 300) { const key = `preview-${preview.photos[preview.index]}`; handleDoubleTap(e, key); }
                     (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                   }}
                 />
-                <div className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none" style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>© FAJREZ FOR YOU</div>
+                <div className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none" style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)", letterSpacing: "0.04em" }}>© FAJREZ FOR YOU</div>
+                {preview && (() => {
+                  const key = `preview-${preview.photos[preview.index]}`;
+                  const count = likedPhotos[key] || 0;
+                  return count > 0 ? <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {count}</div> : null;
+                })()}
               </div>
               <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
               <div className="absolute bottom-6 flex gap-2">
                 {preview.photos.map((_, i) => (
-                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)" }} />
+                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease" }} />
                 ))}
               </div>
               <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm" style={{ background: "rgba(255,255,255,0.1)" }}>✕</button>
             </div>
           )}
 
-          {/* 📱 BOTTOM NAVBAR */}
+          {/* BOTTOM NAVBAR */}
           <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1" style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             {[
-              { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
-              { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
-              { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
-              { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
-              { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
+              { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
+              { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
+              { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
+              { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
+              { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
             ].map(({ tab, label, icon }) => (
-              <button
-                key={tab}
-                onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
+              <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
-                onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
-                onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
               >
                 {icon}
                 <span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>

@@ -6,14 +6,14 @@ const galleryPhotos = [
 ];
 
 const watchVideos = [
-  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd",
-  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0023_nr83xb",
-  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0027_fmko3t",
+  "lv_7646454190348209425_20260610025241_ul4pfd",
+  "VID-20260611-WA0023_nr83xb",
+  "VID-20260611-WA0027_fmko3t",
 ];
 
 const privateVideos = [
-  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0033_swyohd",
-  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0035_j8slum",
+  "VID-20260611-WA0033_swyohd",
+  "VID-20260611-WA0035_j8slum",
 ];
 
 const gamePhotos: Record<string, string[]> = {
@@ -74,7 +74,6 @@ export default function App() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordShake, setPasswordShake] = useState(false);
-  const touchStartY = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   const enterApp = () => {
@@ -196,6 +195,17 @@ export default function App() {
         }
         .shake { animation: shake 0.5s ease-out; }
         .lock-pulse { animation: lockPulse 2s ease-in-out infinite; }
+        .nav-btn-circle {
+          width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; cursor: pointer;
+          background: rgba(99,102,241,0.15);
+          border: 1px solid rgba(99,102,241,0.4);
+          color: white;
+          transition: background 0.2s, transform 0.15s;
+        }
+        .nav-btn-circle:disabled { color: rgba(255,255,255,0.2); cursor: default; }
+        .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
       `}</style>
 
       {/* 🌌 BACKGROUND GLOW */}
@@ -255,40 +265,55 @@ export default function App() {
       {/* 📱 APP */}
       {stage === "app" && (
         <>
-          {/* 🎥 WATCH — FYP Style */}
+          {/* 🎥 WATCH */}
           {activeTab === "watch" && (
             <section className="anim-slideup">
-              <div
-                className="relative"
-                style={{ height: "100dvh" }}
-                onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
-                onTouchEnd={(e) => {
-                  if (touchStartY.current === null) return;
-                  const diff = touchStartY.current - e.changedTouches[0].clientY;
-                  if (diff > 60 && watchIndex < watchVideos.length - 1) setWatchIndex(watchIndex + 1);
-                  if (diff < -60 && watchIndex > 0) setWatchIndex(watchIndex - 1);
-                  touchStartY.current = null;
-                }}
-              >
-                <div className="flex items-center justify-center h-full px-4">
-                  <div className="w-full max-w-[360px] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl relative" style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+              <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
+                {/* Player row */}
+                <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
+                  {/* Prev button */}
+                  <button
+                    className="nav-btn-circle"
+                    disabled={watchIndex === 0}
+                    onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }}
+                    style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}
+                  >
+                    ←
+                  </button>
+
+                  {/* Video */}
+                  <div
+                    className="flex-1 rounded-2xl overflow-hidden shadow-2xl"
+                    style={{ aspectRatio: "9/16", border: "1px solid rgba(255,255,255,0.12)" }}
+                  >
                     <iframe
                       key={watchIndex}
                       className="w-full h-full"
                       src={`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${watchVideos[watchIndex]}`}
+                      allow="autoplay; fullscreen"
                     />
                   </div>
+
+                  {/* Next button */}
+                  <button
+                    className="nav-btn-circle"
+                    disabled={watchIndex === watchVideos.length - 1}
+                    onClick={() => { playClick(); setWatchIndex(i => Math.min(i + 1, watchVideos.length - 1)); }}
+                    style={{ opacity: watchIndex === watchVideos.length - 1 ? 0.3 : 1 }}
+                  >
+                    →
+                  </button>
                 </div>
 
-                {/* dots indicator */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+                {/* Dot indicators */}
+                <div className="flex gap-2 mt-5">
                   {watchVideos.map((_, i) => (
                     <div
                       key={i}
-                      onClick={() => setWatchIndex(i)}
+                      onClick={() => { playClick(); setWatchIndex(i); }}
                       style={{
-                        width: "6px",
-                        height: i === watchIndex ? "20px" : "6px",
+                        width: i === watchIndex ? "20px" : "6px",
+                        height: "6px",
                         borderRadius: "3px",
                         background: i === watchIndex ? "white" : "rgba(255,255,255,0.3)",
                         transition: "all 0.2s ease",
@@ -298,12 +323,10 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* swipe hint */}
-                {watchIndex === 0 && (
-                  <div className="absolute bottom-28 left-0 right-0 flex justify-center" style={{ animation: "glowPulse 2s ease-in-out infinite" }}>
-                    <div className="text-xs text-white/40 tracking-widest">swipe up for next</div>
-                  </div>
-                )}
+                {/* Video counter */}
+                <div className="mt-3 text-xs tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {watchIndex + 1} / {watchVideos.length}
+                </div>
               </div>
             </section>
           )}
@@ -459,15 +482,11 @@ export default function App() {
             <section className="py-24 px-6 anim-slideup">
               {!privateUnlocked ? (
                 <div className="max-w-sm mx-auto flex flex-col items-center gap-6 pt-10">
-
-                  {/* lock icon */}
                   <div className="lock-pulse" style={{ fontSize: "56px" }}>🔒</div>
-
                   <div className="text-center">
                     <div className="text-xl font-bold tracking-wider mb-1 shimmer-text">Private</div>
                     <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
                   </div>
-
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
                     <input
                       type="password"
@@ -498,7 +517,6 @@ export default function App() {
                       Unlock
                     </button>
                   </div>
-
                 </div>
               ) : (
                 <div className="anim-slideup">

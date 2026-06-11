@@ -163,6 +163,24 @@ export default function App() {
       {/* 🎮 GAME */}
       {activeTab === "game" && (
         <section className="py-24 text-center px-6 scroll-mt-24">
+          {/* 🎥 GAME VIDEO (TARUH DI SINI) */}
+<div className="flex justify-center mb-10">
+  <div className="relative w-[90%] max-w-[520px] aspect-video">
+
+    {/* glow */}
+    <div className="absolute -inset-2 bg-yellow-400/20 blur-2xl rounded-3xl" />
+
+    {/* frame */}
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <iframe
+        className="w-full h-full"
+        src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=ssstik.io_1781060165448_nrirrw"
+        allow="autoplay; fullscreen"
+      />
+    </div>
+
+  </div>
+</div>
 
           {!selectedGame ? (
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">

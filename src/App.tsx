@@ -128,28 +128,23 @@ function CursorGlow() {
   );
 }
 
-// Image dengan watermark + proteksi
-function ImageWithWatermark({ src, className }: { src: string; className?: string }) {
+// Image tanpa watermark + border RGB shimmer
+function GalleryImage({ src, className }: { src: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
-    <div className="relative overflow-hidden rounded-2xl w-full h-full">
+    <div className="relative overflow-hidden rounded-2xl w-full h-full rgb-border group">
       {!loaded && <div className="absolute inset-0 bg-white/10 animate-pulse rounded-2xl" />}
       <img
         src={src}
         onLoad={() => setLoaded(true)}
-        className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`${className} transition-all duration-500 group-hover:scale-105 ${loaded ? "opacity-100" : "opacity-0"}`}
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
         draggable={false}
         style={{ userSelect: "none", WebkitTouchCallout: "none" }}
       />
-      <div
-        className="absolute bottom-1 right-1 text-[10px] font-semibold opacity-40 select-none"
-        style={{ color: "white", textShadow: "0 1px 3px rgba(0,0,0,0.7)", letterSpacing: "0.05em" }}
-        onContextMenu={(e) => e.preventDefault()}
-      >
-        © FAJREZ FOR YOU
-      </div>
+      {/* Overlay vignette ala Pinterest */}
+      <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%)" }} />
     </div>
   );
 }
@@ -201,12 +196,12 @@ export default function App() {
   const [likedPhotos, setLikedPhotos] = useState<Record<string, number>>({});
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
 
-  // Buku tamu state
+  // Buku tamu
   const [guestName, setGuestName] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  // AI Battle state
+  // AI Battle
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiResponses, setAiResponses] = useState<{ model: string; answer: string }[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -218,7 +213,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // 🌗 WIB helpers
   const getWIB = () =>
     time.toLocaleTimeString("id-ID", {
       timeZone: "Asia/Jakarta",
@@ -250,7 +244,7 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  // 🌈 Dynamic background gradient berdasarkan jam
+  // 🌈 Background dinamis
   const getGradient = () => {
     const h = getWIBHour();
     if (h >= 5 && h < 11) return "linear-gradient(135deg, #ffd6a5, #f9c8e8, #b8c0ff)";
@@ -290,7 +284,6 @@ export default function App() {
     if (stored) setLikedPhotos(JSON.parse(stored));
   }, []);
 
-  // Double tap love handler
   const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent, photoKey: string) => {
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
@@ -304,7 +297,6 @@ export default function App() {
     playClick();
   };
 
-  // Buku tamu kirim ke email via FormSubmit
   const sendGuestbook = async () => {
     if (!guestName.trim() || !guestMessage.trim()) return;
     setSending(true);
@@ -334,12 +326,9 @@ export default function App() {
     }
   };
 
-  // 🤖 AI Battle simulator
   const askAI = () => {
     if (!aiQuestion.trim()) return;
     setAiLoading(true);
-
-    // Bank jawaban puitis/lucu untuk tiap model
     const chatGptAnswers = [
       "Hmm, pertanyaan yang menarik! Aku rasa jawabannya adalah... cinta. Selalu cinta.",
       "Kalau aku boleh jujur, itu tergantung hati. Tapi aku yakin, kamu sudah tahu jawabannya sejak awal.",
@@ -356,7 +345,6 @@ export default function App() {
       "Jawabannya sederhana: lakukan apa yang hatimu katakan. Aku selalu mendukungmu.",
       "Kata orang bijak, rahasia kebahagiaan adalah menikmati prosesnya. Jadi, nikmati saja dulu.",
     ];
-
     setTimeout(() => {
       setAiResponses([
         { model: "ChatGPT", answer: chatGptAnswers[Math.floor(Math.random() * chatGptAnswers.length)] },
@@ -426,8 +414,6 @@ export default function App() {
     `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
 
   const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
-
-  // Container utama dengan background dinamis
   const mainBg = getGradient();
 
   return (
@@ -455,6 +441,12 @@ export default function App() {
           0% { border-color: rgba(99,102,241,0.3); box-shadow: 0 0 12px rgba(99,102,241,0.2); }
           50% { border-color: rgba(139,92,246,0.8); box-shadow: 0 0 24px rgba(139,92,246,0.4); }
           100% { border-color: rgba(99,102,241,0.3); box-shadow: 0 0 12px rgba(99,102,241,0.2); }
+        }
+        @keyframes rgbBorder {
+          0% { border-color: #ff0080; box-shadow: 0 0 15px #ff0080; }
+          33% { border-color: #00ff80; box-shadow: 0 0 15px #00ff80; }
+          66% { border-color: #0080ff; box-shadow: 0 0 15px #0080ff; }
+          100% { border-color: #ff0080; box-shadow: 0 0 15px #ff0080; }
         }
         @keyframes avatarGlow {
           0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 40px rgba(99,102,241,0.2); }
@@ -501,6 +493,12 @@ export default function App() {
         }
         .shake { animation: shake 0.5s ease-out; }
         .lock-pulse { animation: lockPulse 2s ease-in-out infinite; }
+        .rgb-border {
+          border: 3px solid #ff0080;
+          animation: rgbBorder 4s linear infinite;
+          transition: transform 0.3s ease;
+        }
+        .rgb-border:active { transform: scale(0.96); }
         .nav-btn-circle {
           width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center;
@@ -591,15 +589,16 @@ export default function App() {
             </section>
           )}
 
-          {/* EXPERIENCE */}
+          {/* EXPERIENCE (Pinterest + RGB border) */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+              <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
                 {galleryPhotos.map((img, i) => {
                   const key = `gallery-${i}`;
                   const likeCount = likedPhotos[key] || 0;
+                  const randomHeight = i % 3 === 0 ? "h-56" : i % 2 === 0 ? "h-48" : "h-64";
                   return (
-                    <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                    <div key={i} className="break-inside-avoid cursor-pointer"
                       onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
                       onDoubleClick={(e) => handleDoubleTap(e, key)}
                       onTouchEnd={(e) => {
@@ -609,10 +608,14 @@ export default function App() {
                         (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                       }}
                     >
-                      <ImageWithWatermark src={img} className="h-48 w-full object-cover" />
-                      {likeCount > 0 && (
-                        <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>
-                      )}
+                      <div className="relative">
+                        <GalleryImage src={img} className={`${randomHeight} w-full object-cover`} />
+                        {likeCount > 0 && (
+                          <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">
+                            ❤️ {likeCount}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -658,7 +661,7 @@ export default function App() {
                       const key = `game-${selectedGame}-${i}`;
                       const likeCount = likedPhotos[key] || 0;
                       return (
-                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border"
                           onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
                           onDoubleClick={(e) => handleDoubleTap(e, key)}
                           onTouchEnd={(e) => {
@@ -668,9 +671,9 @@ export default function App() {
                             (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                           }}
                         >
-                          <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
+                          <GalleryImage src={img} className="w-full aspect-video object-cover" />
                           {likeCount > 0 && (
-                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {likeCount}</div>
+                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>
                           )}
                         </div>
                       );
@@ -681,7 +684,7 @@ export default function App() {
             </section>
           )}
 
-          {/* ABOUT (dengan AI Battle) */}
+          {/* ABOUT */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -782,7 +785,6 @@ export default function App() {
                       {aiLoading ? "Berpikir..." : "Tanya AI Battle"}
                     </button>
                   </div>
-                  {/* Hasil jawaban */}
                   {aiResponses.length > 0 && (
                     <div className="mt-3 flex flex-col gap-3">
                       {aiResponses.map((res) => (
@@ -909,11 +911,10 @@ export default function App() {
                     (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
                   }}
                 />
-                <div className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none" style={{ color: "white", textShadow: "0 1px 4px rgba(0,0,0,0.8)", letterSpacing: "0.04em" }}>© FAJREZ FOR YOU</div>
                 {preview && (() => {
                   const key = `preview-${preview.photos[preview.index]}`;
                   const count = likedPhotos[key] || 0;
-                  return count > 0 ? <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">❤️ {count}</div> : null;
+                  return count > 0 ? <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {count}</div> : null;
                 })()}
               </div>
               <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>

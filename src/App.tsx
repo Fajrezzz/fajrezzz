@@ -143,6 +143,73 @@ function GalleryImage({ src, className }: { src: string; className?: string }) {
   );
 }
 
+// Shooting star component
+function ShootingStars() {
+  const [stars, setStars] = useState<{ id: number; top: number; left: number; delay: number }[]>([]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const id = Date.now();
+      setStars(prev => [...prev, { id, top: Math.random() * 60, left: Math.random() * 80, delay: 0 }]);
+      setTimeout(() => {
+        setStars(prev => prev.filter(s => s.id !== id));
+      }, 1200);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+      {stars.map(s => (
+        <div
+          key={s.id}
+          style={{
+            position: "absolute",
+            top: `${s.top}%`,
+            left: `${s.left}%`,
+            width: "2px",
+            height: "80px",
+            background: "linear-gradient(to top, transparent, #fff, #c4b5fd)",
+            transform: "rotate(-45deg)",
+            animation: `shootingStar 1.2s ease-out forwards ${s.delay}s`,
+            opacity: 0.8,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes shootingStar {
+          0% { transform: rotate(-45deg) translateX(0); opacity: 0.8; }
+          100% { transform: rotate(-45deg) translateX(-300px) translateY(300px); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Audio visualizer equalizer
+function Equalizer({ active }: { active: boolean }) {
+  return (
+    <div className="flex justify-center items-end gap-1 h-8 mt-1">
+      {[0,1,2,3,4].map(i => (
+        <div
+          key={i}
+          className="w-1.5 rounded-full bg-purple-400"
+          style={{
+            height: active ? `${12 + Math.sin(i * 1.2) * 8}px` : "4px",
+            transition: "height 0.2s ease",
+            animation: active ? `equalizer 0.8s ease-in-out infinite alternate ${i * 0.1}s` : "none",
+            boxShadow: "0 0 6px #a855f7",
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes equalizer {
+          0% { height: 6px; }
+          100% { height: 24px; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
@@ -371,7 +438,6 @@ export default function App() {
 
   const enterApp = () => {
     playClick();
-    // Auto pause musik saat masuk loading
     if (isMusicOn && bgMusicRef.current) {
       bgMusicRef.current.pause();
       setIsMusicOn(false);
@@ -436,6 +502,14 @@ export default function App() {
   const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
   const mainBg = getGradient();
 
+  // Aurora colors
+  const auroraColors = [
+    "rgba(99,102,241,0.15)",
+    "rgba(139,92,246,0.1)",
+    "rgba(244,114,182,0.08)",
+    "rgba(99,102,241,0.12)",
+  ];
+
   return (
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
@@ -449,7 +523,33 @@ export default function App() {
     >
       {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
 
+      {/* Aurora Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        {auroraColors.map((color, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              top: `${10 + i * 25}%`,
+              left: `${5 + i * 20}%`,
+              width: "60vw",
+              height: "60vw",
+              background: color,
+              filter: "blur(60px)",
+              animation: `auroraFloat ${10 + i * 3}s ease-in-out infinite alternate`,
+              opacity: 0.7,
+            }}
+          />
+        ))}
+        <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
+        <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
+      </div>
+
       <style>{`
+        @keyframes auroraFloat {
+          0% { transform: translateY(0px) translateX(0px) scale(1); }
+          100% { transform: translateY(-20px) translateX(10px) scale(1.05); }
+        }
         @keyframes loadbar { from { width: 0%; } to { width: 100%; } }
         @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -471,6 +571,10 @@ export default function App() {
         @keyframes avatarGlow {
           0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 40px rgba(99,102,241,0.2); }
           50% { box-shadow: 0 0 30px rgba(139,92,246,0.6), 0 0 60px rgba(139,92,246,0.3); }
+        }
+        @keyframes conicRotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         @keyframes cardIn {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
@@ -499,6 +603,10 @@ export default function App() {
           40% { opacity: 0.9; transform: scale(1); }
           100% { opacity: 0; transform: scale(1); }
         }
+        @keyframes tabFadeIn {
+          from { opacity: 0; transform: translateY(10px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
         .anim-fadescale { animation: fadeScaleIn 0.3s ease-out forwards; }
         .anim-slideup { animation: slideUp 0.35s ease-out forwards; }
         .intro-out { animation: fadeOut 0.6s ease-in forwards; }
@@ -508,6 +616,15 @@ export default function App() {
         .glow-text { animation: glowPulse 2.5s ease-in-out infinite; }
         .btn-shimmer { animation: borderShimmer 2.5s ease-in-out infinite; }
         .avatar-glow { animation: avatarGlow 3s ease-in-out infinite; }
+        .conic-avatar {
+          position: absolute;
+          inset: -6px;
+          border-radius: 50%;
+          background: conic-gradient(from 0deg, #7c3aed, #ec4899, #3b82f6, #7c3aed);
+          animation: conicRotate 4s linear infinite;
+          filter: blur(10px);
+          opacity: 0.8;
+        }
         .card-in-1 { animation: cardIn 0.5s ease-out 0.1s both; }
         .card-in-2 { animation: cardIn 0.5s ease-out 0.25s both; }
         .card-in-3 { animation: cardIn 0.5s ease-out 0.4s both; }
@@ -527,6 +644,20 @@ export default function App() {
           transition: transform 0.3s ease;
         }
         .rgb-border:active { transform: scale(0.96); }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 1.5rem;
+          box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .glass-nav {
+          background: rgba(15,12,41,0.7);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-top: 1px solid rgba(255,255,255,0.08);
+        }
         .nav-btn-circle {
           width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center;
@@ -538,13 +669,20 @@ export default function App() {
         }
         .nav-btn-circle:disabled { color: rgba(255,255,255,0.2); cursor: default; }
         .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
+        .social-card {
+          transition: all 0.3s ease;
+          border-radius: 1rem;
+        }
+        .social-card:hover {
+          transform: scale(1.02);
+          box-shadow: 0 0 25px rgba(139,92,246,0.5), 0 0 45px rgba(99,102,241,0.3);
+        }
+        .social-card:active {
+          transform: scale(0.97);
+        }
       `}</style>
 
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
-        <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
-      </div>
-
+      <ShootingStars />
       <Particles />
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
@@ -565,11 +703,9 @@ export default function App() {
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
           style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
         >
-          {/* Tombol Play/Pause Musik di pojok kanan atas */}
           <button
             onClick={toggleMusic}
-            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center text-xl"
-            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)", color: "white" }}
+            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center text-xl glass-card"
             title={isMusicOn ? "Pause" : "Play"}
           >
             {isMusicOn ? "⏸" : "▶"}
@@ -616,7 +752,7 @@ export default function App() {
         <>
           {/* WATCH */}
           {activeTab === "watch" && (
-            <section className="anim-slideup">
+            <section className="anim-slideup" key="watch" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
                 <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
                   <button className="nav-btn-circle" disabled={watchIndex === 0} onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }} style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}>←</button>
@@ -638,7 +774,7 @@ export default function App() {
 
           {/* EXPERIENCE */}
           {activeTab === "photo" && (
-            <section className="py-24 px-4 anim-slideup">
+            <section className="py-24 px-4 anim-slideup" key="photo" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
                 {galleryPhotos.map((img, i) => {
                   const key = `gallery-${i}`;
@@ -672,7 +808,7 @@ export default function App() {
 
           {/* GAME */}
           {activeTab === "game" && (
-            <section className="py-24 text-center px-4 anim-slideup">
+            <section className="py-24 text-center px-4 anim-slideup" key="game" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               {!selectedGame ? (
                 <>
                   <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-10">
@@ -681,7 +817,7 @@ export default function App() {
                       { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(59,130,246,0.2)" },
                       { id: "VID-20260611-WA0005_sjippo", glow: "rgba(139,92,246,0.2)", full: true },
                     ].map((v, i) => (
-                      <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""}`} style={{ aspectRatio: "16/9" }}>
+                      <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""} glass-card overflow-hidden`} style={{ aspectRatio: "16/9" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} />
                         <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
                           <iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" />
@@ -696,19 +832,19 @@ export default function App() {
                       { key: "ff", label: "Free Fire", color: "#dc2626" },
                       { key: "roblox", label: "Roblox", color: "#7c3aed" },
                     ].map((g) => (
-                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold" style={{ background: g.color, transition: "transform 0.15s ease" }}>{g.label}</div>
+                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold glass-card" style={{ background: g.color, transition: "transform 0.15s ease" }}>{g.label}</div>
                     ))}
                   </div>
                 </>
               ) : (
                 <div className="anim-slideup">
-                  <button onClick={() => { playClick(); setSelectedGame(null); }} className="mb-8 px-5 py-2 rounded-full text-sm" style={{ border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.05)" }}>← Back</button>
+                  <button onClick={() => { playClick(); setSelectedGame(null); }} className="mb-8 px-5 py-2 rounded-full text-sm glass-card">← Back</button>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
                     {gamePhotos[selectedGame].map((img, i) => {
                       const key = `game-${selectedGame}-${i}`;
                       const likeCount = likedPhotos[key] || 0;
                       return (
-                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border"
+                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border glass-card"
                           onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
                           onDoubleClick={(e) => handleDoubleTap(e, key)}
                           onTouchEnd={(e) => {
@@ -733,14 +869,18 @@ export default function App() {
 
           {/* ABOUT */}
           {activeTab === "about" && (
-            <section className="py-24 px-6 anim-slideup">
+            <section className="py-24 px-6 anim-slideup" key="about" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
+                {/* Avatar with RGB Aura */}
                 <div className="card-in-1 relative">
-                  <div className="w-28 h-28 rounded-full overflow-hidden avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)" }}>
-                    <img src="/1.jpg" className="w-full h-full object-cover" onContextMenu={(e) => e.preventDefault()} draggable={false} />
+                  <div className="w-28 h-28 rounded-full relative overflow-visible avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)", boxShadow: "0 0 30px rgba(139,92,246,0.5)" }}>
+                    <div className="conic-avatar" />
+                    <img src="/1.jpg" className="w-full h-full object-cover rounded-full relative z-10" onContextMenu={(e) => e.preventDefault()} draggable={false} />
                   </div>
-                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
+                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)", zIndex: 20 }} />
                 </div>
+                {/* Audio Visualizer */}
+                <Equalizer active={isMusicOn} />
                 <div className="card-in-2 text-center">
                   <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
                   <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -748,9 +888,9 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="card-in-2 w-full text-center">
+                <div className="card-in-2 w-full text-center glass-card py-4 px-6">
                   <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div>
-                  <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
+                  <div className="py-4 px-6 rounded-2xl mx-auto inline-block">
                     <div className="text-4xl font-mono font-bold tracking-[0.15em] shimmer-text">
                       {getWIB()}
                     </div>
@@ -771,32 +911,32 @@ export default function App() {
                     { label: "Games", value: "3" },
                     { label: "Visitors", value: visitorCount },
                   ].map((s) => (
-                    <div key={s.label} className="rounded-2xl py-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div key={s.label} className="rounded-2xl py-3 glass-card">
                       <div className="text-xl font-bold" style={{ color: "#a5b4fc" }}>{s.value}</div>
                       <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="card-in-4 w-full">
+                <div className="card-in-4 w-full glass-card p-4">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
                   <div className="flex flex-col gap-2">
-                    <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
-                    <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }} />
+                    <input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" />
+                    <textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10 resize-none" />
                     <button onClick={sendGuestbook} disabled={sending} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>{sending ? "Mengirim..." : "Kirim 💌"}</button>
                   </div>
                 </div>
 
-                <div className="card-in-4 w-full">
+                <div className="card-in-4 w-full glass-card p-4">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
                   <div className="flex flex-col gap-2">
-                    <input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }} />
+                    <input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" />
                     <button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button>
                   </div>
                   {aiResponses.length > 0 && (
                     <div className="mt-3 flex flex-col gap-3">
                       {aiResponses.map((res) => (
-                        <div key={res.model} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <div key={res.model} className="p-3 rounded-xl glass-card">
                           <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>{res.model}</div>
                           <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>{res.answer}</div>
                         </div>
@@ -819,8 +959,8 @@ export default function App() {
                     },
                   ].map((s) => (
                     <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 rounded-2xl"
-                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }}
+                      className="flex items-center gap-4 p-4 rounded-2xl social-card"
+                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease, box-shadow 0.3s" }}
                       onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
                       onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
                     >
@@ -845,7 +985,7 @@ export default function App() {
 
           {/* PRIVATE */}
           {activeTab === "private" && (
-            <section className="py-24 px-6 anim-slideup">
+            <section className="py-24 px-6 anim-slideup" key="private" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               {!privateUnlocked ? (
                 <div className="max-w-sm mx-auto flex flex-col items-center gap-6 pt-10">
                   <div className="lock-pulse" style={{ fontSize: "56px" }}>🔒</div>
@@ -854,7 +994,7 @@ export default function App() {
                     <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
                   </div>
                   <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
-                    <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none" style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }} />
+                    <input type="password" value={passwordInput} onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }} onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }} placeholder="Password..." className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none bg-white/5 border border-white/10" style={{ fontSize: "14px" }} />
                     {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
                     <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
                   </div>
@@ -864,7 +1004,7 @@ export default function App() {
                   <div className="text-center mb-8"><div className="text-lg font-bold shimmer-text tracking-wider">Private 🔓</div></div>
                   <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     {privateVideos.map((id, i) => (
-                      <div key={i} className="relative" style={{ aspectRatio: "9/16" }}>
+                      <div key={i} className="relative glass-card overflow-hidden" style={{ aspectRatio: "9/16" }}>
                         <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
                         <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
                           <iframe className="w-full h-full" src={videoUrl(id)} allow="autoplay; fullscreen" />
@@ -873,7 +1013,7 @@ export default function App() {
                     ))}
                   </div>
                   <div className="text-center mt-8">
-                    <button onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }} className="px-5 py-2 rounded-full text-xs" style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}>🔒 Lock again</button>
+                    <button onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }} className="px-5 py-2 rounded-full text-xs glass-card">🔒 Lock again</button>
                   </div>
                 </div>
               )}
@@ -893,7 +1033,7 @@ export default function App() {
                 touchStartX.current = null;
               }}
             >
-              <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>‹</button>
+              <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full glass-card">‹</button>
               <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
                 <img key={preview.index} src={preview.photos[preview.index]} className="anim-fadescale" style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
                   onContextMenu={(e) => e.preventDefault()}
@@ -912,18 +1052,18 @@ export default function App() {
                   return count > 0 ? <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {count}</div> : null;
                 })()}
               </div>
-              <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
+              <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full glass-card">›</button>
               <div className="absolute bottom-6 flex gap-2">
                 {preview.photos.map((_, i) => (
                   <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease" }} />
                 ))}
               </div>
-              <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm" style={{ background: "rgba(255,255,255,0.1)" }}>✕</button>
+              <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm glass-card">✕</button>
             </div>
           )}
 
-          {/* BOTTOM NAVBAR */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1" style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          {/* BOTTOM NAVBAR - Premium Glass */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1 glass-nav" style={{ background: "rgba(15,12,41,0.7)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             {[
               { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
               { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
@@ -932,7 +1072,14 @@ export default function App() {
               { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
             ].map(({ tab, label, icon }) => (
               <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px",
+                  color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)",
+                  transition: "all 0.2s ease",
+                  background: activeTab === tab ? "rgba(255,255,255,0.1)" : "transparent",
+                  boxShadow: activeTab === tab ? "0 0 15px rgba(139,92,246,0.4)" : "none",
+                  transform: activeTab === tab ? "scale(1.05)" : "scale(1)",
+                }}
               >
                 {icon}
                 <span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>

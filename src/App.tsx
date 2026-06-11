@@ -363,8 +363,8 @@ export default function App() {
             setTimeout(() => setShowConfetti(false), 3000);
           }, 1200);
         }, 600);
-      }, 800);
-    }, 1000);
+      }, 1500);
+    }, 2000);
   };
 
   const openPreview = (photos: string[], index: number) => {

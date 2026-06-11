@@ -6,6 +6,7 @@ const galleryPhotos = [
 ];
 
 const watchVideos = [
+  "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=lv_7646454190348209425_20260610025241_ul4pfd",
   "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0023_nr83xb",
   "https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0027_fmko3t",
 ];

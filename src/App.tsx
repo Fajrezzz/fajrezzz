@@ -163,8 +163,46 @@ export default function App() {
       {/* 🎮 GAME */}
       {activeTab === "game" && (
         <section className="py-24 text-center px-6 scroll-mt-24">
-          {/* 🎥 GAME VIDEO (TARUH DI SINI) */}
-<div className="flex justify-center mb-10">
+          {/* 🎥 GAME VIDEOS */}
+<div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-10">
+
+  {/* Video 1 */}
+  <div className="relative aspect-video">
+    <div className="absolute -inset-2 bg-yellow-400/20 blur-2xl rounded-3xl" />
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <iframe
+        className="w-full h-full"
+        src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=ssstik.io_1781060165448_nrirrw"
+        allow="autoplay; fullscreen"
+      />
+    </div>
+  </div>
+
+  {/* Video 2 */}
+  <div className="relative aspect-video">
+    <div className="absolute -inset-2 bg-blue-400/20 blur-2xl rounded-3xl" />
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <iframe
+        className="w-full h-full"
+        src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0003_cfunh3"
+        allow="autoplay; fullscreen"
+      />
+    </div>
+  </div>
+
+  {/* Video 3 */}
+  <div className="relative aspect-video md:col-span-2">
+    <div className="absolute -inset-2 bg-purple-400/20 blur-2xl rounded-3xl" />
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <iframe
+        className="w-full h-full"
+        src="https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=VID-20260611-WA0005_sjippo"
+        allow="autoplay; fullscreen"
+      />
+    </div>
+  </div>
+
+</div>
   <div className="relative w-[90%] max-w-[520px] aspect-video">
 
     {/* glow */}

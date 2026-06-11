@@ -204,7 +204,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // --- MUSIK STATE ---
+  // --- MUSIC STATE ---
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
   const [isMusicOn, setIsMusicOn] = useState(false);
 
@@ -371,6 +371,11 @@ export default function App() {
 
   const enterApp = () => {
     playClick();
+    // Auto pause musik saat masuk loading
+    if (isMusicOn && bgMusicRef.current) {
+      bgMusicRef.current.pause();
+      setIsMusicOn(false);
+    }
     setStage("loading");
     setTimeout(() => {
       setLightning(true);

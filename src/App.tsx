@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const galleryPhotos = [
   "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg",
@@ -56,12 +56,37 @@ function Confetti() {
   );
 }
 
-// 🕒 Flip clock digit
+// ❤️ Floating heart animation
+function FloatingHeart({ x, y }: { x: number; y: number }) {
+  return (
+    <div
+      className="fixed pointer-events-none z-[65] text-2xl"
+      style={{
+        left: x,
+        top: y,
+        animation: "heartFloat 0.8s ease-out forwards",
+      }}
+    >
+      ❤️
+      <style>{`
+        @keyframes heartFloat {
+          0% { opacity: 1; transform: translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// 🕒 Flip digit dengan animasi ulang setiap detik
 function FlipDigit({ value }: { value: string }) {
   return (
     <span className="relative inline-block w-[1.1em] h-[1.2em] text-center font-mono font-bold text-4xl shimmer-text overflow-hidden">
-      <span className="absolute inset-0 flex items-center justify-center">{value}</span>
-      <span className="absolute inset-0 flex items-center justify-center" style={{ backfaceVisibility: "hidden", animation: "flipIn 0.4s ease-out" }}>
+      <span
+        key={value}
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ animation: "flipIn 0.3s ease-out" }}
+      >
         {value}
       </span>
       <style>{`
@@ -75,7 +100,6 @@ function FlipDigit({ value }: { value: string }) {
 }
 
 function FlipClock({ time }: { time: string }) {
-  // time format "HH:mm:ss"
   const digits = time.replace(/:/g, "").split("");
   return (
     <div className="flex items-center justify-center gap-[0.15em]">
@@ -214,6 +238,15 @@ export default function App() {
   // 🎉 confetti state
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // ❤️ love state
+  const [likedPhotos, setLikedPhotos] = useState<Record<string, number>>({});
+  const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+
+  // 📝 guestbook
+  const [guestName, setGuestName] = useState("");
+  const [guestMessage, setGuestMessage] = useState("");
+  const [guestbook, setGuestbook] = useState<{ name: string; msg: string }[]>([]);
+
   // 🕒 WIB real-time
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -255,12 +288,84 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
+  // 📊 Visitor counter (unik per device, pakai localStorage)
+  useEffect(() => {
+    const visited = localStorage.getItem("fajrez_visited");
+    if (!visited) {
+      const current = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
+      localStorage.setItem("fajrez_visitors", String(current + 1));
+      localStorage.setItem("fajrez_visited", "true");
+    }
+  }, []);
+
+  // 🌅 Daily quote (array puitis, ganti tiap hari)
+  const dailyQuote = (() => {
+    const quotes = [
+      "Dalam diam aku merakit rindu, hanya untukmu.",
+      "Setiap detak jam ini mengingatkanku padamu.",
+      "Langit malam tak pernah sepi, selalu ada bintang yang menemani.",
+      "Kehadiranmu adalah puisi tanpa kata.",
+      "Jarak tak berarti ketika hati saling menggenggam.",
+      "Kamu adalah alasan aku percaya pada keajaiban.",
+      "Senyummu adalah mentari di pagi paling kelabu.",
+      "Aku menyimpanmu di ruang terdalam, tempat harapan bersemayam.",
+    ];
+    const dayIndex = new Date().getDate() % quotes.length;
+    return quotes[dayIndex];
+  })();
+
+  // ❤️ Load liked photos from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("fajrez_likes");
+    if (stored) setLikedPhotos(JSON.parse(stored));
+  }, []);
+
+  // 💬 Load guestbook
+  useEffect(() => {
+    const stored = localStorage.getItem("fajrez_guestbook");
+    if (stored) setGuestbook(JSON.parse(stored));
+  }, []);
+
+  // Suka foto (double tap)
+  const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent, photoKey: string) => {
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    // Tambah heart
+    const id = Date.now();
+    setHearts(prev => [...prev, { id, x: clientX, y: clientY }]);
+    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== id)), 800);
+
+    // Tambah like count
+    const current = likedPhotos[photoKey] || 0;
+    const updated = { ...likedPhotos, [photoKey]: current + 1 };
+    setLikedPhotos(updated);
+    localStorage.setItem("fajrez_likes", JSON.stringify(updated));
+    playClick();
+  };
+
+  // Guestbook submit
+  const addGuestEntry = () => {
+    if (!guestName.trim() || !guestMessage.trim()) return;
+    const newEntry = { name: guestName.trim(), msg: guestMessage.trim() };
+    const updated = [newEntry, ...guestbook].slice(0, 20); // max 20
+    setGuestbook(updated);
+    localStorage.setItem("fajrez_guestbook", JSON.stringify(updated));
+    setGuestName("");
+    setGuestMessage("");
+    playClick();
+  };
+
   const enterApp = () => {
     playClick();
     setIntroOut(true);
     setTimeout(() => {
       setStage("loading");
-      setTimeout(() => setStage("app"), 1200);
+      setTimeout(() => {
+        setStage("app");
+        // Confetti saat pertama masuk app
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }, 1200);
     }, 600);
   };
 
@@ -289,7 +394,6 @@ export default function App() {
       playClick();
       setPrivateUnlocked(true);
       setPasswordError(false);
-      // 🎉 Trigger confetti
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     } else {
@@ -312,6 +416,8 @@ export default function App() {
 
   const videoUrl = (publicId: string) =>
     `https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${publicId}&showDownload=false&showInfo=false`;
+
+  const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
 
   return (
     <div
@@ -408,6 +514,11 @@ export default function App() {
 
       {/* 🎉 CONFETTI */}
       {showConfetti && <Confetti />}
+
+      {/* ❤️ Floating hearts */}
+      {hearts.map(h => (
+        <FloatingHeart key={h.id} x={h.x} y={h.y} />
+      ))}
 
       {/* ✨ INTRO */}
       {stage === "intro" && (
@@ -518,27 +629,45 @@ export default function App() {
             </section>
           )}
 
-          {/* 📸 EXPERIENCE */}
+          {/* 📸 EXPERIENCE (Galeri dengan love) */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-                {galleryPhotos.map((img, i) => (
-                  <div
-                    key={i}
-                    onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
-                    className="cursor-pointer rounded-2xl overflow-hidden"
-                    style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
-                    onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
-                    onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
-                    <ImageWithWatermark src={img} className="h-48 w-full object-cover" />
-                  </div>
-                ))}
+                {galleryPhotos.map((img, i) => {
+                  const key = `gallery-${i}`;
+                  const likeCount = likedPhotos[key] || 0;
+                  return (
+                    <div
+                      key={i}
+                      className="cursor-pointer rounded-2xl overflow-hidden relative group"
+                      style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                      onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
+                      onDoubleClick={(e) => handleDoubleTap(e, key)}
+                      onTouchEnd={(e) => {
+                        // double tap deteksi untuk mobile
+                        const now = Date.now();
+                        const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                        if (now - lastTap < 300) {
+                          handleDoubleTap(e, key);
+                        }
+                        (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                      }}
+                    >
+                      <ImageWithWatermark src={img} className="h-48 w-full object-cover" />
+                      {/* Like counter */}
+                      {likeCount > 0 && (
+                        <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
+                          ❤️ {likeCount}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
 
-          {/* 🎮 GAME */}
+          {/* 🎮 GAME (dengan love di foto game) */}
           {activeTab === "game" && (
             <section className="py-24 text-center px-4 anim-slideup">
               {!selectedGame ? (
@@ -581,25 +710,41 @@ export default function App() {
                 <div className="anim-slideup">
                   <button onClick={() => { playClick(); setSelectedGame(null); }} className="mb-8 px-5 py-2 rounded-full text-sm" style={{ border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.05)" }}>← Back</button>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-                    {gamePhotos[selectedGame].map((img, i) => (
-                      <div
-                        key={i}
-                        onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
-                        className="cursor-pointer rounded-2xl overflow-hidden"
-                        style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
-                        onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
-                        onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                      >
-                        <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
-                      </div>
-                    ))}
+                    {gamePhotos[selectedGame].map((img, i) => {
+                      const key = `game-${selectedGame}-${i}`;
+                      const likeCount = likedPhotos[key] || 0;
+                      return (
+                        <div
+                          key={i}
+                          className="cursor-pointer rounded-2xl overflow-hidden relative group"
+                          style={{ border: "1px solid rgba(255,255,255,0.1)", transition: "transform 0.15s ease" }}
+                          onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
+                          onDoubleClick={(e) => handleDoubleTap(e, key)}
+                          onTouchEnd={(e) => {
+                            const now = Date.now();
+                            const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                            if (now - lastTap < 300) {
+                              handleDoubleTap(e, key);
+                            }
+                            (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                          }}
+                        >
+                          <ImageWithWatermark src={img} className="w-full aspect-video object-cover" />
+                          {likeCount > 0 && (
+                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
+                              ❤️ {likeCount}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </section>
           )}
 
-          {/* 👤 ABOUT – with flip clock & typewriter */}
+          {/* 👤 ABOUT – with everything */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -637,12 +782,22 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* 🌅 Daily Quote */}
+                <div className="card-in-2 w-full text-center px-2">
+                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>
+                    “{dailyQuote}”
+                  </p>
+                </div>
+
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
-                <div className="card-in-3 w-full grid grid-cols-3 gap-3 text-center">
+
+                {/* 📊 Stats + Visitor */}
+                <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
                   {[
                     { label: "Photos", value: galleryPhotos.length },
                     { label: "Videos", value: "3" },
                     { label: "Games", value: "3" },
+                    { label: "Visitors", value: visitorCount },
                   ].map((s) => (
                     <div key={s.label} className="rounded-2xl py-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                       <div className="text-xl font-bold" style={{ color: "#a5b4fc" }}>{s.value}</div>
@@ -650,7 +805,46 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <div className="card-in-4 w-full flex flex-col gap-3">
+
+                {/* 💬 Buku Tamu */}
+                <div className="card-in-4 w-full">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
+                  <div className="flex flex-col gap-2 mb-4">
+                    <input
+                      placeholder="Nama"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
+                    />
+                    <textarea
+                      placeholder="Tulis pesan..."
+                      value={guestMessage}
+                      onChange={(e) => setGuestMessage(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }}
+                    />
+                    <button
+                      onClick={addGuestEntry}
+                      className="py-2 rounded-xl text-sm font-semibold btn-shimmer"
+                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}
+                    >
+                      Kirim 💌
+                    </button>
+                  </div>
+                  {/* Daftar pesan */}
+                  <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
+                    {guestbook.map((entry, idx) => (
+                      <div key={idx} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <div className="text-xs font-semibold" style={{ color: "#c4b5fd" }}>{entry.name}</div>
+                        <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>{entry.msg}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
                   {[
                     {
                       label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou",
@@ -762,7 +956,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 🔍 LIGHTBOX */}
+          {/* 🔍 LIGHTBOX (dengan love) */}
           {preview && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center"
@@ -786,6 +980,19 @@ export default function App() {
                   style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
+                  onDoubleClick={(e) => {
+                    const key = `preview-${preview.photos[preview.index]}`;
+                    handleDoubleTap(e, key);
+                  }}
+                  onTouchEnd={(e) => {
+                    const now = Date.now();
+                    const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                    if (now - lastTap < 300) {
+                      const key = `preview-${preview.photos[preview.index]}`;
+                      handleDoubleTap(e, key);
+                    }
+                    (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                  }}
                 />
                 <div
                   className="absolute bottom-2 right-2 text-xs font-semibold opacity-50 select-none"
@@ -793,6 +1000,16 @@ export default function App() {
                 >
                   © FAJREZ FOR YOU
                 </div>
+                {/* Like count di lightbox */}
+                {preview && (() => {
+                  const key = `preview-${preview.photos[preview.index]}`;
+                  const count = likedPhotos[key] || 0;
+                  return count > 0 ? (
+                    <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white">
+                      ❤️ {count}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
               <div className="absolute bottom-6 flex gap-2">

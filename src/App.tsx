@@ -143,7 +143,6 @@ function GalleryImage({ src, className }: { src: string; className?: string }) {
         draggable={false}
         style={{ userSelect: "none", WebkitTouchCallout: "none" }}
       />
-      {/* Overlay vignette ala Pinterest */}
       <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%)" }} />
     </div>
   );
@@ -181,6 +180,7 @@ function Particles() {
 export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
+  const [lightning, setLightning] = useState(false);
   const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
@@ -196,17 +196,14 @@ export default function App() {
   const [likedPhotos, setLikedPhotos] = useState<Record<string, number>>({});
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
 
-  // Buku tamu
   const [guestName, setGuestName] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  // AI Battle
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiResponses, setAiResponses] = useState<{ model: string; answer: string }[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
 
-  // 🕒 Jam real-time
   const [time, setTime] = useState(new Date());
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -244,7 +241,6 @@ export default function App() {
     return "Selamat malam 🌙";
   };
 
-  // 🌈 Background dinamis
   const getGradient = () => {
     const h = getWIBHour();
     if (h >= 5 && h < 11) return "linear-gradient(135deg, #ffd6a5, #f9c8e8, #b8c0ff)";
@@ -253,7 +249,6 @@ export default function App() {
     return "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
   };
 
-  // 📊 Visitor counter
   useEffect(() => {
     const visited = localStorage.getItem("fajrez_visited");
     if (!visited) {
@@ -263,7 +258,6 @@ export default function App() {
     }
   }, []);
 
-  // 🌅 Daily quote
   const dailyQuote = (() => {
     const quotes = [
       "Dalam diam aku merakit rindu, hanya untukmu.",
@@ -356,17 +350,24 @@ export default function App() {
     playClick();
   };
 
+  // ⚡ Enter + PETIR
   const enterApp = () => {
     playClick();
-    setIntroOut(true);
+    setLightning(true);
+    // Suara petir (pastikan thunder.mp3 ada di folder public)
+    new Audio("/thunder.mp3").play();
     setTimeout(() => {
-      setStage("loading");
+      setLightning(false);
+      setIntroOut(true);
       setTimeout(() => {
-        setStage("app");
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-      }, 1200);
-    }, 600);
+        setStage("loading");
+        setTimeout(() => {
+          setStage("app");
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 3000);
+        }, 1200);
+      }, 600);
+    }, 500);
   };
 
   const openPreview = (photos: string[], index: number) => {
@@ -471,6 +472,11 @@ export default function App() {
           0%, 100% { transform: scale(1); opacity: 0.8; }
           50% { transform: scale(1.1); opacity: 1; }
         }
+        @keyframes lightningFlash {
+          0% { opacity: 1; }
+          50% { opacity: 1; }
+          100% { opacity: 0; }
+        }
         .anim-fadescale { animation: fadeScaleIn 0.3s ease-out forwards; }
         .anim-slideup { animation: slideUp 0.35s ease-out forwards; }
         .intro-out { animation: fadeOut 0.6s ease-in forwards; }
@@ -512,7 +518,6 @@ export default function App() {
         .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
       `}</style>
 
-      {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
         <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
@@ -521,6 +526,17 @@ export default function App() {
       <Particles />
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
+
+      {/* ⚡ OVERLAY PETIR */}
+      {lightning && (
+        <div
+          className="fixed inset-0 z-[100] pointer-events-none"
+          style={{
+            background: "white",
+            animation: "lightningFlash 0.5s ease-out forwards",
+          }}
+        />
+      )}
 
       {/* INTRO */}
       {stage === "intro" && (
@@ -589,7 +605,7 @@ export default function App() {
             </section>
           )}
 
-          {/* EXPERIENCE (Pinterest + RGB border) */}
+          {/* EXPERIENCE */}
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup">
               <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
@@ -701,7 +717,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* JAM DIGITAL REAL-TIME */}
                 <div className="card-in-2 w-full text-center">
                   <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div>
                   <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
@@ -712,14 +727,12 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Daily Quote */}
                 <div className="card-in-2 w-full text-center px-2">
                   <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>“{dailyQuote}”</p>
                 </div>
 
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
 
-                {/* Stats */}
                 <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
                   {[
                     { label: "Photos", value: galleryPhotos.length },
@@ -734,7 +747,6 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* BUKU TAMU */}
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
                   <div className="flex flex-col gap-2">
@@ -764,7 +776,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* AI BATTLE */}
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
                   <div className="flex flex-col gap-2">
@@ -801,7 +812,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Social links */}
                 <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
                   {[
                     {

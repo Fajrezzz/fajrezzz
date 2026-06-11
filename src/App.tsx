@@ -204,37 +204,30 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // 🎵 Audio otomatis dari awal
-  const bgMusicRef = useRef(new Audio("/Fajri.mp3"));
-  const [musicStarted, setMusicStarted] = useState(false);
+  // --- MUSIK STATE ---
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const [isMusicOn, setIsMusicOn] = useState(false);
 
   useEffect(() => {
-  const audio = new Audio("/Fajri.mp3");
-  audio.loop = true;
-  audio.volume = 0.4;
-  bgMusicRef.current = audio;
+    bgMusicRef.current = new Audio("/Fajri.mp3");
+    bgMusicRef.current.loop = true;
+    bgMusicRef.current.volume = 0.4;
+    return () => {
+      bgMusicRef.current?.pause();
+      bgMusicRef.current = null;
+    };
+  }, []);
 
-  const startMusic = () => {
-    if (!musicStarted) {
-      audio.play().then(() => setMusicStarted(true)).catch(() => {});
+  const toggleMusic = () => {
+    const audio = bgMusicRef.current;
+    if (!audio) return;
+    if (isMusicOn) {
+      audio.pause();
+      setIsMusicOn(false);
+    } else {
+      audio.play().then(() => setIsMusicOn(true)).catch(() => {});
     }
   };
-
-  // Mulai hanya setelah interaksi pertama (klik/tap)
-  const handleInteraction = () => {
-    startMusic();
-    document.removeEventListener("click", handleInteraction);
-    document.removeEventListener("touchstart", handleInteraction);
-  };
-  document.addEventListener("click", handleInteraction);
-  document.addEventListener("touchstart", handleInteraction);
-
-  return () => {
-    document.removeEventListener("click", handleInteraction);
-    document.removeEventListener("touchstart", handleInteraction);
-    audio.pause();
-  };
-}, []);
 
   const getWIB = () =>
     time.toLocaleTimeString("id-ID", {
@@ -381,12 +374,7 @@ export default function App() {
     setStage("loading");
     setTimeout(() => {
       setLightning(true);
-      const audio = new Audio("/thunder.mp3");
-      audio.play();
-      setTimeout(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      }, 600);
+      new Audio("/thunder.mp3").play();
       setTimeout(() => {
         setLightning(false);
         setStage("app");
@@ -572,6 +560,16 @@ export default function App() {
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut ? "intro-out" : ""}`}
           style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", cursor: "auto" }}
         >
+          {/* Tombol Play/Pause Musik di pojok kanan atas */}
+          <button
+            onClick={toggleMusic}
+            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center text-xl"
+            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)", color: "white" }}
+            title={isMusicOn ? "Pause" : "Play"}
+          >
+            {isMusicOn ? "⏸" : "▶"}
+          </button>
+
           <Particles />
           <div className="absolute rounded-full" style={{ top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">

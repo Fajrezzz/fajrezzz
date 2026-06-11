@@ -1,2 +1,48 @@
 @import "tailwindcss";
 @import "./romantic.css";
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+    opacity: .2;
+  }
+
+  50% {
+    transform: translateY(-40px);
+    opacity: .8;
+  }
+
+  100% {
+    transform: translateY(0px);
+    opacity: .2;
+  }
+}
+
+@keyframes lightning {
+  0%,95%,100% {
+    opacity: 0;
+  }
+
+  96% {
+    opacity: .12;
+  }
+
+  97% {
+    opacity: 0;
+  }
+
+  98% {
+    opacity: .18;
+  }
+
+  99% {
+    opacity: 0;
+  }
+}
+
+.lightning-flash{
+  position:absolute;
+  inset:0;
+  background:white;
+  animation:lightning 8s infinite;
+  pointer-events:none;
+}

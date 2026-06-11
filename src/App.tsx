@@ -55,29 +55,58 @@ export default function App() {
         </div>
       )}
 
-      {/* 🌌 BACKGROUND (CLEAN PARALLAX) */}
-      <div className="fixed inset-0 -z-20 overflow-hidden">
+      {/* 🌌 BACKGROUND PREMIUM MOBILE */}
+<div className="fixed inset-0 -z-20 overflow-hidden">
 
-        {/* base */}
-        <div
-          className="absolute inset-0 transition-transform duration-300 ease-out"
-          style={{
-            transform: `translate(${mouse.x * 6}px, ${mouse.y * 6}px)`,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900/40 to-black" />
-        </div>
+  {/* Base Aurora */}
+  <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950 to-black" />
 
-        {/* glow */}
-        <div
-          className="absolute inset-0 transition-transform duration-300 ease-out opacity-50"
-          style={{
-            transform: `translate(${mouse.x * 12}px, ${mouse.y * 12}px)`,
-          }}
-        >
-          <div className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] bg-indigo-500/20 blur-3xl rounded-full" />
-          <div className="absolute bottom-[-120px] right-[-120px] w-[350px] h-[350px] bg-blue-500/20 blur-3xl rounded-full" />
-        </div>
+  {/* Aurora 1 */}
+  <div
+    className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/20 blur-[120px] animate-[spin_25s_linear_infinite]"
+    style={{
+      top: "-10%",
+      left: "-10%",
+    }}
+  />
+
+  {/* Aurora 2 */}
+  <div
+    className="absolute w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-[120px] animate-[spin_35s_linear_infinite_reverse]"
+    style={{
+      bottom: "-10%",
+      right: "-10%",
+    }}
+  />
+
+  {/* Aurora 3 */}
+  <div
+    className="absolute w-[400px] h-[400px] rounded-full bg-purple-500/15 blur-[100px] animate-pulse"
+    style={{
+      top: "40%",
+      left: "30%",
+    }}
+  />
+
+  {/* Floating Particles */}
+  {[...Array(20)].map((_, i) => (
+    <div
+      key={i}
+      className="absolute bg-white rounded-full opacity-30"
+      style={{
+        width: Math.random() * 4 + 2,
+        height: Math.random() * 4 + 2,
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        animation: `float ${6 + Math.random() * 10}s ease-in-out infinite`,
+      }}
+    />
+  ))}
+
+  {/* Lightning Flash */}
+  <div className="lightning-flash" />
+
+</div>
 
         {/* particles */}
         <div
@@ -94,7 +123,23 @@ export default function App() {
       </div>
 
       {/* NAVBAR (GLASS UI) */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex justify-center gap-4 p-4 backdrop-blur-xl bg-white/5 border-b border-white/10">
+      <div className="
+fixed
+top-4
+left-1/2
+-z-0
+-translate-x-1/2
+flex
+gap-3
+px-3
+py-2
+rounded-full
+backdrop-blur-2xl
+bg-white/10
+border
+border-white/10
+shadow-2xl
+">
 
         <button
           onClick={() => { playClick(); setActiveTab("watch"); }}
@@ -152,7 +197,19 @@ export default function App() {
                   playClick();
                   setPreview(img);
                 }}
-                className="h-72 w-full object-cover rounded-2xl cursor-pointer border border-white/10 hover:scale-105 hover:-translate-y-1 transition duration-300"
+                className="
+h-72
+w-full
+object-cover
+rounded-3xl
+cursor-pointer
+border
+border-white/10
+hover:scale-105
+transition-all
+duration-500
+shadow-[0_20px_60px_rgba(0,0,0,0.4)]
+"
               />
             ))}
 

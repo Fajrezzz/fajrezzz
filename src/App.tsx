@@ -23,7 +23,6 @@ const gamePhotos: Record<string, string[]> = {
 };
 
 const PRIVATE_PASSWORD = "fajrezforyou";
-
 const playClick = () => new Audio("/click.mp3").play();
 
 // 🎉 Confetti mini
@@ -61,11 +60,7 @@ function FloatingHeart({ x, y }: { x: number; y: number }) {
   return (
     <div
       className="fixed pointer-events-none z-[65] text-2xl"
-      style={{
-        left: x,
-        top: y,
-        animation: "heartFloat 0.8s ease-out forwards",
-      }}
+      style={{ left: x, top: y, animation: "heartFloat 0.8s ease-out forwards" }}
     >
       ❤️
       <style>{`
@@ -98,7 +93,7 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   );
 }
 
-// 🖱️ Custom cursor
+// 🖱️ Custom cursor (desktop only)
 function CursorGlow() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
@@ -211,22 +206,27 @@ export default function App() {
   const [guestMessage, setGuestMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  // 🕒 Jam real-time (fix: tampilkan detik)
+  // AI Battle state
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiResponses, setAiResponses] = useState<{ model: string; answer: string }[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // 🕒 Jam real-time
   const [time, setTime] = useState(new Date());
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const getWIB = () => {
-    return time.toLocaleTimeString("id-ID", {
+  // 🌗 WIB helpers
+  const getWIB = () =>
+    time.toLocaleTimeString("id-ID", {
       timeZone: "Asia/Jakarta",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
     });
-  };
 
   const getWIBDate = () =>
     time.toLocaleDateString("id-ID", {
@@ -248,6 +248,15 @@ export default function App() {
     if (h >= 11 && h < 15) return "Selamat siang 🌤️";
     if (h >= 15 && h < 18) return "Selamat sore 🌅";
     return "Selamat malam 🌙";
+  };
+
+  // 🌈 Dynamic background gradient berdasarkan jam
+  const getGradient = () => {
+    const h = getWIBHour();
+    if (h >= 5 && h < 11) return "linear-gradient(135deg, #ffd6a5, #f9c8e8, #b8c0ff)";
+    if (h >= 11 && h < 15) return "linear-gradient(135deg, #74ebd5, #9face6, #6a82fb)";
+    if (h >= 15 && h < 18) return "linear-gradient(135deg, #fbc2eb, #a18cd1, #fad0c4)";
+    return "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
   };
 
   // 📊 Visitor counter
@@ -300,7 +309,6 @@ export default function App() {
     if (!guestName.trim() || !guestMessage.trim()) return;
     setSending(true);
     try {
-      // Endpoint FormSubmit – otomatis kirim ke email yang terdaftar (fajrezzz22@gmail.com)
       const response = await fetch("https://formsubmit.co/ajax/fajrezzz22@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -308,7 +316,7 @@ export default function App() {
           name: guestName.trim(),
           message: guestMessage.trim(),
           _subject: "Pesan Buku Tamu dari FAJREZ FOR YOU",
-          _captcha: "false", // matikan captcha
+          _captcha: "false",
         }),
       });
       if (response.ok) {
@@ -319,11 +327,45 @@ export default function App() {
       } else {
         alert("Gagal mengirim. Coba lagi nanti.");
       }
-    } catch (err) {
+    } catch {
       alert("Gagal mengirim. Periksa koneksi.");
     } finally {
       setSending(false);
     }
+  };
+
+  // 🤖 AI Battle simulator
+  const askAI = () => {
+    if (!aiQuestion.trim()) return;
+    setAiLoading(true);
+
+    // Bank jawaban puitis/lucu untuk tiap model
+    const chatGptAnswers = [
+      "Hmm, pertanyaan yang menarik! Aku rasa jawabannya adalah... cinta. Selalu cinta.",
+      "Kalau aku boleh jujur, itu tergantung hati. Tapi aku yakin, kamu sudah tahu jawabannya sejak awal.",
+      "Aku hanya bisa berharap, semesta selalu menjawabmu dengan cara yang paling indah.",
+      "Tidak ada yang mustahil selama kamu masih bernafas dan melihat bintang.",
+    ];
+    const claudeAnswers = [
+      "Dengan penuh kehangatan, aku melihat pertanyaanmu seperti puitis fajar. Biarkan hatimu tenang, semua akan baik-baik saja.",
+      "Aku Claude, dan aku percaya, setiap pertanyaan adalah pintu menuju kebijaksanaan. Jawabannya ada di ketenangan.",
+      "Hidup ini misteri, dan kita hanya perlu menikmati setiap momen. Tidak perlu terburu-buru mencari jawaban.",
+    ];
+    const deepSeekAnswers = [
+      "Wah, pertanyaanmu keren! Aku sih jawab: yakin aja, karena kamu spesial.✨",
+      "Jawabannya sederhana: lakukan apa yang hatimu katakan. Aku selalu mendukungmu.",
+      "Kata orang bijak, rahasia kebahagiaan adalah menikmati prosesnya. Jadi, nikmati saja dulu.",
+    ];
+
+    setTimeout(() => {
+      setAiResponses([
+        { model: "ChatGPT", answer: chatGptAnswers[Math.floor(Math.random() * chatGptAnswers.length)] },
+        { model: "Claude", answer: claudeAnswers[Math.floor(Math.random() * claudeAnswers.length)] },
+        { model: "DeepSeek", answer: deepSeekAnswers[Math.floor(Math.random() * deepSeekAnswers.length)] },
+      ]);
+      setAiLoading(false);
+    }, 1500);
+    playClick();
   };
 
   const enterApp = () => {
@@ -343,22 +385,18 @@ export default function App() {
     setPreview({ photos, index });
     setTimeout(() => setLightboxVisible(true), 10);
   };
-
   const closePreview = () => {
     setLightboxVisible(false);
     setTimeout(() => setPreview(null), 250);
   };
-
   const swipePrev = () => {
     if (!preview) return;
     setPreview({ ...preview, index: (preview.index - 1 + preview.photos.length) % preview.photos.length });
   };
-
   const swipeNext = () => {
     if (!preview) return;
     setPreview({ ...preview, index: (preview.index + 1) % preview.photos.length });
   };
-
   const submitPassword = () => {
     if (passwordInput === PRIVATE_PASSWORD) {
       playClick();
@@ -389,10 +427,19 @@ export default function App() {
 
   const visitorCount = parseInt(localStorage.getItem("fajrez_visitors") || "0", 10);
 
+  // Container utama dengan background dinamis
+  const mainBg = getGradient();
+
   return (
     <div
       className="min-h-screen text-white relative overflow-x-hidden pb-24"
-      style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", userSelect: "none", WebkitTouchCallout: "none", cursor: "none" }}
+      style={{
+        background: mainBg,
+        backgroundAttachment: "fixed",
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+        cursor: "none",
+      }}
     >
       {typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches && <CursorGlow />}
 
@@ -467,7 +514,7 @@ export default function App() {
         .nav-btn-circle:not(:disabled):active { transform: scale(0.9); }
       `}</style>
 
-      {/* Background glow – ringan */}
+      {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute rounded-full" style={{ top: "-20%", left: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
         <div className="absolute rounded-full" style={{ bottom: "-20%", right: "-20%", width: "80vw", height: "80vw", background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)" }} />
@@ -508,7 +555,7 @@ export default function App() {
 
       {/* LOADING */}
       {stage === "loading" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)", animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: mainBg, animation: "fadeIn 0.3s ease-out", cursor: "auto" }}>
           <div className="text-center">
             <div className="text-xl font-bold tracking-widest mb-2 shimmer-text">FAJREZZZ EXPERIENCE</div>
             <div className="text-sm text-white/50">loading...</div>
@@ -634,7 +681,7 @@ export default function App() {
             </section>
           )}
 
-          {/* ABOUT */}
+          {/* ABOUT (dengan AI Battle) */}
           {activeTab === "about" && (
             <section className="py-24 px-6 anim-slideup">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
@@ -651,7 +698,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* JAM DIGITAL REAL-TIME (fix detik) */}
+                {/* JAM DIGITAL REAL-TIME */}
                 <div className="card-in-2 w-full text-center">
                   <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div>
                   <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
@@ -684,7 +731,7 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* BUKU TAMU (kirim ke fajrezzz22@gmail.com) */}
+                {/* BUKU TAMU */}
                 <div className="card-in-4 w-full">
                   <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
                   <div className="flex flex-col gap-2">
@@ -712,6 +759,44 @@ export default function App() {
                       {sending ? "Mengirim..." : "Kirim 💌"}
                     </button>
                   </div>
+                </div>
+
+                {/* AI BATTLE */}
+                <div className="card-in-4 w-full">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      placeholder="Tanyakan sesuatu..."
+                      value={aiQuestion}
+                      onChange={(e) => setAiQuestion(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") askAI(); }}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
+                    />
+                    <button
+                      onClick={askAI}
+                      disabled={aiLoading}
+                      className="py-2 rounded-xl text-sm font-semibold"
+                      style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}
+                    >
+                      {aiLoading ? "Berpikir..." : "Tanya AI Battle"}
+                    </button>
+                  </div>
+                  {/* Hasil jawaban */}
+                  {aiResponses.length > 0 && (
+                    <div className="mt-3 flex flex-col gap-3">
+                      {aiResponses.map((res) => (
+                        <div key={res.model} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>
+                            {res.model}
+                          </div>
+                          <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
+                            {res.answer}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Social links */}

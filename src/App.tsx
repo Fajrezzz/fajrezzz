@@ -343,23 +343,13 @@ export default function App() {
     }, 1500);
     playClick();
   };
-
+  
   const enterApp = () => {
   playClick();
-  // Langsung mainkan suara petir saat klik
-  const audio = new Audio("/thunder.mp3");
-  audio.play();
-  // Potong suara setelah 0,5 detik agar cepat & nendang
-  setTimeout(() => {
-    audio.pause();
-    audio.currentTime = 0;
-  }, 500);
-  // Masuk loading
   setStage("loading");
-  // Jeda 1 detik, lalu flash petir
   setTimeout(() => {
     setLightning(true);
-    // Flash 800ms, lalu matikan dan masuk app
+    new Audio("/thunder.mp3").play(); // suara & flash bareng
     setTimeout(() => {
       setLightning(false);
       setStage("app");

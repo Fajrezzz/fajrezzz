@@ -344,24 +344,30 @@ export default function App() {
     playClick();
   };
 
-  // ⚡ ENTER: langsung loading, jeda 1 detik, flash petir + suara, lalu lanjut
   const enterApp = () => {
-    playClick();
-    // langsung masuk loading
-    setStage("loading");
-    // jeda 1 detik di loading, lalu petir
+  playClick();
+  // Langsung mainkan suara petir saat klik
+  const audio = new Audio("/thunder.mp3");
+  audio.play();
+  // Potong suara setelah 0,5 detik agar cepat & nendang
+  setTimeout(() => {
+    audio.pause();
+    audio.currentTime = 0;
+  }, 500);
+  // Masuk loading
+  setStage("loading");
+  // Jeda 1 detik, lalu flash petir
+  setTimeout(() => {
+    setLightning(true);
+    // Flash 800ms, lalu matikan dan masuk app
     setTimeout(() => {
-      setLightning(true);
-      new Audio("/thunder.mp3").play();
-      // durasi flash 800ms, lalu matikan dan masuk app
-      setTimeout(() => {
-        setLightning(false);
-        setStage("app");
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-      }, 800);
-    }, 1000);
-  };
+      setLightning(false);
+      setStage("app");
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    }, 800);
+  }, 1000);
+};
 
   const openPreview = (photos: string[], index: number) => {
     setPreview({ photos, index });

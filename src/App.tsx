@@ -355,7 +355,7 @@ export default function App() {
     setTimeout(() => {
       audio.pause();
       audio.currentTime = 0;
-    }, 300);
+    }, 900);
     setTimeout(() => {
       setLightning(false);
       setStage("app");

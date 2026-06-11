@@ -209,34 +209,32 @@ export default function App() {
   const [musicStarted, setMusicStarted] = useState(false);
 
   useEffect(() => {
-    const audio = bgMusicRef.current;
-    audio.loop = true;
-    audio.volume = 0.4;
+  const audio = new Audio("/Fajri.mp3");
+  audio.loop = true;
+  audio.volume = 0.4;
+  bgMusicRef.current = audio;
 
-    const startMusic = () => {
-      if (!musicStarted) {
-        audio.play().then(() => setMusicStarted(true)).catch(() => {});
-      }
-    };
+  const startMusic = () => {
+    if (!musicStarted) {
+      audio.play().then(() => setMusicStarted(true)).catch(() => {});
+    }
+  };
 
-    // Coba langsung
+  // Mulai hanya setelah interaksi pertama (klik/tap)
+  const handleInteraction = () => {
     startMusic();
+    document.removeEventListener("click", handleInteraction);
+    document.removeEventListener("touchstart", handleInteraction);
+  };
+  document.addEventListener("click", handleInteraction);
+  document.addEventListener("touchstart", handleInteraction);
 
-    // Fallback: mulai setelah interaksi pertama
-    const handleUserInteraction = () => {
-      startMusic();
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
-    };
-    document.addEventListener("click", handleUserInteraction);
-    document.addEventListener("touchstart", handleUserInteraction);
-
-    return () => {
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
-      audio.pause();
-    };
-  }, []);
+  return () => {
+    document.removeEventListener("click", handleInteraction);
+    document.removeEventListener("touchstart", handleInteraction);
+    audio.pause();
+  };
+}, []);
 
   const getWIB = () =>
     time.toLocaleTimeString("id-ID", {

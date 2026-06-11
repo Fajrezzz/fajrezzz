@@ -349,7 +349,13 @@ export default function App() {
   setStage("loading");
   setTimeout(() => {
     setLightning(true);
-    new Audio("/thunder.mp3").play(); // suara & flash bareng
+    const audio = new Audio("/thunder.mp3");
+    audio.play();
+    // hentikan suara setelah 0,3 detik agar lebih pendek
+    setTimeout(() => {
+      audio.pause();
+      audio.currentTime = 0;
+    }, 300);
     setTimeout(() => {
       setLightning(false);
       setStage("app");

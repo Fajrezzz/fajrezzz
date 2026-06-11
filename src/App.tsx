@@ -25,7 +25,6 @@ const gamePhotos: Record<string, string[]> = {
 const PRIVATE_PASSWORD = "fajrezforyou";
 const playClick = () => new Audio("/click.mp3").play();
 
-// 🎉 Confetti mini
 function Confetti() {
   return (
     <div className="fixed inset-0 pointer-events-none z-[60]">
@@ -55,7 +54,6 @@ function Confetti() {
   );
 }
 
-// ❤️ Floating heart
 function FloatingHeart({ x, y }: { x: number; y: number }) {
   return (
     <div
@@ -73,7 +71,6 @@ function FloatingHeart({ x, y }: { x: number; y: number }) {
   );
 }
 
-// ⌨️ Typewriter
 function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
@@ -93,7 +90,6 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
   );
 }
 
-// 🖱️ Custom cursor (desktop only)
 function CursorGlow() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
@@ -128,7 +124,6 @@ function CursorGlow() {
   );
 }
 
-// Image tanpa watermark + border RGB shimmer
 function GalleryImage({ src, className }: { src: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -148,7 +143,6 @@ function GalleryImage({ src, className }: { src: string; className?: string }) {
   );
 }
 
-// Partikel ringan
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
@@ -350,24 +344,27 @@ export default function App() {
     playClick();
   };
 
-  // ⚡ Enter + PETIR (dengan warna kilat asli)
+  // ⚡ Enter + jeda 1 detik + flash warna biru-ungu-kuning-putih
   const enterApp = () => {
     playClick();
-    setLightning(true);
-    // Suara petir (pastikan thunder.mp3 ada di folder public)
-    new Audio("/thunder.mp3").play();
+    // jeda 1 detik sebelum petir
     setTimeout(() => {
-      setLightning(false);
-      setIntroOut(true);
+      setLightning(true);
+      new Audio("/thunder.mp3").play();
+      // durasi flash 800ms
       setTimeout(() => {
-        setStage("loading");
+        setLightning(false);
+        setIntroOut(true);
         setTimeout(() => {
-          setStage("app");
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 3000);
-        }, 1200);
-      }, 600);
-    }, 800); // durasi flash 800ms, lebih pas dengan suara
+          setStage("loading");
+          setTimeout(() => {
+            setStage("app");
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          }, 1200);
+        }, 600);
+      }, 800);
+    }, 1000);
   };
 
   const openPreview = (photos: string[], index: number) => {
@@ -530,12 +527,12 @@ export default function App() {
       {showConfetti && <Confetti />}
       {hearts.map(h => <FloatingHeart key={h.id} x={h.x} y={h.y} />)}
 
-      {/* ⚡ OVERLAY PETIR (gradasi putih-ungu-biru + getar) */}
+      {/* ⚡ OVERLAY PETIR WARNA-WARNI */}
       {lightning && (
         <div
           className="fixed inset-0 z-[100] pointer-events-none"
           style={{
-            background: "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.95) 0%, rgba(200,200,255,0.8) 30%, rgba(100,100,255,0.5) 70%, transparent 100%)",
+            background: "radial-gradient(circle at 30% 40%, #ffffff 0%, #ffff99 25%, #c8a2ff 50%, #6666ff 80%, transparent 100%)",
             animation: "lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out",
           }}
         />
@@ -583,11 +580,381 @@ export default function App() {
         </div>
       )}
 
-      {/* APP (semua tab sama seperti sebelumnya) */}
+      {/* APP */}
       {stage === "app" && (
         <>
-          {/* WATCH, EXPERIENCE, GAME, ABOUT, PRIVATE, LIGHTBOX, NAVBAR tidak berubah */}
-          {/* ... (salin dari kode lengkap sebelumnya) ... */}
+          {/* WATCH */}
+          {activeTab === "watch" && (
+            <section className="anim-slideup">
+              <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
+                <div className="flex items-center gap-3 w-full max-w-[420px] px-4">
+                  <button className="nav-btn-circle" disabled={watchIndex === 0} onClick={() => { playClick(); setWatchIndex(i => Math.max(i - 1, 0)); }} style={{ opacity: watchIndex === 0 ? 0.3 : 1 }}>←</button>
+                  <div className="flex-1 rounded-2xl overflow-hidden shadow-2xl relative" style={{ aspectRatio: "9/16", border: "1px solid rgba(255,255,255,0.12)" }} onContextMenu={(e) => e.preventDefault()}>
+                    <iframe key={watchIndex} className="w-full h-full" src={videoUrl(watchVideos[watchIndex])} allow="autoplay; fullscreen" />
+                    <div className="absolute inset-0 pointer-events-none" />
+                  </div>
+                  <button className="nav-btn-circle" disabled={watchIndex === watchVideos.length - 1} onClick={() => { playClick(); setWatchIndex(i => Math.min(i + 1, watchVideos.length - 1)); }} style={{ opacity: watchIndex === watchVideos.length - 1 ? 0.3 : 1 }}>→</button>
+                </div>
+                <div className="flex gap-2 mt-5">
+                  {watchVideos.map((_, i) => (
+                    <div key={i} onClick={() => { playClick(); setWatchIndex(i); }} style={{ width: i === watchIndex ? "20px" : "6px", height: "6px", borderRadius: "3px", background: i === watchIndex ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease", cursor: "pointer" }} />
+                  ))}
+                </div>
+                <div className="mt-3 text-xs tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>{watchIndex + 1} / {watchVideos.length}</div>
+              </div>
+            </section>
+          )}
+
+          {/* EXPERIENCE */}
+          {activeTab === "photo" && (
+            <section className="py-24 px-4 anim-slideup">
+              <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
+                {galleryPhotos.map((img, i) => {
+                  const key = `gallery-${i}`;
+                  const likeCount = likedPhotos[key] || 0;
+                  const randomHeight = i % 3 === 0 ? "h-56" : i % 2 === 0 ? "h-48" : "h-64";
+                  return (
+                    <div key={i} className="break-inside-avoid cursor-pointer"
+                      onClick={() => { playClick(); openPreview(galleryPhotos, i); }}
+                      onDoubleClick={(e) => handleDoubleTap(e, key)}
+                      onTouchEnd={(e) => {
+                        const now = Date.now();
+                        const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                        if (now - lastTap < 300) handleDoubleTap(e, key);
+                        (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                      }}
+                    >
+                      <div className="relative">
+                        <GalleryImage src={img} className={`${randomHeight} w-full object-cover`} />
+                        {likeCount > 0 && (
+                          <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">
+                            ❤️ {likeCount}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* GAME */}
+          {activeTab === "game" && (
+            <section className="py-24 text-center px-4 anim-slideup">
+              {!selectedGame ? (
+                <>
+                  <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-10">
+                    {[
+                      { id: "ssstik.io_1781060165448_nrirrw", glow: "rgba(250,204,21,0.2)" },
+                      { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(59,130,246,0.2)" },
+                      { id: "VID-20260611-WA0005_sjippo", glow: "rgba(139,92,246,0.2)", full: true },
+                    ].map((v, i) => (
+                      <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""}`} style={{ aspectRatio: "16/9" }}>
+                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
+                          <iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-white/40 text-sm mb-4 tracking-widest uppercase">Pilih Game</p>
+                  <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto">
+                    {[
+                      { key: "ml", label: "Mobile Legends", color: "#2563eb" },
+                      { key: "ff", label: "Free Fire", color: "#dc2626" },
+                      { key: "roblox", label: "Roblox", color: "#7c3aed" },
+                    ].map((g) => (
+                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold" style={{ background: g.color, transition: "transform 0.15s ease" }}>{g.label}</div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="anim-slideup">
+                  <button onClick={() => { playClick(); setSelectedGame(null); }} className="mb-8 px-5 py-2 rounded-full text-sm" style={{ border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.05)" }}>← Back</button>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+                    {gamePhotos[selectedGame].map((img, i) => {
+                      const key = `game-${selectedGame}-${i}`;
+                      const likeCount = likedPhotos[key] || 0;
+                      return (
+                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border"
+                          onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }}
+                          onDoubleClick={(e) => handleDoubleTap(e, key)}
+                          onTouchEnd={(e) => {
+                            const now = Date.now();
+                            const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                            if (now - lastTap < 300) handleDoubleTap(e, key);
+                            (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                          }}
+                        >
+                          <GalleryImage src={img} className="w-full aspect-video object-cover" />
+                          {likeCount > 0 && (
+                            <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ABOUT */}
+          {activeTab === "about" && (
+            <section className="py-24 px-6 anim-slideup">
+              <div className="max-w-sm mx-auto flex flex-col items-center gap-6">
+                <div className="card-in-1 relative">
+                  <div className="w-28 h-28 rounded-full overflow-hidden avatar-glow" style={{ border: "2px solid rgba(139,92,246,0.6)" }}>
+                    <img src="/1.jpg" className="w-full h-full object-cover" onContextMenu={(e) => e.preventDefault()} draggable={false} />
+                  </div>
+                  <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full" style={{ background: "#22c55e", border: "2px solid #0f0c29", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
+                </div>
+                <div className="card-in-2 text-center">
+                  <div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div>
+                  <div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    <Typewriter text="living for the moments nobody else sees." speed={60} />
+                  </div>
+                </div>
+
+                <div className="card-in-2 w-full text-center">
+                  <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div>
+                  <div className="py-4 px-6 rounded-2xl mx-auto inline-block" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(139,92,246,0.3)", boxShadow: "0 8px 24px rgba(99,102,241,0.15)", minWidth: "200px" }}>
+                    <div className="text-4xl font-mono font-bold tracking-[0.15em] shimmer-text">
+                      {getWIB()}
+                    </div>
+                    <div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>{getWIBDate()} · WIB</div>
+                  </div>
+                </div>
+
+                <div className="card-in-2 w-full text-center px-2">
+                  <p className="italic text-sm leading-relaxed" style={{ color: "rgba(196,181,253,0.7)" }}>“{dailyQuote}”</p>
+                </div>
+
+                <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
+
+                <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
+                  {[
+                    { label: "Photos", value: galleryPhotos.length },
+                    { label: "Videos", value: "3" },
+                    { label: "Games", value: "3" },
+                    { label: "Visitors", value: visitorCount },
+                  ].map((s) => (
+                    <div key={s.label} className="rounded-2xl py-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      <div className="text-xl font-bold" style={{ color: "#a5b4fc" }}>{s.value}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="card-in-4 w-full">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      placeholder="Nama"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
+                    />
+                    <textarea
+                      placeholder="Tulis pesan..."
+                      value={guestMessage}
+                      onChange={(e) => setGuestMessage(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)", resize: "none" }}
+                    />
+                    <button
+                      onClick={sendGuestbook}
+                      disabled={sending}
+                      className="py-2 rounded-xl text-sm font-semibold btn-shimmer"
+                      style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}
+                    >
+                      {sending ? "Mengirim..." : "Kirim 💌"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="card-in-4 w-full">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      placeholder="Tanyakan sesuatu..."
+                      value={aiQuestion}
+                      onChange={(e) => setAiQuestion(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") askAI(); }}
+                      className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(99,102,241,0.3)" }}
+                    />
+                    <button
+                      onClick={askAI}
+                      disabled={aiLoading}
+                      className="py-2 rounded-xl text-sm font-semibold"
+                      style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)", color: "white" }}
+                    >
+                      {aiLoading ? "Berpikir..." : "Tanya AI Battle"}
+                    </button>
+                  </div>
+                  {aiResponses.length > 0 && (
+                    <div className="mt-3 flex flex-col gap-3">
+                      {aiResponses.map((res) => (
+                        <div key={res.model} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#74b9ff" : res.model === "Claude" ? "#fd79a8" : "#00b894" }}>
+                            {res.model}
+                          </div>
+                          <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
+                            {res.answer}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
+                  {[
+                    {
+                      label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou",
+                      color: "#000000", border: "rgba(255,255,255,0.15)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg>,
+                    },
+                    {
+                      label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou",
+                      color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)",
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg>,
+                    },
+                  ].map((s) => (
+                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 rounded-2xl"
+                      style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none", transition: "transform 0.15s ease" }}
+                      onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+                      onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
+                      <div style={{ color: "white" }}>{s.icon}</div>
+                      <div>
+                        <div className="text-sm font-semibold text-white">{s.label}</div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{s.handle}</div>
+                      </div>
+                      <div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* PRIVATE */}
+          {activeTab === "private" && (
+            <section className="py-24 px-6 anim-slideup">
+              {!privateUnlocked ? (
+                <div className="max-w-sm mx-auto flex flex-col items-center gap-6 pt-10">
+                  <div className="lock-pulse" style={{ fontSize: "56px" }}>🔒</div>
+                  <div className="text-center">
+                    <div className="text-xl font-bold tracking-wider mb-1 shimmer-text">Private</div>
+                    <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Enter password to unlock</div>
+                  </div>
+                  <div className={`w-full flex flex-col gap-3 ${passwordShake ? "shake" : ""}`}>
+                    <input
+                      type="password"
+                      value={passwordInput}
+                      onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") submitPassword(); }}
+                      placeholder="Password..."
+                      className="w-full px-4 py-3 rounded-2xl text-white text-center tracking-widest outline-none"
+                      style={{ background: "rgba(255,255,255,0.06)", border: passwordError ? "1px solid rgba(239,68,68,0.8)" : "1px solid rgba(99,102,241,0.3)", fontSize: "14px" }}
+                    />
+                    {passwordError && <div className="text-center text-xs" style={{ color: "rgba(239,68,68,0.9)" }}>Wrong password. Try again.</div>}
+                    <button onClick={submitPassword} className="w-full py-3 rounded-2xl font-semibold text-sm tracking-widest btn-shimmer" style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "white" }}>Unlock</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="anim-slideup">
+                  <div className="text-center mb-8"><div className="text-lg font-bold shimmer-text tracking-wider">Private 🔓</div></div>
+                  <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    {privateVideos.map((id, i) => (
+                      <div key={i} className="relative" style={{ aspectRatio: "9/16" }}>
+                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: "rgba(139,92,246,0.2)", filter: "blur(20px)" }} />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onContextMenu={(e) => e.preventDefault()}>
+                          <iframe className="w-full h-full" src={videoUrl(id)} allow="autoplay; fullscreen" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center mt-8">
+                    <button onClick={() => { setPrivateUnlocked(false); setPasswordInput(""); }} className="px-5 py-2 rounded-full text-xs" style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}>🔒 Lock again</button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* LIGHTBOX */}
+          {preview && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
+              onClick={closePreview}
+              onContextMenu={(e) => e.preventDefault()}
+              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+              onTouchEnd={(e) => {
+                if (touchStartX.current === null) return;
+                const diff = touchStartX.current - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 50) diff > 0 ? swipeNext() : swipePrev();
+                touchStartX.current = null;
+              }}
+            >
+              <button onClick={(e) => { e.stopPropagation(); swipePrev(); }} className="absolute left-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>‹</button>
+              <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+                <img key={preview.index} src={preview.photos[preview.index]} className="anim-fadescale" style={{ maxWidth: "90%", maxHeight: "80vh", borderRadius: "16px", boxShadow: "0 25px 60px rgba(0,0,0,0.8)", userSelect: "none", WebkitTouchCallout: "none" }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  draggable={false}
+                  onDoubleClick={(e) => { const key = `preview-${preview.photos[preview.index]}`; handleDoubleTap(e, key); }}
+                  onTouchEnd={(e) => {
+                    const now = Date.now();
+                    const lastTap = parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0");
+                    if (now - lastTap < 300) { const key = `preview-${preview.photos[preview.index]}`; handleDoubleTap(e, key); }
+                    (e.currentTarget as HTMLElement).dataset.lastTap = String(now);
+                  }}
+                />
+                {preview && (() => {
+                  const key = `preview-${preview.photos[preview.index]}`;
+                  const count = likedPhotos[key] || 0;
+                  return count > 0 ? <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {count}</div> : null;
+                })()}
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); swipeNext(); }} className="absolute right-3 z-10 text-2xl w-10 h-10 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>›</button>
+              <div className="absolute bottom-6 flex gap-2">
+                {preview.photos.map((_, i) => (
+                  <div key={i} style={{ width: i === preview.index ? "20px" : "8px", height: "8px", borderRadius: "4px", background: i === preview.index ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s ease" }} />
+                ))}
+              </div>
+              <button onClick={closePreview} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-sm" style={{ background: "rgba(255,255,255,0.1)" }}>✕</button>
+            </div>
+          )}
+
+          {/* BOTTOM NAVBAR */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1" style={{ background: "rgba(15,12,41,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            {[
+              { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
+              { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
+              { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
+              { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
+              { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
+            ].map(({ tab, label, icon }) => (
+              <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.15s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent" }}
+              >
+                {icon}
+                <span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>
+                {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(99,102,241,1)" }} />}
+              </button>
+            ))}
+          </div>
         </>
       )}
     </div>

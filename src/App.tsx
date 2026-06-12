@@ -171,26 +171,28 @@ function Particles() {
   );
 }
 
-// 🐱 Game kucing Flappy
+// 🐱 Optimized Cat Game
 function CatGame() {
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const catRef = useRef<HTMLDivElement>(null);
+  const pipesContainerRef = useRef<HTMLDivElement>(null);
+  
   const catYRef = useRef(250);
   const catVelRef = useRef(0);
-  const pipesRef = useRef<{ x: number; topHeight: number; passed: boolean }[]>([]);
+  const pipesRef = useRef<{ x: number; topHeight: number; id: number }[]>([]);
   const scoreRef = useRef(0);
   const gameOverRef = useRef(false);
   const gameStartedRef = useRef(false);
   const frameRef = useRef(0);
   const pipeSpeedRef = useRef(2.5);
-
+  const nextPipeId = useRef(1);
+  
   const gapHeight = 150;
   const pipeWidth = 60;
   const catSize = 40;
   const gravity = 0.6;
   const jumpPower = -9;
 
-  const [catY, setCatY] = useState(250);
-  const [pipes, setPipes] = useState<{ x: number; topHeight: number; passed: boolean }[]>([]);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
@@ -204,8 +206,13 @@ function CatGame() {
     gameOverRef.current = false;
     gameStartedRef.current = false;
     pipeSpeedRef.current = 2.5;
-    setCatY(250);
-    setPipes([]);
+    nextPipeId.current = 1;
+    if (catRef.current) {
+      catRef.current.style.transform = `translate(0px, 250px) rotate(0deg)`;
+    }
+    if (pipesContainerRef.current) {
+      pipesContainerRef.current.innerHTML = "";
+    }
     setScore(0);
     setGameOver(false);
     setGameStarted(false);
@@ -229,8 +236,40 @@ function CatGame() {
   const jump = useCallback(() => {
     if (!gameOverRef.current && gameStartedRef.current) {
       catVelRef.current = jumpPower;
-      // Tanpa suara klik
     }
+  }, []);
+
+  const updatePipesDOM = useCallback(() => {
+    if (!pipesContainerRef.current || !gameAreaRef.current) return;
+    const container = pipesContainerRef.current;
+    const areaWidth = gameAreaRef.current.clientWidth || 350;
+    const areaHeight = gameAreaRef.current.clientHeight || 500;
+    
+    // Clear container
+    container.innerHTML = "";
+    
+    // Render each pipe
+    pipesRef.current.forEach(p => {
+      const topPipe = document.createElement("div");
+      topPipe.className = "absolute";
+      topPipe.style.left = `${p.x}px`;
+      topPipe.style.top = "0px";
+      topPipe.style.width = `${pipeWidth}px`;
+      topPipe.style.height = `${p.topHeight}px`;
+      topPipe.innerHTML = '<div class="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg"></div><div class="absolute bottom-0 left-0 right-0 h-4 bg-green-800 rounded-r"></div>';
+      container.appendChild(topPipe);
+      
+      const bottomPipeTop = p.topHeight + gapHeight;
+      const bottomPipeHeight = areaHeight - bottomPipeTop;
+      const bottomPipe = document.createElement("div");
+      bottomPipe.className = "absolute";
+      bottomPipe.style.left = `${p.x}px`;
+      bottomPipe.style.top = `${bottomPipeTop}px`;
+      bottomPipe.style.width = `${pipeWidth}px`;
+      bottomPipe.style.height = `${bottomPipeHeight}px`;
+      bottomPipe.innerHTML = '<div class="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg"></div><div class="absolute top-0 left-0 right-0 h-4 bg-green-800 rounded-r"></div>';
+      container.appendChild(bottomPipe);
+    });
   }, []);
 
   const gameLoop = useCallback(() => {
@@ -239,7 +278,7 @@ function CatGame() {
       return;
     }
 
-    // Update kucing
+    // Update cat physics
     catVelRef.current += gravity;
     catYRef.current += catVelRef.current;
     if (catYRef.current < 0) {
@@ -254,34 +293,41 @@ function CatGame() {
       setHighScore(hs);
       localStorage.setItem("catHighScore", String(hs));
     }
-    setCatY(catYRef.current);
-
-    // Spawn pipa
-    if (frameRef.current % 90 === 0) {
-      const topHeight = Math.random() * (areaHeight - gapHeight - 80) + 40;
-      pipesRef.current.push({ x: (gameAreaRef.current?.clientWidth || 350), topHeight, passed: false });
+    
+    // Update cat DOM directly (no state change)
+    if (catRef.current) {
+      const rotation = Math.min(Math.max(catVelRef.current * 3, -20), 20);
+      catRef.current.style.transform = `translate(0px, ${catYRef.current}px) rotate(${rotation}deg)`;
     }
 
-    // Update pipa
-    pipesRef.current = pipesRef.current.filter(p => p.x > -pipeWidth);
-    pipesRef.current.forEach(p => {
+    // Spawn pipes
+    if (frameRef.current % 90 === 0) {
+      const topHeight = Math.random() * (areaHeight - gapHeight - 80) + 40;
+      pipesRef.current.push({ x: (gameAreaRef.current?.clientWidth || 350), topHeight, id: nextPipeId.current++ });
+    }
+
+    // Update pipe positions & collision
+    const areaWidth = gameAreaRef.current?.clientWidth || 350;
+    pipesRef.current = pipesRef.current.filter(p => {
       p.x -= pipeSpeedRef.current;
-      // Skor
-      if (!p.passed && p.x + pipeWidth < 50) {
-        p.passed = true;
+      
+      // Check pass
+      if (p.x + pipeWidth < 50 && !p.passed) {
+        (p as any).passed = true;
         scoreRef.current += 1;
         setScore(scoreRef.current);
-
-        // Kecepatan naik tiap 5 poin
+        
         if (scoreRef.current % 5 === 0 && scoreRef.current > 0) {
           pipeSpeedRef.current += 0.5;
         }
       }
-      // Tabrakan
+      
+      // Collision detection
       const catLeft = 50;
       const catRight = 50 + catSize;
       const catTop = catYRef.current;
       const catBottom = catYRef.current + catSize;
+      
       if (
         catRight > p.x && catLeft < p.x + pipeWidth &&
         (catTop < p.topHeight || catBottom > p.topHeight + gapHeight)
@@ -292,11 +338,15 @@ function CatGame() {
         setHighScore(hs);
         localStorage.setItem("catHighScore", String(hs));
       }
+      
+      return p.x > -pipeWidth;
     });
-    setPipes([...pipesRef.current]);
+
+    // Update pipes DOM directly
+    updatePipesDOM();
 
     frameRef.current = requestAnimationFrame(gameLoop);
-  }, [highScore]);
+  }, [highScore, updatePipesDOM]);
 
   useEffect(() => {
     frameRef.current = requestAnimationFrame(gameLoop);
@@ -325,37 +375,26 @@ function CatGame() {
         }}
         style={{ touchAction: "none" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/60 to-emerald-900/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/60 to-emerald-900/40 pointer-events-none" />
 
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-2xl font-bold text-white drop-shadow-lg">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-2xl font-bold text-white drop-shadow-lg pointer-events-none">
           {score}
         </div>
 
         <div
-          className="absolute z-20 transition-transform"
+          ref={catRef}
+          className="absolute z-20"
           style={{
             left: 50,
-            top: catY,
+            top: 0,
             width: catSize,
             height: catSize,
-            transform: `rotate(${Math.min(Math.max(catVelRef.current * 3, -20), 20)}deg)`,
           }}
         >
           🐱
         </div>
 
-        {pipes.map((p, i) => (
-          <div key={i} className="absolute" style={{ left: p.x, top: 0, width: pipeWidth, height: p.topHeight }}>
-            <div className="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg" />
-            <div className="absolute bottom-0 left-0 right-0 h-4 bg-green-800 rounded-r" />
-          </div>
-        ))}
-        {pipes.map((p, i) => (
-          <div key={i + 1000} className="absolute" style={{ left: p.x, top: p.topHeight + gapHeight, width: pipeWidth, height: (gameAreaRef.current?.clientHeight || 500) - p.topHeight - gapHeight }}>
-            <div className="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg" />
-            <div className="absolute top-0 left-0 right-0 h-4 bg-green-800 rounded-r" />
-          </div>
-        ))}
+        <div ref={pipesContainerRef} className="absolute inset-0 pointer-events-none" />
 
         {!gameStarted && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-30">

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 const galleryPhotos = [
   "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg",
@@ -171,11 +171,220 @@ function Particles() {
   );
 }
 
+// 🐱 Komponen game kucing flappy
+function CatGame() {
+  const gameAreaRef = useRef<HTMLDivElement>(null);
+  const catYRef = useRef(250);
+  const catVelRef = useRef(0);
+  const pipesRef = useRef<{ x: number; topHeight: number; passed: boolean }[]>([]);
+  const scoreRef = useRef(0);
+  const gameOverRef = useRef(false);
+  const gameStartedRef = useRef(false);
+  const frameRef = useRef(0);
+  const gapHeight = 150;
+  const pipeWidth = 60;
+  const catSize = 40;
+  const gravity = 0.6;
+  const jumpPower = -9;
+  const pipeSpeed = 2.5;
+
+  const [catY, setCatY] = useState(250);
+  const [pipes, setPipes] = useState<{ x: number; topHeight: number; passed: boolean }[]>([]);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem("catHighScore") || "0"));
+
+  const initGame = useCallback(() => {
+    catYRef.current = 250;
+    catVelRef.current = 0;
+    pipesRef.current = [];
+    scoreRef.current = 0;
+    gameOverRef.current = false;
+    gameStartedRef.current = false;
+    setCatY(250);
+    setPipes([]);
+    setScore(0);
+    setGameOver(false);
+    setGameStarted(false);
+  }, []);
+
+  const startGame = useCallback(() => {
+    if (gameOverRef.current) {
+      initGame();
+    }
+    gameStartedRef.current = true;
+    setGameStarted(true);
+    catVelRef.current = jumpPower;
+  }, [initGame]);
+
+  const jump = useCallback(() => {
+    if (!gameOverRef.current) {
+      catVelRef.current = jumpPower;
+      playClick?.();
+    }
+  }, []);
+
+  const gameLoop = useCallback(() => {
+    if (!gameStartedRef.current || gameOverRef.current) {
+      frameRef.current = requestAnimationFrame(gameLoop);
+      return;
+    }
+
+    // Update cat
+    catVelRef.current += gravity;
+    catYRef.current += catVelRef.current;
+    if (catYRef.current < 0) {
+      catYRef.current = 0;
+      catVelRef.current = 0;
+    }
+    if (catYRef.current > (gameAreaRef.current?.clientHeight || 500) - catSize) {
+      // Game over by hitting bottom
+      gameOverRef.current = true;
+      setGameOver(true);
+      const hs = Math.max(scoreRef.current, highScore);
+      setHighScore(hs);
+      localStorage.setItem("catHighScore", String(hs));
+    }
+    setCatY(catYRef.current);
+
+    // Move pipes
+    if (frameRef.current % 90 === 0) {
+      const topHeight = Math.random() * ((gameAreaRef.current?.clientHeight || 500) - gapHeight - 80) + 40;
+      pipesRef.current.push({ x: (gameAreaRef.current?.clientWidth || 350), topHeight, passed: false });
+    }
+
+    pipesRef.current = pipesRef.current.filter(p => p.x > -pipeWidth);
+    pipesRef.current.forEach(p => {
+      p.x -= pipeSpeed;
+      // Check pass
+      if (!p.passed && p.x + pipeWidth < 50) {
+        p.passed = true;
+        scoreRef.current += 1;
+        setScore(scoreRef.current);
+      }
+      // Collision
+      const catLeft = 50;
+      const catRight = 50 + catSize;
+      const catTop = catYRef.current;
+      const catBottom = catYRef.current + catSize;
+      if (
+        catRight > p.x && catLeft < p.x + pipeWidth &&
+        (catTop < p.topHeight || catBottom > p.topHeight + gapHeight)
+      ) {
+        gameOverRef.current = true;
+        setGameOver(true);
+        const hs = Math.max(scoreRef.current, highScore);
+        setHighScore(hs);
+        localStorage.setItem("catHighScore", String(hs));
+      }
+    });
+    setPipes([...pipesRef.current]);
+
+    frameRef.current = requestAnimationFrame(gameLoop);
+  }, [highScore]);
+
+  useEffect(() => {
+    frameRef.current = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [gameLoop]);
+
+  // Restart on game over tap
+  const handleScreenTap = () => {
+    if (!gameStartedRef.current) {
+      startGame();
+    } else if (gameOverRef.current) {
+      initGame();
+      setTimeout(() => startGame(), 50);
+    } else {
+      jump();
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full w-full relative">
+      <div
+        ref={gameAreaRef}
+        className="relative w-full max-w-[400px] h-[70vh] bg-black/20 rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
+        onClick={handleScreenTap}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          handleScreenTap();
+        }}
+        style={{ touchAction: "none" }}
+      >
+        {/* Background game */}
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/60 to-emerald-900/40" />
+
+        {/* Skor */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-2xl font-bold text-white drop-shadow-lg">
+          {score}
+        </div>
+
+        {/* Kucing */}
+        <div
+          className="absolute z-20 transition-transform"
+          style={{
+            left: 50,
+            top: catY,
+            width: catSize,
+            height: catSize,
+            transform: `rotate(${Math.min(Math.max(catVelRef.current * 3, -20), 20)}deg)`,
+          }}
+        >
+          🐱
+        </div>
+
+        {/* Pipa */}
+        {pipes.map((p, i) => (
+          <div key={i} className="absolute" style={{ left: p.x, top: 0, width: pipeWidth, height: p.topHeight }}>
+            <div className="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg" />
+            <div className="absolute bottom-0 left-0 right-0 h-4 bg-green-800 rounded-r" />
+          </div>
+        ))}
+        {pipes.map((p, i) => (
+          <div key={i + 1000} className="absolute" style={{ left: p.x, top: p.topHeight + gapHeight, width: pipeWidth, height: (gameAreaRef.current?.clientHeight || 500) - p.topHeight - gapHeight }}>
+            <div className="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg" />
+            <div className="absolute top-0 left-0 right-0 h-4 bg-green-800 rounded-r" />
+          </div>
+        ))}
+
+        {/* Start / Game Over overlay */}
+        {!gameStarted && !gameOver && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-30">
+            <div className="text-4xl mb-4">🐱</div>
+            <div className="text-white font-bold text-lg">Tap untuk mulai</div>
+            <div className="text-white/50 text-sm mt-1">High Score: {highScore}</div>
+          </div>
+        )}
+        {gameOver && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-30">
+            <div className="text-4xl mb-4">💀</div>
+            <div className="text-white font-bold text-xl">Game Over</div>
+            <div className="text-white/80 mt-2">Skor: {score}</div>
+            <div className="text-white/50 text-sm">High Score: {highScore}</div>
+            <button
+              className="mt-4 px-6 py-2 rounded-full bg-cyan-500/80 text-white font-semibold text-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                initGame();
+                setTimeout(() => startGame(), 50);
+              }}
+            >
+              Main Lagi
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
   const [lightning, setLightning] = useState(false);
-  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private">("watch");
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "kucing">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
@@ -904,6 +1113,13 @@ export default function App() {
             </section>
           )}
 
+          {/* CAT GAME */}
+          {activeTab === "kucing" && (
+            <section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+              <CatGame />
+            </section>
+          )}
+
           {/* LIGHTBOX */}
           {preview && (
             <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }}
@@ -954,6 +1170,7 @@ export default function App() {
               { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
               { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
               { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
+              { tab: "kucing" as const, label: "KUCING", icon: <span className="text-lg">🐱</span> },
             ].map(({ tab, label, icon }) => (
               <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
                 style={{

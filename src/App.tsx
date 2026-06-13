@@ -171,256 +171,300 @@ function Particles() {
   );
 }
 
-// 🐱 Optimized Cat Game
-function CatGame() {
-  const gameAreaRef = useRef<HTMLDivElement>(null);
-  const catRef = useRef<HTMLDivElement>(null);
-  const pipesContainerRef = useRef<HTMLDivElement>(null);
-  
-  const catYRef = useRef(250);
-  const catVelRef = useRef(0);
-  const pipesRef = useRef<{ x: number; topHeight: number; id: number }[]>([]);
-  const scoreRef = useRef(0);
-  const gameOverRef = useRef(false);
-  const gameStartedRef = useRef(false);
-  const frameRef = useRef(0);
-  const pipeSpeedRef = useRef(2.5);
-  const nextPipeId = useRef(1);
-  
-  const gapHeight = 150;
-  const pipeWidth = 60;
-  const catSize = 40;
-  const gravity = 0.6;
-  const jumpPower = -9;
-
+// 🐱 Flappy Kucing Canvas (lancar 60fps)
+function FlappyCanvasGame() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gameState = useRef({
+    catY: 250,
+    catVel: 0,
+    pipes: [] as { x: number; top: number; passed: boolean }[],
+    score: 0,
+    highScore: parseInt(localStorage.getItem("flappyHigh") || "0"),
+    gameOver: false,
+    started: false,
+    speed: 2.5,
+  });
+  const animRef = useRef(0);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem("catHighScore") || "0"));
+  const [started, setStarted] = useState(false);
+  const [highScore, setHighScore] = useState(gameState.current.highScore);
 
-  const initGame = useCallback(() => {
-    catYRef.current = 250;
-    catVelRef.current = 0;
-    pipesRef.current = [];
-    scoreRef.current = 0;
-    gameOverRef.current = false;
-    gameStartedRef.current = false;
-    pipeSpeedRef.current = 2.5;
-    nextPipeId.current = 1;
-    if (catRef.current) {
-      catRef.current.style.transform = `translate(0px, 250px) rotate(0deg)`;
-    }
-    if (pipesContainerRef.current) {
-      pipesContainerRef.current.innerHTML = "";
-    }
+  const init = useCallback(() => {
+    const s = gameState.current;
+    s.catY = 250;
+    s.catVel = 0;
+    s.pipes = [];
+    s.score = 0;
+    s.gameOver = false;
+    s.started = false;
+    s.speed = 2.5;
     setScore(0);
     setGameOver(false);
-    setGameStarted(false);
+    setStarted(false);
   }, []);
 
-  const startGame = useCallback(() => {
-    if (gameOverRef.current) {
-      initGame();
-      setTimeout(() => {
-        gameStartedRef.current = true;
-        setGameStarted(true);
-        catVelRef.current = jumpPower;
-      }, 50);
-    } else {
-      gameStartedRef.current = true;
-      setGameStarted(true);
-      catVelRef.current = jumpPower;
-    }
-  }, [initGame, jumpPower]);
+  const loop = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const s = gameState.current;
+    const w = (canvas.width = canvas.clientWidth);
+    const h = (canvas.height = canvas.clientHeight);
 
-  const jump = useCallback(() => {
-    if (!gameOverRef.current && gameStartedRef.current) {
-      catVelRef.current = jumpPower;
-    }
-  }, []);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#0d3b3b";
+    ctx.fillRect(0, 0, w, h);
 
-  const updatePipesDOM = useCallback(() => {
-    if (!pipesContainerRef.current || !gameAreaRef.current) return;
-    const container = pipesContainerRef.current;
-    const areaWidth = gameAreaRef.current.clientWidth || 350;
-    const areaHeight = gameAreaRef.current.clientHeight || 500;
-    
-    // Clear container
-    container.innerHTML = "";
-    
-    // Render each pipe
-    pipesRef.current.forEach(p => {
-      const topPipe = document.createElement("div");
-      topPipe.className = "absolute";
-      topPipe.style.left = `${p.x}px`;
-      topPipe.style.top = "0px";
-      topPipe.style.width = `${pipeWidth}px`;
-      topPipe.style.height = `${p.topHeight}px`;
-      topPipe.innerHTML = '<div class="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg"></div><div class="absolute bottom-0 left-0 right-0 h-4 bg-green-800 rounded-r"></div>';
-      container.appendChild(topPipe);
-      
-      const bottomPipeTop = p.topHeight + gapHeight;
-      const bottomPipeHeight = areaHeight - bottomPipeTop;
-      const bottomPipe = document.createElement("div");
-      bottomPipe.className = "absolute";
-      bottomPipe.style.left = `${p.x}px`;
-      bottomPipe.style.top = `${bottomPipeTop}px`;
-      bottomPipe.style.width = `${pipeWidth}px`;
-      bottomPipe.style.height = `${bottomPipeHeight}px`;
-      bottomPipe.innerHTML = '<div class="w-full h-full bg-gradient-to-l from-green-500 to-emerald-700 rounded-r-lg shadow-lg"></div><div class="absolute top-0 left-0 right-0 h-4 bg-green-800 rounded-r"></div>';
-      container.appendChild(bottomPipe);
-    });
-  }, []);
-
-  const gameLoop = useCallback(() => {
-    if (!gameStartedRef.current || gameOverRef.current) {
-      frameRef.current = requestAnimationFrame(gameLoop);
+    if (!s.started || s.gameOver) {
+      ctx.fillStyle = "white";
+      ctx.font = "18px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(s.gameOver ? "Game Over" : "Tap untuk mulai", w / 2, h / 2 - 20);
+      ctx.fillText(`Skor: ${s.score}   High: ${s.highScore}`, w / 2, h / 2 + 20);
+      animRef.current = requestAnimationFrame(loop);
       return;
     }
 
-    // Update cat physics
-    catVelRef.current += gravity;
-    catYRef.current += catVelRef.current;
-    if (catYRef.current < 0) {
-      catYRef.current = 0;
-      catVelRef.current = 0;
+    s.catVel += 0.5;
+    s.catY += s.catVel;
+    if (s.catY < 0) {
+      s.catY = 0;
+      s.catVel = 0;
     }
-    const areaHeight = gameAreaRef.current?.clientHeight || 500;
-    if (catYRef.current > areaHeight - catSize) {
-      gameOverRef.current = true;
+    if (s.catY > h - 30) {
+      s.gameOver = true;
       setGameOver(true);
-      const hs = Math.max(scoreRef.current, highScore);
-      setHighScore(hs);
-      localStorage.setItem("catHighScore", String(hs));
-    }
-    
-    // Update cat DOM directly (no state change)
-    if (catRef.current) {
-      const rotation = Math.min(Math.max(catVelRef.current * 3, -20), 20);
-      catRef.current.style.transform = `translate(0px, ${catYRef.current}px) rotate(${rotation}deg)`;
+      if (s.score > s.highScore) {
+        s.highScore = s.score;
+        localStorage.setItem("flappyHigh", String(s.highScore));
+        setHighScore(s.highScore);
+      }
     }
 
-    // Spawn pipes
-    if (frameRef.current % 90 === 0) {
-      const topHeight = Math.random() * (areaHeight - gapHeight - 80) + 40;
-      pipesRef.current.push({ x: (gameAreaRef.current?.clientWidth || 350), topHeight, id: nextPipeId.current++ });
+    if (animRef.current % 100 === 0) {
+      const top = Math.random() * (h - 180) + 40;
+      s.pipes.push({ x: w, top, passed: false });
     }
 
-    // Update pipe positions & collision
-    const areaWidth = gameAreaRef.current?.clientWidth || 350;
-    pipesRef.current = pipesRef.current.filter(p => {
-      p.x -= pipeSpeedRef.current;
-      
-      // Check pass
-      if (p.x + pipeWidth < 50 && !p.passed) {
-        (p as any).passed = true;
-        scoreRef.current += 1;
-        setScore(scoreRef.current);
-        
-        if (scoreRef.current % 5 === 0 && scoreRef.current > 0) {
-          pipeSpeedRef.current += 0.5;
+    s.pipes = s.pipes.filter((p) => {
+      p.x -= s.speed;
+      if (!p.passed && p.x + 50 < 80) {
+        p.passed = true;
+        s.score++;
+        setScore(s.score);
+        if (s.score % 5 === 0) s.speed += 0.4;
+      }
+      const catX = 80,
+        catW = 30,
+        catH = 30;
+      if (
+        catX + catW > p.x &&
+        catX < p.x + 50 &&
+        (s.catY < p.top || s.catY + catH > p.top + 140)
+      ) {
+        s.gameOver = true;
+        setGameOver(true);
+        if (s.score > s.highScore) {
+          s.highScore = s.score;
+          localStorage.setItem("flappyHigh", String(s.highScore));
+          setHighScore(s.highScore);
         }
       }
-      
-      // Collision detection
-      const catLeft = 50;
-      const catRight = 50 + catSize;
-      const catTop = catYRef.current;
-      const catBottom = catYRef.current + catSize;
-      
-      if (
-        catRight > p.x && catLeft < p.x + pipeWidth &&
-        (catTop < p.topHeight || catBottom > p.topHeight + gapHeight)
-      ) {
-        gameOverRef.current = true;
-        setGameOver(true);
-        const hs = Math.max(scoreRef.current, highScore);
-        setHighScore(hs);
-        localStorage.setItem("catHighScore", String(hs));
-      }
-      
-      return p.x > -pipeWidth;
+      return p.x > -50;
     });
 
-    // Update pipes DOM directly
-    updatePipesDOM();
+    ctx.fillStyle = "#22c55e";
+    s.pipes.forEach((p) => {
+      ctx.fillRect(p.x, 0, 50, p.top);
+      ctx.fillRect(p.x, p.top + 140, 50, h - p.top - 140);
+    });
 
-    frameRef.current = requestAnimationFrame(gameLoop);
-  }, [highScore, updatePipesDOM]);
+    ctx.font = "30px Arial";
+    ctx.fillText("🐱", 80, s.catY + 28);
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(String(s.score), w / 2, 40);
+
+    animRef.current = requestAnimationFrame(loop);
+  }, []);
 
   useEffect(() => {
-    frameRef.current = requestAnimationFrame(gameLoop);
-    return () => cancelAnimationFrame(frameRef.current);
-  }, [gameLoop]);
+    animRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [loop]);
 
-  const handleScreenTap = () => {
-    if (!gameStartedRef.current) {
-      startGame();
-    } else if (gameOverRef.current) {
-      initGame();
+  const tap = () => {
+    if (!gameState.current.started || gameState.current.gameOver) {
+      if (gameState.current.gameOver) init();
+      gameState.current.started = true;
+      setStarted(true);
+      gameState.current.catVel = -8;
     } else {
-      jump();
+      gameState.current.catVel = -8;
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full relative">
-      <div
-        ref={gameAreaRef}
-        className="relative w-full max-w-[400px] h-[70vh] bg-black/20 rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
-        onClick={handleScreenTap}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          handleScreenTap();
-        }}
+    <div
+      className="flex flex-col items-center justify-center h-full w-full relative"
+      onClick={tap}
+      onTouchStart={(e) => {
+        e.preventDefault();
+        tap();
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        className="w-full max-w-[400px] h-[70vh] rounded-3xl border border-white/10 shadow-2xl"
         style={{ touchAction: "none" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/60 to-emerald-900/40 pointer-events-none" />
+      />
+    </div>
+  );
+}
 
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-2xl font-bold text-white drop-shadow-lg pointer-events-none">
-          {score}
-        </div>
+// 🐾 Kucing Menghindar (avoid balls)
+function AvoidGame() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gameState = useRef({
+    catX: 150,
+    balls: [] as { x: number; y: number; r: number }[],
+    score: 0,
+    highScore: parseInt(localStorage.getItem("avoidHigh") || "0"),
+    gameOver: false,
+    started: false,
+  });
+  const animRef = useRef(0);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [highScore, setHighScore] = useState(gameState.current.highScore);
 
-        <div
-          ref={catRef}
-          className="absolute z-20"
-          style={{
-            left: 50,
-            top: 0,
-            width: catSize,
-            height: catSize,
-          }}
-        >
-          🐱
-        </div>
+  const init = useCallback(() => {
+    const s = gameState.current;
+    s.catX = 150;
+    s.balls = [];
+    s.score = 0;
+    s.gameOver = false;
+    s.started = false;
+    setScore(0);
+    setGameOver(false);
+    setStarted(false);
+  }, []);
 
-        <div ref={pipesContainerRef} className="absolute inset-0 pointer-events-none" />
+  const loop = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const s = gameState.current;
+    const w = (canvas.width = canvas.clientWidth);
+    const h = (canvas.height = canvas.clientHeight);
 
-        {!gameStarted && !gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-30">
-            <div className="text-4xl mb-4">🐱</div>
-            <div className="text-white font-bold text-lg">Tap untuk mulai</div>
-            <div className="text-white/50 text-sm mt-1">High Score: {highScore}</div>
-          </div>
-        )}
-        {gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-30">
-            <div className="text-4xl mb-4">💀</div>
-            <div className="text-white font-bold text-xl">Game Over</div>
-            <div className="text-white/80 mt-2">Skor: {score}</div>
-            <div className="text-white/50 text-sm">High Score: {highScore}</div>
-            <button
-              className="mt-4 px-6 py-2 rounded-full bg-cyan-500/80 text-white font-semibold text-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                initGame();
-              }}
-            >
-              Main Lagi
-            </button>
-          </div>
-        )}
-      </div>
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#0d3b3b";
+    ctx.fillRect(0, 0, w, h);
+
+    if (!s.started || s.gameOver) {
+      ctx.fillStyle = "white";
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        s.gameOver ? "Game Over" : "Geser kucing untuk mulai",
+        w / 2,
+        h / 2 - 20
+      );
+      ctx.fillText(`Skor: ${s.score}   High: ${s.highScore}`, w / 2, h / 2 + 20);
+      animRef.current = requestAnimationFrame(loop);
+      return;
+    }
+
+    if (Math.random() < 0.03) {
+      s.balls.push({
+        x: Math.random() * w,
+        y: -10,
+        r: 8 + Math.random() * 8,
+      });
+    }
+
+    s.balls = s.balls.filter((b) => {
+      b.y += 4;
+      const dx = b.x - s.catX;
+      const dy = b.y - (h - 40);
+      if (Math.sqrt(dx * dx + dy * dy) < b.r + 20) {
+        s.gameOver = true;
+        setGameOver(true);
+        if (s.score > s.highScore) {
+          s.highScore = s.score;
+          localStorage.setItem("avoidHigh", String(s.highScore));
+          setHighScore(s.highScore);
+        }
+        return false;
+      }
+      if (b.y > h + 10) {
+        s.score++;
+        setScore(s.score);
+        return false;
+      }
+      return true;
+    });
+
+    ctx.fillStyle = "#ef4444";
+    s.balls.forEach((b) => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.font = "36px Arial";
+    ctx.fillText("🐱", s.catX - 18, h - 20);
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(String(s.score), w / 2, 30);
+
+    animRef.current = requestAnimationFrame(loop);
+  }, []);
+
+  useEffect(() => {
+    animRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [loop]);
+
+  const move = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    gameState.current.catX = Math.max(30, Math.min(x, rect.width - 30));
+    if (!gameState.current.started) {
+      gameState.current.started = true;
+      setStarted(true);
+    }
+  };
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center h-full w-full relative"
+      onMouseMove={(e) => move(e.clientX)}
+      onTouchMove={(e) => {
+        e.preventDefault();
+        move(e.touches[0].clientX);
+      }}
+      onTouchStart={(e) => {
+        e.preventDefault();
+        move(e.touches[0].clientX);
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        className="w-full max-w-[400px] h-[70vh] rounded-3xl border border-white/10 shadow-2xl"
+        style={{ touchAction: "none" }}
+      />
     </div>
   );
 }
@@ -429,7 +473,9 @@ export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
   const [lightning, setLightning] = useState(false);
-  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "kucing">("watch");
+  const [activeTab, setActiveTab] = useState<
+    "watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar"
+  >("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
@@ -1157,10 +1203,17 @@ export default function App() {
             </section>
           )}
 
-          {/* CAT GAME */}
-          {activeTab === "kucing" && (
+          {/* FLAPPY CANVAS */}
+          {activeTab === "flappy" && (
             <section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
-              <CatGame />
+              <FlappyCanvasGame />
+            </section>
+          )}
+
+          {/* HINDAR CANVAS */}
+          {activeTab === "hindar" && (
+            <section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
+              <AvoidGame />
             </section>
           )}
 
@@ -1214,7 +1267,8 @@ export default function App() {
               { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> },
               { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> },
               { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> },
-              { tab: "kucing" as const, label: "KUCING", icon: <span className="text-lg">🐱</span> },
+              { tab: "flappy" as const, label: "FLAPPY", icon: <span className="text-lg">🐱</span> },
+              { tab: "hindar" as const, label: "HINDAR", icon: <span className="text-lg">🐾</span> },
             ].map(({ tab, label, icon }) => (
               <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
                 style={{

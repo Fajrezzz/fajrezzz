@@ -1,27 +1,23 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 
 const galleryPhotos = [
-  "/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg",
-  "/7.jpg", "/8.jpg", "/9.jpg", "/10.jpg"
+  "/1.jpg","/2.jpg","/3.jpg","/4.jpg","/5.jpg","/6.jpg",
+  "/7.jpg","/8.jpg","/9.jpg","/10.jpg"
 ];
-
 const watchVideos = [
   "lv_7646454190348209425_20260610025241_ul4pfd",
   "VID-20260611-WA0023_nr83xb",
   "VID-20260611-WA0027_fmko3t",
 ];
-
 const privateVideos = [
   "VID-20260611-WA0033_swyohd",
   "VID-20260611-WA0035_j8slum",
 ];
-
 const gamePhotos: Record<string, string[]> = {
-  ml: ["/ml1.jpg", "/ml2.jpg", "/ml3.jpg"],
-  ff: ["/ff1.jpg", "/ff2.jpg", "/ff3.jpg"],
-  roblox: ["/roblox1.jpg", "/roblox2.jpg"],
+  ml: ["/ml1.jpg","/ml2.jpg","/ml3.jpg"],
+  ff: ["/ff1.jpg","/ff2.jpg","/ff3.jpg"],
+  roblox: ["/roblox1.jpg","/roblox2.jpg"],
 };
-
 const PRIVATE_PASSWORD = "fajrezforyou";
 const playClick = () => new Audio("/click.mp3").play();
 
@@ -108,7 +104,7 @@ function Particles() {
   );
 }
 
-// 🐱 Flappy Kucing Canvas
+// Game components (FlappyCanvasGame, AvoidGame, GuessGame, MemoryGame) tetap sama
 function FlappyCanvasGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameState = useRef({
@@ -177,7 +173,6 @@ function FlappyCanvasGame() {
   );
 }
 
-// 🐾 Kucing Menghindar
 function AvoidGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameState = useRef({
@@ -245,7 +240,6 @@ function AvoidGame() {
   );
 }
 
-// 🎯 Tebak Angka
 function GuessGame() {
   const [target, setTarget] = useState(() => Math.floor(Math.random() * 100) + 1);
   const [guess, setGuess] = useState("");
@@ -257,13 +251,25 @@ function GuessGame() {
     const n = parseInt(guess);
     if (isNaN(n)) return setHint("Masukkan angka yang valid!");
     setAttempts(p => p + 1);
-    if (n === target) { setHint(`🎉 Betul! Angkanya ${target}.`); setWon(true); }
+    if (n === target) {
+      setHint(`🎉 Betul! Angkanya ${target}.`);
+      setWon(true);
+      if (!localStorage.getItem("tebakBest") || attempts < parseInt(localStorage.getItem("tebakBest") || "999")) {
+        localStorage.setItem("tebakBest", String(attempts));
+      }
+    }
     else if (n < target) setHint("📈 Terlalu rendah!");
     else setHint("📉 Terlalu tinggi!");
     setGuess("");
   };
 
-  const restart = () => { setTarget(Math.floor(Math.random() * 100) + 1); setGuess(""); setHint("Tebak angka 1–100"); setAttempts(0); setWon(false); };
+  const restart = () => {
+    setTarget(Math.floor(Math.random() * 100) + 1);
+    setGuess("");
+    setHint("Tebak angka 1–100");
+    setAttempts(0);
+    setWon(false);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
@@ -283,7 +289,6 @@ function GuessGame() {
   );
 }
 
-// 🃏 Memory Card Kucing
 function MemoryGame() {
   const emojis = ["🐱", "😺", "😸", "😹", "😻", "😽", "😼", "🙀"];
   const [cards, setCards] = useState<{ emoji: string; flipped: boolean; matched: boolean }[]>(() => {
@@ -332,11 +337,69 @@ function MemoryGame() {
   );
 }
 
+function Leaderboard() {
+  const flappy = parseInt(localStorage.getItem("flappyHigh") || "0");
+  const hindar = parseInt(localStorage.getItem("avoidHigh") || "0");
+  const tebak = parseInt(localStorage.getItem("tebakBest") || "999");
+  return (
+    <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
+      <div className="glass-card p-8 text-center w-full">
+        <h2 className="text-2xl font-bold shimmer-text mb-6">🏆 Leaderboard</h2>
+        <div className="space-y-4 text-left">
+          <div className="flex justify-between"><span>🐱 Flappy</span><span className="text-cyan-400">{flappy}</span></div>
+          <div className="flex justify-between"><span>🐾 Hindar</span><span className="text-cyan-400">{hindar}</span></div>
+          <div className="flex justify-between"><span>🎯 Tebak (percobaan)</span><span className="text-cyan-400">{tebak === 999 ? "-" : tebak}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QRGenerator() {
+  const url = typeof window !== "undefined" ? window.location.href : "";
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  return (
+    <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
+      <div className="glass-card p-8 text-center w-full">
+        <h2 className="text-xl font-bold shimmer-text mb-4">📱 QR Code</h2>
+        <p className="text-white/60 text-sm mb-4">Scan untuk buka web ini</p>
+        <img src={qrSrc} alt="QR" className="mx-auto rounded-2xl" />
+        <p className="text-white/40 text-xs mt-4">{url}</p>
+      </div>
+    </div>
+  );
+}
+
+function useVoiceCommand(setActiveTab: (tab: any) => void) {
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "id-ID";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event: any) => {
+      const said = event.results[event.results.length - 1][0].transcript.toLowerCase();
+      if (said.includes("buka watch")) setActiveTab("watch");
+      if (said.includes("buka galeri") || said.includes("buka experience")) setActiveTab("photo");
+      if (said.includes("buka game")) setActiveTab("game");
+      if (said.includes("buka about")) setActiveTab("about");
+      if (said.includes("buka private")) setActiveTab("private");
+      if (said.includes("buka flappy")) setActiveTab("flappy");
+      if (said.includes("buka hindar")) setActiveTab("hindar");
+      if (said.includes("buka tebak")) setActiveTab("tebak");
+      if (said.includes("buka memory")) setActiveTab("memory");
+    };
+    recognition.start();
+    return () => recognition.stop();
+  }, [setActiveTab]);
+}
+
 export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
   const [lightning, setLightning] = useState(false);
-  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "memory">("watch");
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "memory" | "leaderboard" | "qr">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
@@ -360,18 +423,72 @@ export default function App() {
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
   const [isMusicOn, setIsMusicOn] = useState(false);
   useEffect(() => { bgMusicRef.current = new Audio("/Fajri.mp3"); bgMusicRef.current.loop = true; bgMusicRef.current.volume = 0.4; return () => { bgMusicRef.current?.pause(); bgMusicRef.current = null; }; }, []);
-  const toggleMusic = () => { const a = bgMusicRef.current; if (!a) return; if (isMusicOn) { a.pause(); setIsMusicOn(false); } else { a.play().then(() => setIsMusicOn(true)).catch(() => {}); } };
+  const toggleMusic = () => { const a = bgMusicRef.current; if (!a) return; if (isMusicOn) { a.pause(); setIsMusicOn(false); } else { a.play().then(() => setIsMusicOn(true)).catch(() => { }); } };
   const getWIB = () => time.toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
   const getWIBDate = () => time.toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const getWIBHour = () => new Date(time.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })).getHours();
-  const greet = () => { const h = getWIBHour(); if (h>=5 && h<11) return "Selamat pagi ☀️"; if (h>=11 && h<15) return "Selamat siang 🌤️"; if (h>=15 && h<18) return "Selamat sore 🌅"; return "Selamat malam 🌙"; };
+  const greet = () => { const h = getWIBHour(); if (h >= 5 && h < 11) return "Selamat pagi ☀️"; if (h >= 11 && h < 15) return "Selamat siang 🌤️"; if (h >= 15 && h < 18) return "Selamat sore 🌅"; return "Selamat malam 🌙"; };
   const getBackground = () => activeTab === "photo" ? "linear-gradient(135deg, #0f0f0f 0%, #1e1b4b 30%, #d8b4fe 80%, #ffffff 100%)" : "linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
   useEffect(() => { const v = localStorage.getItem("fajrez_visited"); if (!v) { localStorage.setItem("fajrez_visitors", String(parseInt(localStorage.getItem("fajrez_visitors") || "0") + 1)); localStorage.setItem("fajrez_visited", "true"); } }, []);
-  const dailyQuote = (() => { const q = ["Dalam diam aku merakit rindu, hanya untukmu.","Setiap detak jam ini mengingatkanku padamu.","Langit malam tak pernah sepi, selalu ada bintang yang menemani.","Kehadiranmu adalah puisi tanpa kata.","Jarak tak berarti ketika hati saling menggenggam.","Kamu adalah alasan aku percaya pada keajaiban.","Senyummu adalah mentari di pagi paling kelabu.","Aku menyimpanmu di ruang terdalam, tempat harapan bersemayam."]; return q[new Date().getDate() % q.length]; })();
+  const dailyQuote = (() => { const q = ["Dalam diam aku merakit rindu, hanya untukmu.", "Setiap detak jam ini mengingatkanku padamu.", "Langit malam tak pernah sepi, selalu ada bintang yang menemani.", "Kehadiranmu adalah puisi tanpa kata.", "Jarak tak berarti ketika hati saling menggenggam.", "Kamu adalah alasan aku percaya pada keajaiban.", "Senyummu adalah mentari di pagi paling kelabu.", "Aku menyimpanmu di ruang terdalam, tempat harapan bersemayam."]; return q[new Date().getDate() % q.length]; })();
   useEffect(() => { const s = localStorage.getItem("fajrez_likes"); if (s) setLikedPhotos(JSON.parse(s)); }, []);
   const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent, k: string) => { const x = "touches" in e ? e.touches[0].clientX : e.clientX; const y = "touches" in e ? e.touches[0].clientY : e.clientY; setHearts(p => [...p, { id: Date.now(), x, y }]); const c = (likedPhotos[k] || 0) + 1; setLikedPhotos({ ...likedPhotos, [k]: c }); localStorage.setItem("fajrez_likes", JSON.stringify({ ...likedPhotos, [k]: c })); playClick(); };
   const sendGuestbook = async () => { if (!guestName.trim() || !guestMessage.trim()) return; setSending(true); try { const r = await fetch("https://formsubmit.co/ajax/fajrezzz22@gmail.com", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ name: guestName.trim(), message: guestMessage.trim(), _subject: "Pesan Buku Tamu dari FAJREZ FOR YOU", _captcha: "false" }) }); if (r.ok) { alert("Pesan terkirim! 🎉"); setGuestName(""); setGuestMessage(""); playClick(); } else alert("Gagal mengirim."); } catch { alert("Gagal mengirim."); } finally { setSending(false); } };
-  const askAI = () => { if (!aiQuestion.trim()) return; setAiLoading(true); const a = ["Hmm, pertanyaan yang menarik! Aku rasa jawabannya adalah... cinta. Selalu cinta.","Kalau aku boleh jujur, itu tergantung hati. Tapi aku yakin, kamu sudah tahu jawabannya sejak awal.","Aku hanya bisa berharap, semesta selalu menjawabmu dengan cara yang paling indah.","Tidak ada yang mustahil selama kamu masih bernafas dan melihat bintang."]; const b = ["Dengan penuh kehangatan, aku melihat pertanyaanmu seperti puitis fajar. Biarkan hatimu tenang, semua akan baik-baik saja.","Aku Claude, dan aku percaya, setiap pertanyaan adalah pintu menuju kebijaksanaan. Jawabannya ada di ketenangan.","Hidup ini misteri, dan kita hanya perlu menikmati setiap momen. Tidak perlu terburu-buru mencari jawaban."]; const c = ["Wah, pertanyaanmu keren! Aku sih jawab: yakin aja, karena kamu spesial.✨","Jawabannya sederhana: lakukan apa yang hatimu katakan. Aku selalu mendukungmu.","Kata orang bijak, rahasia kebahagiaan adalah menikmati prosesnya. Jadi, nikmati saja dulu."]; setTimeout(() => { setAiResponses([{ model: "ChatGPT", answer: a[Math.floor(Math.random()*a.length)] }, { model: "Claude", answer: b[Math.floor(Math.random()*b.length)] }, { model: "DeepSeek", answer: c[Math.floor(Math.random()*c.length)] }]); setAiLoading(false); }, 1500); playClick(); };
+
+  // AI Battle (simulasi, tanpa API key)
+  const askAI = () => {
+    if (!aiQuestion.trim()) return;
+    setAiLoading(true);
+    const chatGptAnswers = [
+      "Hmm, pertanyaan yang menarik! Aku rasa jawabannya adalah... cinta. Selalu cinta.",
+      "Kalau aku boleh jujur, itu tergantung hati. Tapi aku yakin, kamu sudah tahu jawabannya sejak awal.",
+      "Aku hanya bisa berharap, semesta selalu menjawabmu dengan cara yang paling indah.",
+      "Tidak ada yang mustahil selama kamu masih bernafas dan melihat bintang.",
+    ];
+    const claudeAnswers = [
+      "Dengan penuh kehangatan, aku melihat pertanyaanmu seperti puitis fajar. Biarkan hatimu tenang, semua akan baik-baik saja.",
+      "Aku Claude, dan aku percaya, setiap pertanyaan adalah pintu menuju kebijaksanaan. Jawabannya ada di ketenangan.",
+      "Hidup ini misteri, dan kita hanya perlu menikmati setiap momen. Tidak perlu terburu-buru mencari jawaban.",
+    ];
+    const deepSeekAnswers = [
+      "Wah, pertanyaanmu keren! Aku sih jawab: yakin aja, karena kamu spesial.✨",
+      "Jawabannya sederhana: lakukan apa yang hatimu katakan. Aku selalu mendukungmu.",
+      "Kata orang bijak, rahasia kebahagiaan adalah menikmati prosesnya. Jadi, nikmati saja dulu.",
+    ];
+    setTimeout(() => {
+      setAiResponses([
+        { model: "ChatGPT", answer: chatGptAnswers[Math.floor(Math.random() * chatGptAnswers.length)] },
+        { model: "Claude", answer: claudeAnswers[Math.floor(Math.random() * claudeAnswers.length)] },
+        { model: "DeepSeek", answer: deepSeekAnswers[Math.floor(Math.random() * deepSeekAnswers.length)] },
+      ]);
+      setAiLoading(false);
+      setAiQuestion("");
+    }, 1500);
+    playClick();
+  };
+
+  const [coins, setCoins] = useState(() => parseInt(localStorage.getItem("fajrez_coins") || "0"));
+  const [todayClaimed, setTodayClaimed] = useState(() => localStorage.getItem("fajrez_claim_date") === new Date().toDateString());
+  const claimDaily = () => {
+    if (todayClaimed) return;
+    const newCoins = coins + 10;
+    setCoins(newCoins);
+    localStorage.setItem("fajrez_coins", String(newCoins));
+    localStorage.setItem("fajrez_claim_date", new Date().toDateString());
+    setTodayClaimed(true);
+    playClick();
+  };
+  const redeemSpecialPhoto = () => {
+    if (coins < 30) return alert("Koin tidak cukup (butuh 30). Mainkan game untuk dapat koin!");
+    const newCoins = coins - 30;
+    setCoins(newCoins);
+    localStorage.setItem("fajrez_coins", String(newCoins));
+    alert("Kamu mendapat foto spesial! 📸\n(Ini simulasi, nanti bisa diganti foto rahasia kamu)");
+    playClick();
+  };
+
+  useVoiceCommand(setActiveTab);
+
   const enterApp = () => { playClick(); if (isMusicOn && bgMusicRef.current) { bgMusicRef.current.pause(); setIsMusicOn(false); } setStage("loading"); setTimeout(() => { setLightning(true); new Audio("/thunder.mp3").play(); setTimeout(() => { setLightning(false); setStage("app"); setShowConfetti(true); setTimeout(() => setShowConfetti(false), 3000); }, 800); }, 1000); };
   const openPreview = (p: string[], i: number) => { setPreview({ photos: p, index: i }); setTimeout(() => setLightboxVisible(true), 10); };
   const closePreview = () => { setLightboxVisible(false); setTimeout(() => setPreview(null), 250); };
@@ -460,24 +577,13 @@ export default function App() {
 
       {stage === "app" && (
         <>
-          {/* TOP GAME TABS */}
-          {["game", "flappy", "hindar", "tebak", "memory"].includes(activeTab) && (
+          {["game", "flappy", "hindar", "tebak", "memory", "leaderboard", "qr"].includes(activeTab) && (
             <div className="fixed top-0 left-0 right-0 z-30 flex justify-center gap-2 py-3 px-4 glass-nav">
-              {[
-                { tab: "game" as const, label: "ML/FF", icon: "🎮" },
-                { tab: "flappy" as const, label: "Flappy", icon: "🐱" },
-                { tab: "hindar" as const, label: "Hindar", icon: "🐾" },
-                { tab: "tebak" as const, label: "Tebak", icon: "🎯" },
-                { tab: "memory" as const, label: "Memory", icon: "🃏" },
-              ].map(({ tab, label, icon }) => (
-                <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === tab ? "bg-cyan-400/30 text-white shadow-lg shadow-cyan-400/20" : "bg-white/5 text-white/50"}`}>
-                  {icon} {label}
-                </button>
+              {[{ tab: "game" as const, label: "ML/FF", icon: "🎮" }, { tab: "flappy" as const, label: "Flappy", icon: "🐱" }, { tab: "hindar" as const, label: "Hindar", icon: "🐾" }, { tab: "tebak" as const, label: "Tebak", icon: "🎯" }, { tab: "memory" as const, label: "Memory", icon: "🃏" }, { tab: "leaderboard" as const, label: "Leader", icon: "🏆" }, { tab: "qr" as const, label: "QR", icon: "📱" }].map(({ tab, label, icon }) => (
+                <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }} className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === tab ? "bg-cyan-400/30 text-white shadow-lg shadow-cyan-400/20" : "bg-white/5 text-white/50"}`}>{icon} {label}</button>
               ))}
             </div>
           )}
-
           {activeTab === "watch" && (
             <section className="anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
@@ -497,17 +603,7 @@ export default function App() {
           {activeTab === "photo" && (
             <section className="py-24 px-4 anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="columns-2 md:columns-3 gap-4 max-w-6xl mx-auto space-y-4">
-                {galleryPhotos.map((img, i) => {
-                  const key = `gallery-${i}`; const likeCount = likedPhotos[key] || 0; const randomHeight = i % 3 === 0 ? "h-56" : i % 2 === 0 ? "h-48" : "h-64";
-                  return (
-                    <div key={i} className="break-inside-avoid cursor-pointer" onClick={() => { playClick(); openPreview(galleryPhotos, i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); if (now - parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0") < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}>
-                      <div className="relative">
-                        <GalleryImage src={img} className={`${randomHeight} w-full object-cover`} />
-                        {likeCount > 0 && (<div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>)}
-                      </div>
-                    </div>
-                  );
-                })}
+                {galleryPhotos.map((img, i) => { const key = `gallery-${i}`; const likeCount = likedPhotos[key] || 0; const randomHeight = i % 3 === 0 ? "h-56" : i % 2 === 0 ? "h-48" : "h-64"; return (<div key={i} className="break-inside-avoid cursor-pointer" onClick={() => { playClick(); openPreview(galleryPhotos, i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); if (now - parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0") < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}><div className="relative"><GalleryImage src={img} className={`${randomHeight} w-full object-cover`} />{likeCount > 0 && (<div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>)}</div></div>); })}
               </div>
             </section>
           )}
@@ -516,33 +612,18 @@ export default function App() {
               {!selectedGame ? (
                 <>
                   <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-10">
-                    {[{ id: "ssstik.io_1781060165448_nrirrw", glow: "rgba(204,255,0,0.15)" }, { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(0,255,200,0.15)" }, { id: "VID-20260611-WA0005_sjippo", glow: "rgba(0,255,200,0.15)", full: true }].map((v, i) => (
-                      <div key={i} className={`relative ${v.full ? "md:col-span-2" : ""} glass-card overflow-hidden`} style={{ aspectRatio: "16/9" }}>
-                        <div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} />
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" onContextMenu={(e) => e.preventDefault()}><iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" /></div>
-                      </div>
-                    ))}
+                    {[{ id: "ssstik.io_1781060165448_nrirrw", glow: "rgba(204,255,0,0.15)" }, { id: "VID-20260611-WA0003_cfunh3", glow: "rgba(0,255,200,0.15)" }, { id: "VID-20260611-WA0005_sjippo", glow: "rgba(0,255,200,0.15)", full: true }].map((v, i) => (<div key={i} className={`relative ${v.full ? "md:col-span-2" : ""} glass-card overflow-hidden`} style={{ aspectRatio: "16/9" }}><div className="absolute rounded-3xl" style={{ inset: "-8px", background: v.glow, filter: "blur(20px)" }} /><div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl" onContextMenu={(e) => e.preventDefault()}><iframe className="w-full h-full" src={videoUrl(v.id)} allow="autoplay; fullscreen" /></div></div>))}
                   </div>
                   <p className="text-white/40 text-sm mb-4 tracking-widest uppercase">Pilih Game</p>
                   <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto">
-                    {[{ key: "ml", label: "Mobile Legends", color: "#059669" }, { key: "ff", label: "Free Fire", color: "#16a34a" }, { key: "roblox", label: "Roblox", color: "#65a30d" }].map((g) => (
-                      <div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold glass-card" style={{ background: g.color }}>{g.label}</div>
-                    ))}
+                    {[{ key: "ml", label: "Mobile Legends", color: "#059669" }, { key: "ff", label: "Free Fire", color: "#16a34a" }, { key: "roblox", label: "Roblox", color: "#65a30d" }].map((g) => (<div key={g.key} onClick={() => { playClick(); setSelectedGame(g.key); }} className="p-4 rounded-2xl cursor-pointer text-sm font-semibold glass-card" style={{ background: g.color }}>{g.label}</div>))}
                   </div>
                 </>
               ) : (
                 <div className="anim-slideup">
                   <button onClick={() => { playClick(); setSelectedGame(null); }} className="mb-8 px-5 py-2 rounded-full text-sm glass-card">← Back</button>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-                    {gamePhotos[selectedGame].map((img, i) => {
-                      const key = `game-${selectedGame}-${i}`; const likeCount = likedPhotos[key] || 0;
-                      return (
-                        <div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border glass-card" onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); if (now - parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0") < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}>
-                          <GalleryImage src={img} className="w-full aspect-video object-cover" />
-                          {likeCount > 0 && (<div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>)}
-                        </div>
-                      );
-                    })}
+                    {gamePhotos[selectedGame].map((img, i) => { const key = `game-${selectedGame}-${i}`; const likeCount = likedPhotos[key] || 0; return (<div key={i} className="cursor-pointer rounded-2xl overflow-hidden relative rgb-border glass-card" onClick={() => { playClick(); openPreview(gamePhotos[selectedGame!], i); }} onDoubleClick={(e) => handleDoubleTap(e, key)} onTouchEnd={(e) => { const now = Date.now(); if (now - parseInt((e.currentTarget as HTMLElement).dataset.lastTap || "0") < 300) handleDoubleTap(e, key); (e.currentTarget as HTMLElement).dataset.lastTap = String(now); }}><GalleryImage src={img} className="w-full aspect-video object-cover" />{likeCount > 0 && (<div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 text-white z-10">❤️ {likeCount}</div>)}</div>); })}
                   </div>
                 </div>
               )}
@@ -555,14 +636,40 @@ export default function App() {
                 <div className="card-in-2 text-center"><div className="text-2xl font-bold tracking-wider mb-1 shimmer-text">fajrezzz</div><div className="text-sm italic" style={{ color: "rgba(255,255,255,0.5)" }}><Typewriter text="living for the moments nobody else sees." speed={60} /></div></div>
                 <div className="card-in-2 w-full text-center glass-card py-4 px-6"><div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}>{greet()}</div><div className="py-4 px-6 rounded-2xl mx-auto inline-block"><div className="text-4xl font-mono font-bold tracking-[0.15em] shimmer-text">{getWIB()}</div><div className="text-xs mt-2 tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>{getWIBDate()} · WIB</div></div></div>
                 <div className="card-in-2 w-full text-center px-2"><p className="italic text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>"{dailyQuote}"</p></div>
+                {/* Spotify Widget */}
+                <div className="card-in-2 w-full glass-card p-4">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🎵 Spotify</div>
+                  <iframe style={{ borderRadius: "12px" }} src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" />
+                </div>
+                {/* Daily Rewards */}
+                <div className="card-in-3 w-full glass-card p-4 text-center">
+                  <div className="text-sm font-semibold mb-2 shimmer-text">💰 Daily Rewards</div>
+                  <p className="text-2xl font-bold text-cyan-400">{coins} koin</p>
+                  <div className="flex gap-2 justify-center mt-3">
+                    <button onClick={claimDaily} disabled={todayClaimed} className="py-1.5 px-4 rounded-xl text-xs font-semibold bg-cyan-400/20 border border-cyan-400/40 disabled:opacity-30">{todayClaimed ? "Sudah diklaim" : "Klaim +10"}</button>
+                    <button onClick={redeemSpecialPhoto} className="py-1.5 px-4 rounded-xl text-xs font-semibold bg-yellow-400/20 border border-yellow-400/40">Tukar Foto (30)</button>
+                  </div>
+                </div>
                 <div className="card-in-2 w-full h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(0,255,200,0.4), transparent)" }} />
-                <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">{[{ label: "Photos", value: galleryPhotos.length }, { label: "Videos", value: "3" }, { label: "Games", value: "3" }, { label: "Visitors", value: visitorCount }].map((s) => (<div key={s.label} className="rounded-2xl py-3 glass-card"><div className="text-xl font-bold" style={{ color: "#34d399" }}>{s.value}</div><div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</div></div>))}</div>
+                <div className="card-in-3 w-full grid grid-cols-4 gap-3 text-center">
+                  {[{ label: "Photos", value: galleryPhotos.length }, { label: "Videos", value: "3" }, { label: "Games", value: "3" }, { label: "Visitors", value: visitorCount }].map((s) => (<div key={s.label} className="rounded-2xl py-3 glass-card"><div className="text-xl font-bold" style={{ color: "#34d399" }}>{s.value}</div><div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</div></div>))}
+                </div>
                 <div className="card-in-4 w-full glass-card p-4"><div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">Buku Tamu</div><div className="flex flex-col gap-2"><input placeholder="Nama" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" /><textarea placeholder="Tulis pesan..." value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10 resize-none" /><button onClick={sendGuestbook} disabled={sending} className="py-2 rounded-xl text-sm font-semibold btn-shimmer" style={{ background: "rgba(0,255,200,0.2)", border: "1px solid rgba(0,255,200,0.4)", color: "white" }}>{sending ? "Mengirim..." : "Kirim 💌"}</button></div></div>
-                <div className="card-in-4 w-full glass-card p-4"><div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div><div className="flex flex-col gap-2"><input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" /><button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(0,255,200,0.3)", border: "1px solid rgba(0,255,200,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button></div>{aiResponses.length > 0 && (<div className="mt-3 flex flex-col gap-3">{aiResponses.map((res) => (<div key={res.model} className="p-3 rounded-xl glass-card"><div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#34d399" : res.model === "Claude" ? "#facc15" : "#00ffcc" }}>{res.model}</div><div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>{res.answer}</div></div>))}</div>)}</div>
+                {/* AI Battle (aman, tanpa API key) */}
+                <div className="card-in-4 w-full glass-card p-4">
+                  <div className="text-sm font-semibold mb-3 text-center tracking-wider shimmer-text">🤖 AI Battle</div>
+                  <div className="flex flex-col gap-2">
+                    <input placeholder="Tanyakan sesuatu..." value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") askAI(); }} className="w-full px-3 py-2 rounded-xl text-white text-sm outline-none bg-white/5 border border-white/10" />
+                    <button onClick={askAI} disabled={aiLoading} className="py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(0,255,200,0.3)", border: "1px solid rgba(0,255,200,0.5)", color: "white" }}>{aiLoading ? "Berpikir..." : "Tanya AI Battle"}</button>
+                  </div>
+                  {aiResponses.length > 0 && (
+                    <div className="mt-3 flex flex-col gap-3">
+                      {aiResponses.map((res) => (<div key={res.model} className="p-3 rounded-xl glass-card"><div className="text-xs font-bold mb-1" style={{ color: res.model === "ChatGPT" ? "#34d399" : res.model === "Claude" ? "#facc15" : "#00ffcc" }}>{res.model}</div><div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>{res.answer}</div></div>))}
+                    </div>
+                  )}
+                </div>
                 <div className="card-in-4 w-full flex flex-col gap-3 mt-2">
-                  {[{ label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou", color: "#000000", border: "rgba(255,255,255,0.15)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg> }, { label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg> }].map((s) => (
-                    <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl social-card" style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none" }}><div style={{ color: "white" }}>{s.icon}</div><div><div className="text-sm font-semibold text-white">{s.label}</div><div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{s.handle}</div></div><div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg></div></a>
-                  ))}
+                  {[{ label: "TikTok", handle: "@fajrezforyou", url: "https://tiktok.com/@fajrezforyou", color: "#000000", border: "rgba(255,255,255,0.15)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" /></svg> }, { label: "Instagram", handle: "@fajrezforyou", url: "https://instagram.com/fajrezforyou", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", border: "rgba(253,29,29,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" /></svg> }].map((s) => (<a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl social-card" style={{ background: s.color, border: `1px solid ${s.border}`, textDecoration: "none" }}><div style={{ color: "white" }}>{s.icon}</div><div><div className="text-sm font-semibold text-white">{s.label}</div><div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{s.handle}</div></div><div className="ml-auto" style={{ color: "rgba(255,255,255,0.4)" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg></div></a>))}
                 </div>
               </div>
             </section>
@@ -587,6 +694,8 @@ export default function App() {
           {activeTab === "hindar" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><AvoidGame /></section>)}
           {activeTab === "tebak" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><GuessGame /></section>)}
           {activeTab === "memory" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><MemoryGame /></section>)}
+          {activeTab === "leaderboard" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><Leaderboard /></section>)}
+          {activeTab === "qr" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><QRGenerator /></section>)}
 
           {preview && (
             <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)", opacity: lightboxVisible ? 1 : 0, transition: "opacity 0.25s ease" }} onClick={closePreview} onContextMenu={(e) => e.preventDefault()}
@@ -606,19 +715,7 @@ export default function App() {
           )}
 
           <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center py-3 px-1 glass-nav">
-            {[
-              { tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> },
-              { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
-              { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="17" cy="11" r="0.5" fill="currentColor"/><circle cx="19" cy="13" r="0.5" fill="currentColor"/></svg> },
-              { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
-              { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> },
-            ].map(({ tab, label, icon }) => (
-              <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.2s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent", boxShadow: activeTab === tab ? "0 0 12px rgba(0,255,200,0.3)" : "none", transform: activeTab === tab ? "scale(1.05)" : "scale(1)" }}>
-                {icon}<span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>
-                {activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(0,255,200,1)" }} />}
-              </button>
-            ))}
+            {[{ tab: "watch" as const, label: "WATCH", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg> }, { tab: "photo" as const, label: "EXPERIENCE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> }, { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><line x1="12" y1="10" x2="12" y2="14" /><line x1="10" y1="12" x2="14" y2="12" /><circle cx="17" cy="11" r="0.5" fill="currentColor" /><circle cx="19" cy="13" r="0.5" fill="currentColor" /></svg> }, { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg> }, { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> }].map(({ tab, label, icon }) => (<button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.2s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent", boxShadow: activeTab === tab ? "0 0 12px rgba(0,255,200,0.3)" : "none", transform: activeTab === tab ? "scale(1.05)" : "scale(1)" }}>{icon}<span style={{ fontSize: "7px", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</span>{activeTab === tab && <div style={{ width: "4px", height: "4px", borderRadius: "2px", background: "rgba(0,255,200,1)" }} />}</button>))}
           </div>
         </>
       )}

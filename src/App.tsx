@@ -4,6 +4,16 @@ const galleryPhotos = [
   "/1.jpg","/2.jpg","/3.jpg","/4.jpg","/5.jpg","/6.jpg",
   "/7.jpg","/8.jpg","/9.jpg","/10.jpg"
 ];
+
+const randomPhotos = [
+  "/random1.jpg",
+  "/random2.jpg",
+  "/random3.jpg",
+  "/random4.jpg",
+  "/random5.jpg",
+  "/random6.jpg",
+];
+
 const watchVideos = [
   "lv_7646454190348209425_20260610025241_ul4pfd",
   "VID-20260611-WA0023_nr83xb",
@@ -31,17 +41,14 @@ function Confetti() {
     </div>
   );
 }
-
 function FloatingHeart({x,y}:{x:number;y:number}) {
   return <div className="fixed pointer-events-none z-[65] text-2xl" style={{left:x,top:y,animation:"heartFloat .8s ease-out forwards"}}>❤️<style>{`@keyframes heartFloat{0%{opacity:1;transform:translateY(0)scale(1)}100%{opacity:0;transform:translateY(-40px)scale(1.4)}}`}</style></div>;
 }
-
 function Typewriter({text,speed=40}:{text:string;speed?:number}) {
   const [displayed,setDisplayed]=useState("");
   useEffect(()=>{let i=0;const t=setInterval(()=>{setDisplayed(text.slice(0,i+1));i++;if(i>=text.length)clearInterval(t);},speed);return ()=>clearInterval(t);},[text,speed]);
   return <span>{displayed}<span className="animate-pulse" style={{color:"rgba(255,255,255,0.6)"}}>|</span></span>;
 }
-
 function CursorGlow() {
   const [pos,setPos]=useState({x:-100,y:-100});
   const [visible,setVisible]=useState(false);
@@ -49,7 +56,6 @@ function CursorGlow() {
   if(typeof window==="undefined")return null;
   return <div className="fixed pointer-events-none z-[70] transition-opacity duration-200" style={{left:pos.x-10,top:pos.y-10,width:20,height:20,borderRadius:"50%",background:"rgba(0,255,200,0.6)",boxShadow:"0 0 20px 8px rgba(0,255,200,0.5)",opacity:visible?1:0}}/>;
 }
-
 function GalleryImage({src,className}:{src:string;className?:string}) {
   const [loaded,setLoaded]=useState(false);
   return (
@@ -60,7 +66,6 @@ function GalleryImage({src,className}:{src:string;className?:string}) {
     </div>
   );
 }
-
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
@@ -69,79 +74,50 @@ function Particles() {
     </div>
   );
 }
-
+// Game components (FlappyCanvasGame, AvoidGame, GuessGame, MemoryGame, Leaderboard, QRGenerator) tetap sama seperti sebelumnya
 function FlappyCanvasGame() {
   const canvasRef=useRef<HTMLCanvasElement>(null);
   const gs=useRef({catY:250,catVel:0,pipes:[] as {x:number;top:number;passed:boolean}[],score:0,high:parseInt(localStorage.getItem("flappyHigh")||"0"),go:false,start:false,speed:2.5});
   const anim=useRef(0);
-  const [score,setScore]=useState(0);
-  const [go,setGo]=useState(false);
-  const [start,setStart]=useState(false);
+  const [score,setScore]=useState(0);const[go,setGo]=useState(false);const[start,setStart]=useState(false);
   const [high,setHigh]=useState(gs.current.high);
   const init=useCallback(()=>{const s=gs.current;s.catY=250;s.catVel=0;s.pipes=[];s.score=0;s.go=false;s.start=false;s.speed=2.5;setScore(0);setGo(false);setStart(false);},[]);
-  const loop=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;const s=gs.current;const w=c.width=c.clientWidth;const h=c.height=c.clientHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0d3b3b";ctx.fillRect(0,0,w,h);
-    if(!s.start||s.go){ctx.fillStyle="white";ctx.font="18px sans-serif";ctx.textAlign="center";ctx.fillText(s.go?"Game Over":"Tap untuk mulai",w/2,h/2-20);ctx.fillText(`Skor: ${s.score}   High: ${s.high}`,w/2,h/2+20);anim.current=requestAnimationFrame(loop);return;}
-    s.catVel+=0.5;s.catY+=s.catVel;if(s.catY<0){s.catY=0;s.catVel=0;}if(s.catY>h-30){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("flappyHigh",String(s.high));setHigh(s.high);}}
-    if(anim.current%100===0)s.pipes.push({x:w,top:Math.random()*(h-180)+40,passed:false});
-    s.pipes=s.pipes.filter(p=>{p.x-=s.speed;if(!p.passed&&p.x+50<80){p.passed=true;s.score++;setScore(s.score);if(s.score%5===0)s.speed+=0.4;}if(80+30>p.x&&80<p.x+50&&(s.catY<p.top||s.catY+30>p.top+140)){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("flappyHigh",String(s.high));setHigh(s.high);}}return p.x>-50;});
-    ctx.fillStyle="#22c55e";s.pipes.forEach(p=>{ctx.fillRect(p.x,0,50,p.top);ctx.fillRect(p.x,p.top+140,50,h-p.top-140);});
-    ctx.font="30px Arial";ctx.fillText("🐱",80,s.catY+28);ctx.fillStyle="white";ctx.font="bold 24px sans-serif";ctx.textAlign="center";ctx.fillText(String(s.score),w/2,40);
-    anim.current=requestAnimationFrame(loop);},[]);
+  const loop=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;const s=gs.current;const w=c.width=c.clientWidth;const h=c.height=c.clientHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0d3b3b";ctx.fillRect(0,0,w,h);if(!s.start||s.go){ctx.fillStyle="white";ctx.font="18px sans-serif";ctx.textAlign="center";ctx.fillText(s.go?"Game Over":"Tap untuk mulai",w/2,h/2-20);ctx.fillText(`Skor: ${s.score}   High: ${s.high}`,w/2,h/2+20);anim.current=requestAnimationFrame(loop);return;}s.catVel+=0.5;s.catY+=s.catVel;if(s.catY<0){s.catY=0;s.catVel=0;}if(s.catY>h-30){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("flappyHigh",String(s.high));setHigh(s.high);}}if(anim.current%100===0)s.pipes.push({x:w,top:Math.random()*(h-180)+40,passed:false});s.pipes=s.pipes.filter(p=>{p.x-=s.speed;if(!p.passed&&p.x+50<80){p.passed=true;s.score++;setScore(s.score);if(s.score%5===0)s.speed+=0.4;}if(80+30>p.x&&80<p.x+50&&(s.catY<p.top||s.catY+30>p.top+140)){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("flappyHigh",String(s.high));setHigh(s.high);}}return p.x>-50;});ctx.fillStyle="#22c55e";s.pipes.forEach(p=>{ctx.fillRect(p.x,0,50,p.top);ctx.fillRect(p.x,p.top+140,50,h-p.top-140);});ctx.font="30px Arial";ctx.fillText("🐱",80,s.catY+28);ctx.fillStyle="white";ctx.font="bold 24px sans-serif";ctx.textAlign="center";ctx.fillText(String(s.score),w/2,40);anim.current=requestAnimationFrame(loop);},[]);
   useEffect(()=>{anim.current=requestAnimationFrame(loop);return ()=>cancelAnimationFrame(anim.current);},[loop]);
   const tap=()=>{if(!gs.current.start||gs.current.go){if(gs.current.go)init();gs.current.start=true;setStart(true);gs.current.catVel=-8;}else gs.current.catVel=-8;};
   return <div className="flex flex-col items-center justify-center h-full w-full relative" onClick={tap} onTouchStart={e=>{e.preventDefault();tap();}}><canvas ref={canvasRef} className="w-full max-w-[400px] h-[70vh] rounded-3xl border border-white/10 shadow-2xl" style={{touchAction:"none"}}/></div>;
 }
-
 function AvoidGame() {
   const canvasRef=useRef<HTMLCanvasElement>(null);
   const gs=useRef({catX:150,balls:[] as {x:number;y:number;r:number}[],score:0,high:parseInt(localStorage.getItem("avoidHigh")||"0"),go:false,start:false});
   const anim=useRef(0);
-  const [score,setScore]=useState(0);
-  const [go,setGo]=useState(false);
-  const [start,setStart]=useState(false);
+  const [score,setScore]=useState(0);const[go,setGo]=useState(false);const[start,setStart]=useState(false);
   const [high,setHigh]=useState(gs.current.high);
   const init=useCallback(()=>{const s=gs.current;s.catX=150;s.balls=[];s.score=0;s.go=false;s.start=false;setScore(0);setGo(false);setStart(false);},[]);
-  const loop=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;const s=gs.current;const w=c.width=c.clientWidth;const h=c.height=c.clientHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0d3b3b";ctx.fillRect(0,0,w,h);
-    if(!s.start||s.go){ctx.fillStyle="white";ctx.font="16px sans-serif";ctx.textAlign="center";ctx.fillText(s.go?"Game Over":"Geser kucing untuk mulai",w/2,h/2-20);ctx.fillText(`Skor: ${s.score}   High: ${s.high}`,w/2,h/2+20);anim.current=requestAnimationFrame(loop);return;}
-    if(Math.random()<0.03)s.balls.push({x:Math.random()*w,y:-10,r:8+Math.random()*8});
-    s.balls=s.balls.filter(b=>{b.y+=4;if(Math.hypot(b.x-s.catX,b.y-(h-40))<b.r+20){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("avoidHigh",String(s.high));setHigh(s.high);}return false;}if(b.y>h+10){s.score++;setScore(s.score);return false;}return true;});
-    ctx.fillStyle="#ef4444";s.balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();});
-    ctx.font="36px Arial";ctx.fillText("🐱",s.catX-18,h-20);ctx.fillStyle="white";ctx.font="bold 20px sans-serif";ctx.textAlign="center";ctx.fillText(String(s.score),w/2,30);
-    anim.current=requestAnimationFrame(loop);},[]);
+  const loop=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;const s=gs.current;const w=c.width=c.clientWidth;const h=c.height=c.clientHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0d3b3b";ctx.fillRect(0,0,w,h);if(!s.start||s.go){ctx.fillStyle="white";ctx.font="16px sans-serif";ctx.textAlign="center";ctx.fillText(s.go?"Game Over":"Geser kucing untuk mulai",w/2,h/2-20);ctx.fillText(`Skor: ${s.score}   High: ${s.high}`,w/2,h/2+20);anim.current=requestAnimationFrame(loop);return;}if(Math.random()<0.03)s.balls.push({x:Math.random()*w,y:-10,r:8+Math.random()*8});s.balls=s.balls.filter(b=>{b.y+=4;if(Math.hypot(b.x-s.catX,b.y-(h-40))<b.r+20){s.go=true;setGo(true);if(s.score>s.high){s.high=s.score;localStorage.setItem("avoidHigh",String(s.high));setHigh(s.high);}return false;}if(b.y>h+10){s.score++;setScore(s.score);return false;}return true;});ctx.fillStyle="#ef4444";s.balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();});ctx.font="36px Arial";ctx.fillText("🐱",s.catX-18,h-20);ctx.fillStyle="white";ctx.font="bold 20px sans-serif";ctx.textAlign="center";ctx.fillText(String(s.score),w/2,30);anim.current=requestAnimationFrame(loop);},[]);
   useEffect(()=>{anim.current=requestAnimationFrame(loop);return ()=>cancelAnimationFrame(anim.current);},[loop]);
   const move=(cx:number)=>{const c=canvasRef.current;if(!c)return;const r=c.getBoundingClientRect();gs.current.catX=Math.max(30,Math.min(cx-r.left,r.width-30));if(!gs.current.start){gs.current.start=true;setStart(true);}};
   return <div className="flex flex-col items-center justify-center h-full w-full relative" onMouseMove={e=>move(e.clientX)} onTouchMove={e=>{e.preventDefault();move(e.touches[0].clientX);}} onTouchStart={e=>{e.preventDefault();move(e.touches[0].clientX);}}><canvas ref={canvasRef} className="w-full max-w-[400px] h-[70vh] rounded-3xl border border-white/10 shadow-2xl" style={{touchAction:"none"}}/></div>;
 }
-
 function GuessGame() {
   const [target,setTarget]=useState(()=>Math.floor(Math.random()*100)+1);
-  const [guess,setGuess]=useState("");
-  const [hint,setHint]=useState("Tebak angka 1–100");
-  const [attempts,setAttempts]=useState(0);
-  const [won,setWon]=useState(false);
+  const [guess,setGuess]=useState("");const[hint,setHint]=useState("Tebak angka 1–100");const[attempts,setAttempts]=useState(0);const[won,setWon]=useState(false);
   const submit=()=>{const n=parseInt(guess);if(isNaN(n))return setHint("Masukkan angka yang valid!");setAttempts(p=>p+1);if(n===target){setHint(`🎉 Betul! Angkanya ${target}.`);setWon(true);if(!localStorage.getItem("tebakBest")||attempts<parseInt(localStorage.getItem("tebakBest")||"999"))localStorage.setItem("tebakBest",String(attempts));}else if(n<target)setHint("📈 Terlalu rendah!");else setHint("📉 Terlalu tinggi!");setGuess("");};
   const restart=()=>{setTarget(Math.floor(Math.random()*100)+1);setGuess("");setHint("Tebak angka 1–100");setAttempts(0);setWon(false);};
   return <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6"><div className="glass-card p-8 text-center w-full"><div className="text-5xl mb-4">🎯</div><div className="text-xl font-bold shimmer-text mb-4">Tebak Angka</div><p className="text-white/60 text-sm mb-4">{hint}</p><input type="number" value={guess} onChange={e=>setGuess(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="1–100" disabled={won} className="w-full px-4 py-3 rounded-xl text-white text-center text-lg outline-none bg-white/5 border border-white/10 mb-4"/>{!won?<button onClick={submit} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full" style={{background:"rgba(0,255,200,0.2)",border:"1px solid rgba(0,255,200,0.4)"}}>Tebak</button>:<button onClick={restart} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full" style={{background:"rgba(255,200,0,0.2)",border:"1px solid rgba(255,200,0,0.4)"}}>Main Lagi</button>}<p className="text-white/40 text-xs mt-3">Percobaan: {attempts}</p></div></div>;
 }
-
 function MemoryGame() {
   const emojis=["🐱","😺","😸","😹","😻","😽","😼","🙀"];
   const [cards,setCards]=useState<{emoji:string;flipped:boolean;matched:boolean}[]>(()=>[...emojis,...emojis].sort(()=>Math.random()-.5).map(e=>({emoji:e,flipped:false,matched:false})));
-  const [opened,setOpened]=useState<number[]>([]);
-  const [moves,setMoves]=useState(0);
-  const [locked,setLocked]=useState(false);
+  const [opened,setOpened]=useState<number[]>([]);const[moves,setMoves]=useState(0);const[locked,setLocked]=useState(false);
   const flip=(i:number)=>{if(locked||cards[i].flipped||cards[i].matched)return;const nc=[...cards];nc[i].flipped=true;setCards(nc);const no=[...opened,i];setOpened(no);if(no.length===2){setLocked(true);setMoves(m=>m+1);const[a,b]=no;if(cards[a].emoji===cards[b].emoji){setTimeout(()=>{const mc=[...cards];mc[a].matched=true;mc[b].matched=true;setCards(mc);setOpened([]);setLocked(false);},600);}else{setTimeout(()=>{const fc=[...cards];fc[a].flipped=false;fc[b].flipped=false;setCards(fc);setOpened([]);setLocked(false);},800);}}};
   const restart=()=>{setCards([...emojis,...emojis].sort(()=>Math.random()-.5).map(e=>({emoji:e,flipped:false,matched:false})));setOpened([]);setMoves(0);setLocked(false);};
   return <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-4"><div className="grid grid-cols-4 gap-2 w-full">{cards.map((c,i)=><button key={i} onClick={()=>flip(i)} className={`aspect-square rounded-2xl text-3xl flex items-center justify-center transition-all ${c.flipped||c.matched?"bg-cyan-500/30 border border-cyan-400":"bg-white/5 border border-white/10"}`}>{(c.flipped||c.matched)?c.emoji:"❓"}</button>)}</div><div className="flex justify-between w-full text-sm text-white/60"><span>Langkah: {moves}</span><button onClick={restart} className="text-cyan-400">Ulangi</button></div></div>;
 }
-
 function Leaderboard() {
-  const flappy=parseInt(localStorage.getItem("flappyHigh")||"0");
-  const hindar=parseInt(localStorage.getItem("avoidHigh")||"0");
-  const tebak=parseInt(localStorage.getItem("tebakBest")||"999");
+  const flappy=parseInt(localStorage.getItem("flappyHigh")||"0");const hindar=parseInt(localStorage.getItem("avoidHigh")||"0");const tebak=parseInt(localStorage.getItem("tebakBest")||"999");
   return <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6"><div className="glass-card p-8 text-center w-full"><h2 className="text-2xl font-bold shimmer-text mb-6">🏆 Leaderboard</h2><div className="space-y-4 text-left"><div className="flex justify-between"><span>🐱 Flappy</span><span className="text-cyan-400">{flappy}</span></div><div className="flex justify-between"><span>🐾 Hindar</span><span className="text-cyan-400">{hindar}</span></div><div className="flex justify-between"><span>🎯 Tebak (percobaan)</span><span className="text-cyan-400">{tebak==="999"?"-":tebak}</span></div></div></div></div>;
 }
-
 function QRGenerator() {
   const url=typeof window!=="undefined"?window.location.href:"";
   return <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6"><div className="glass-card p-8 text-center w-full"><h2 className="text-xl font-bold shimmer-text mb-4">📱 QR Code</h2><p className="text-white/60 text-sm mb-4">Scan untuk buka web ini</p><img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`} alt="QR" className="mx-auto rounded-2xl"/><p className="text-white/40 text-xs mt-4">{url}</p></div></div>;
@@ -180,11 +156,7 @@ export default function App() {
   const getWIBDate=()=>time.toLocaleDateString("id-ID",{timeZone:"Asia/Jakarta",weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const getWIBHour=()=>new Date(time.toLocaleString("en-US",{timeZone:"Asia/Jakarta"})).getHours();
   const greet=()=>{const h=getWIBHour();if(h>=5&&h<11)return"Selamat pagi ☀️";if(h>=11&&h<15)return"Selamat siang 🌤️";if(h>=15&&h<18)return"Selamat sore 🌅";return"Selamat malam 🌙";};
-  const getBackground=()=>{
-    if(activeTab==="photo")return"linear-gradient(135deg, #0f0f0f 0%, #1e1b4b 30%, #d8b4fe 80%, #ffffff 100%)";
-    if(activeTab==="random")return"linear-gradient(135deg, #1a0a0a 0%, #4a1a2e 30%, #ff6b6b 80%, #ffd93d 100%)";
-    return"linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
-  };
+  const getBackground=()=>{if(activeTab==="photo")return"linear-gradient(135deg, #0f0f0f 0%, #1e1b4b 30%, #d8b4fe 80%, #ffffff 100%)";if(activeTab==="random")return"linear-gradient(135deg, #1a0a0a 0%, #4a1a2e 30%, #ff6b6b 80%, #ffd93d 100%)";return"linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";};
   useEffect(()=>{const v=localStorage.getItem("fajrez_visited");if(!v){localStorage.setItem("fajrez_visitors",String(parseInt(localStorage.getItem("fajrez_visitors")||"0")+1));localStorage.setItem("fajrez_visited","true");}},[]);
   const dailyQuote=(()=>{const q=["Dalam diam aku merakit rindu, hanya untukmu.","Setiap detak jam ini mengingatkanku padamu.","Langit malam tak pernah sepi, selalu ada bintang yang menemani.","Kehadiranmu adalah puisi tanpa kata.","Jarak tak berarti ketika hati saling menggenggam.","Kamu adalah alasan aku percaya pada keajaiban.","Senyummu adalah mentari di pagi paling kelabu.","Aku menyimpanmu di ruang terdalam, tempat harapan bersemayam."];return q[new Date().getDate()%q.length];})();
   useEffect(()=>{const s=localStorage.getItem("fajrez_likes");if(s)setLikedPhotos(JSON.parse(s));},[]);
@@ -282,19 +254,24 @@ export default function App() {
                   <p className="text-white/60 text-sm max-w-md mx-auto">Koleksi kejutan yang bikin senyum-senyum sendiri! Setiap foto punya cerita.</p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                  {galleryPhotos.sort(()=>Math.random()-.5).map((img,i)=>{const likeCount=likedPhotos[`random-${i}`]||0;return(
-                    <div key={i} className="random-card group cursor-pointer p-3" onClick={()=>{playClick();openPreview(galleryPhotos,galleryPhotos.indexOf(img));}} onDoubleClick={e=>handleDoubleTap(e,`random-${i}`)}>
-                      <div className="relative overflow-hidden rounded-3xl aspect-[4/5]">
-                        <img src={img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
-                        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="text-white text-xs font-bold bg-black/40 px-2 py-1 rounded-full backdrop-blur">✨ Random #{i+1}</span>
-                          {likeCount>0&&<span className="text-white text-xs bg-pink-500/80 px-2 py-1 rounded-full">❤️ {likeCount}</span>}
+                  {randomPhotos.map((img,i)=>{
+                    const likeCount=likedPhotos[`random-${i}`]||0;
+                    return (
+                      <div key={i} className="random-card group cursor-pointer p-3"
+                        onClick={()=>{playClick();openPreview(randomPhotos,i);}}
+                        onDoubleClick={(e)=>handleDoubleTap(e,`random-${i}`)}>
+                        <div className="relative overflow-hidden rounded-3xl aspect-[4/5]">
+                          <img src={img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
+                          <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span className="text-white text-xs font-bold bg-black/40 px-2 py-1 rounded-full backdrop-blur">✨ Random #{i+1}</span>
+                            {likeCount>0&&<span className="text-white text-xs bg-pink-500/80 px-2 py-1 rounded-full">❤️ {likeCount}</span>}
+                          </div>
+                          <div className="absolute -top-2 -right-2 text-2xl random-badge">🌟</div>
                         </div>
-                        <div className="absolute -top-2 -right-2 text-2xl random-badge">🌟</div>
                       </div>
-                    </div>
-                  );})}
+                    );
+                  })}
                 </div>
                 <div className="text-center mt-12">
                   <p className="text-white/40 text-xs animate-pulse">✨ Scroll & tap untuk kejutan lucu ✨</p>
@@ -402,7 +379,12 @@ export default function App() {
               {tab:"game"as const,label:"GAMES",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="17" cy="11" r="0.5" fill="currentColor"/><circle cx="19" cy="13" r="0.5" fill="currentColor"/></svg>},
               {tab:"about"as const,label:"ABOUT",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>},
               {tab:"private"as const,label:"PRIVATE",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>},
-            ].map(({tab,label,icon})=>(<button key={tab} onClick={()=>{playClick();setActiveTab(tab);if(tab!=="game")setSelectedGame(null);}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"3px",padding:"6px 8px",borderRadius:"14px",color:activeTab===tab?"white":"rgba(255,255,255,0.35)",transition:"all 0.2s ease",background:activeTab===tab?"rgba(255,255,255,0.08)":"transparent",boxShadow:activeTab===tab?"0 0 12px rgba(0,255,200,0.3)":"none",transform:activeTab===tab?"scale(1.05)":"scale(1)"}}>{icon}<span style={{fontSize:"7px",letterSpacing:"0.06em",fontWeight:600}}>{label}</span>{activeTab===tab&&<div style={{width:"4px",height:"4px",borderRadius:"2px",background:"rgba(0,255,200,1)"}}/>}</button>))}
+            ].map(({tab,label,icon})=>(
+              <button key={tab} onClick={()=>{playClick();setActiveTab(tab);if(tab!=="game")setSelectedGame(null);}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"3px",padding:"6px 8px",borderRadius:"14px",color:activeTab===tab?"white":"rgba(255,255,255,0.35)",transition:"all 0.2s ease",background:activeTab===tab?"rgba(255,255,255,0.08)":"transparent",boxShadow:activeTab===tab?"0 0 12px rgba(0,255,200,0.3)":"none",transform:activeTab===tab?"scale(1.05)":"scale(1)"}}>
+                {icon}<span style={{fontSize:"7px",letterSpacing:"0.06em",fontWeight:600}}>{label}</span>
+                {activeTab===tab&&<div style={{width:"4px",height:"4px",borderRadius:"2px",background:"rgba(0,255,200,1)"}}/>}
+              </button>
+            ))}
           </div>
         </>
       )}

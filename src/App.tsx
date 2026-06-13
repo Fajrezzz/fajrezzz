@@ -283,47 +283,6 @@ function GuessGame() {
   );
 }
 
-// ⚡ Reaksi Warna
-function ReactionGame() {
-  const [phase, setPhase] = useState<"waiting" | "ready" | "clicked" | "tooEarly">("waiting");
-  const [startTime, setStartTime] = useState(0);
-  const [reaction, setReaction] = useState<number | null>(null);
-  const [best, setBest] = useState(() => parseInt(localStorage.getItem("reactionBest") || "0") || null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const start = () => {
-    setPhase("ready");
-    const delay = 1500 + Math.random() * 3000;
-    timeoutRef.current = setTimeout(() => { setStartTime(Date.now()); setPhase("clicked"); }, delay);
-  };
-
-  const click = () => {
-    if (phase === "ready") { if (timeoutRef.current) clearTimeout(timeoutRef.current); setPhase("tooEarly"); return; }
-    if (phase === "clicked") {
-      const ms = Date.now() - startTime; setReaction(ms);
-      if (!best || ms < best) { setBest(ms); localStorage.setItem("reactionBest", String(ms)); }
-      setPhase("waiting");
-    }
-  };
-
-  const reset = () => { setReaction(null); setPhase("waiting"); };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
-      <div onClick={phase === "waiting" ? start : phase === "ready" ? click : (phase === "tooEarly" ? reset : reset)}
-        className={`glass-card p-8 text-center w-full h-64 flex flex-col items-center justify-center cursor-pointer transition-colors ${phase === "ready" ? "bg-red-500/40" : phase === "clicked" ? "bg-green-500/40" : phase === "tooEarly" ? "bg-yellow-500/40" : ""}`}>
-        <div className="text-4xl mb-4">{phase === "waiting" ? "⚡" : phase === "ready" ? "🔴" : phase === "clicked" ? "🟢" : "🟡"}</div>
-        {phase === "waiting" && !reaction && <p className="text-white font-bold">Tap untuk mulai</p>}
-        {phase === "waiting" && reaction && <p className="text-white font-bold text-xl">{reaction} ms</p>}
-        {phase === "ready" && <p className="text-white font-bold">Tunggu hijau...</p>}
-        {phase === "clicked" && <p className="text-white font-bold text-xl">TAP!</p>}
-        {phase === "tooEarly" && <p className="text-white font-bold">Terlalu cepat! Coba lagi.</p>}
-        <p className="text-white/40 text-xs mt-3">Rekor: {best ? `${best} ms` : "—"}</p>
-      </div>
-    </div>
-  );
-}
-
 // 🃏 Memory Card Kucing
 function MemoryGame() {
   const emojis = ["🐱", "😺", "😸", "😹", "😻", "😽", "😼", "🙀"];
@@ -377,7 +336,7 @@ export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
   const [lightning, setLightning] = useState(false);
-  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "reaksi" | "memory">("watch");
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "memory">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
@@ -501,6 +460,24 @@ export default function App() {
 
       {stage === "app" && (
         <>
+          {/* TOP GAME TABS */}
+          {["game", "flappy", "hindar", "tebak", "memory"].includes(activeTab) && (
+            <div className="fixed top-0 left-0 right-0 z-30 flex justify-center gap-2 py-3 px-4 glass-nav">
+              {[
+                { tab: "game" as const, label: "ML/FF", icon: "🎮" },
+                { tab: "flappy" as const, label: "Flappy", icon: "🐱" },
+                { tab: "hindar" as const, label: "Hindar", icon: "🐾" },
+                { tab: "tebak" as const, label: "Tebak", icon: "🎯" },
+                { tab: "memory" as const, label: "Memory", icon: "🃏" },
+              ].map(({ tab, label, icon }) => (
+                <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === tab ? "bg-cyan-400/30 text-white shadow-lg shadow-cyan-400/20" : "bg-white/5 text-white/50"}`}>
+                  {icon} {label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {activeTab === "watch" && (
             <section className="anim-slideup" style={{ animation: "tabFadeIn 0.4s ease-out" }}>
               <div className="relative flex flex-col items-center justify-center" style={{ height: "100dvh" }}>
@@ -609,7 +586,6 @@ export default function App() {
           {activeTab === "flappy" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><FlappyCanvasGame /></section>)}
           {activeTab === "hindar" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><AvoidGame /></section>)}
           {activeTab === "tebak" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><GuessGame /></section>)}
-          {activeTab === "reaksi" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><ReactionGame /></section>)}
           {activeTab === "memory" && (<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{ animation: "tabFadeIn 0.4s ease-out" }}><MemoryGame /></section>)}
 
           {preview && (
@@ -636,11 +612,6 @@ export default function App() {
               { tab: "game" as const, label: "GAMES", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="17" cy="11" r="0.5" fill="currentColor"/><circle cx="19" cy="13" r="0.5" fill="currentColor"/></svg> },
               { tab: "about" as const, label: "ABOUT", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
               { tab: "private" as const, label: "PRIVATE", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> },
-              { tab: "flappy" as const, label: "FLAPPY", icon: <span className="text-lg">🐱</span> },
-              { tab: "hindar" as const, label: "HINDAR", icon: <span className="text-lg">🐾</span> },
-              { tab: "tebak" as const, label: "TEBAK", icon: <span className="text-lg">🎯</span> },
-              { tab: "reaksi" as const, label: "REAKSI", icon: <span className="text-lg">⚡</span> },
-              { tab: "memory" as const, label: "MEMORY", icon: <span className="text-lg">🃏</span> },
             ].map(({ tab, label, icon }) => (
               <button key={tab} onClick={() => { playClick(); setActiveTab(tab); if (tab !== "game") setSelectedGame(null); }}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", padding: "6px 8px", borderRadius: "14px", color: activeTab === tab ? "white" : "rgba(255,255,255,0.35)", transition: "all 0.2s ease", background: activeTab === tab ? "rgba(255,255,255,0.08)" : "transparent", boxShadow: activeTab === tab ? "0 0 12px rgba(0,255,200,0.3)" : "none", transform: activeTab === tab ? "scale(1.05)" : "scale(1)" }}>

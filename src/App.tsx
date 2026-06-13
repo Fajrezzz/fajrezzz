@@ -29,44 +29,24 @@ function Confetti() {
   return (
     <div className="fixed inset-0 pointer-events-none z-[60]">
       {[...Array(30)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 6 + 4}px`,
-            height: `${Math.random() * 4 + 2}px`,
-            background: `hsl(${Math.random() * 360}, 80%, 65%)`,
-            borderRadius: "2px",
-            animation: `confettiFall ${Math.random() * 2 + 2}s ease-out ${Math.random() * 0.5}s forwards`,
-            transform: `rotate(${Math.random() * 360}deg)`,
-          }}
-        />
+        <div key={i} style={{
+          position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
+          width: `${Math.random() * 6 + 4}px`, height: `${Math.random() * 4 + 2}px`,
+          background: `hsl(${Math.random() * 360}, 80%, 65%)`, borderRadius: "2px",
+          animation: `confettiFall ${Math.random() * 2 + 2}s ease-out ${Math.random() * 0.5}s forwards`,
+          transform: `rotate(${Math.random() * 360}deg)`,
+        }} />
       ))}
-      <style>{`
-        @keyframes confettiFall {
-          0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-          100% { opacity: 0; transform: translateY(80vh) rotate(720deg); }
-        }
-      `}</style>
+      <style>{`@keyframes confettiFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(80vh) rotate(720deg); } }`}</style>
     </div>
   );
 }
 
 function FloatingHeart({ x, y }: { x: number; y: number }) {
   return (
-    <div
-      className="fixed pointer-events-none z-[65] text-2xl"
-      style={{ left: x, top: y, animation: "heartFloat 0.8s ease-out forwards" }}
-    >
+    <div className="fixed pointer-events-none z-[65] text-2xl" style={{ left: x, top: y, animation: "heartFloat 0.8s ease-out forwards" }}>
       ❤️
-      <style>{`
-        @keyframes heartFloat {
-          0% { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
-        }
-      `}</style>
+      <style>{`@keyframes heartFloat { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.4); } }`}</style>
     </div>
   );
 }
@@ -82,45 +62,25 @@ function Typewriter({ text, speed = 40 }: { text: string; speed?: number }) {
     }, speed);
     return () => clearInterval(interval);
   }, [text, speed]);
-  return (
-    <span>
-      {displayed}
-      <span className="animate-pulse" style={{ color: "rgba(255,255,255,0.6)" }}>|</span>
-    </span>
-  );
+  return <span>{displayed}<span className="animate-pulse" style={{ color: "rgba(255,255,255,0.6)" }}>|</span></span>;
 }
 
 function CursorGlow() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const move = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      setVisible(true);
-    };
+    const move = (e: MouseEvent) => { setPos({ x: e.clientX, y: e.clientY }); setVisible(true); };
     const leave = () => setVisible(false);
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseleave", leave);
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseleave", leave);
-    };
+    return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseleave", leave); };
   }, []);
   if (typeof window === "undefined") return null;
   return (
-    <div
-      className="fixed pointer-events-none z-[70] transition-opacity duration-200"
-      style={{
-        left: pos.x - 10,
-        top: pos.y - 10,
-        width: 20,
-        height: 20,
-        borderRadius: "50%",
-        background: "rgba(0, 255, 200, 0.6)",
-        boxShadow: "0 0 20px 8px rgba(0, 255, 200, 0.5)",
-        opacity: visible ? 1 : 0,
-      }}
-    />
+    <div className="fixed pointer-events-none z-[70] transition-opacity duration-200" style={{
+      left: pos.x - 10, top: pos.y - 10, width: 20, height: 20, borderRadius: "50%",
+      background: "rgba(0, 255, 200, 0.6)", boxShadow: "0 0 20px 8px rgba(0, 255, 200, 0.5)", opacity: visible ? 1 : 0,
+    }} />
   );
 }
 
@@ -129,15 +89,9 @@ function GalleryImage({ src, className }: { src: string; className?: string }) {
   return (
     <div className="relative overflow-hidden rounded-2xl w-full h-full rgb-border group">
       {!loaded && <div className="absolute inset-0 bg-white/10 animate-pulse rounded-2xl" />}
-      <img
-        src={src}
-        onLoad={() => setLoaded(true)}
-        className={`${className} transition-all duration-500 group-hover:scale-105 ${loaded ? "opacity-100" : "opacity-0"}`}
-        onContextMenu={(e) => e.preventDefault()}
-        onDragStart={(e) => e.preventDefault()}
-        draggable={false}
-        style={{ userSelect: "none", WebkitTouchCallout: "none" }}
-      />
+      <img src={src} onLoad={() => setLoaded(true)} className={`${className} transition-all duration-500 group-hover:scale-105 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} draggable={false}
+        style={{ userSelect: "none", WebkitTouchCallout: "none" }} />
       <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%)" }} />
     </div>
   );
@@ -147,26 +101,9 @@ function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none -z-5 overflow-hidden">
       {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: 2,
-            height: 2,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.15)",
-            animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out infinite alternate`,
-          }}
-        />
+        <div key={i} style={{ position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, width: 2, height: 2, borderRadius: "50%", background: "rgba(255,255,255,0.15)", animation: `particleFloat ${Math.random() * 6 + 4}s ease-in-out infinite alternate` }} />
       ))}
-      <style>{`
-        @keyframes particleFloat {
-          from { transform: translateY(0px); opacity: 0.2; }
-          to { transform: translateY(-15px); opacity: 0.5; }
-        }
-      `}</style>
+      <style>{`@keyframes particleFloat { from { transform: translateY(0px); opacity: 0.2; } to { transform: translateY(-15px); opacity: 0.5; } }`}</style>
     </div>
   );
 }
@@ -201,50 +138,36 @@ function FlappyCanvasGame() {
     const w = (canvas.width = canvas.clientWidth);
     const h = (canvas.height = canvas.clientHeight);
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "#0d3b3b";
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#0d3b3b"; ctx.fillRect(0, 0, w, h);
     if (!s.started || s.gameOver) {
       ctx.fillStyle = "white"; ctx.font = "18px sans-serif"; ctx.textAlign = "center";
       ctx.fillText(s.gameOver ? "Game Over" : "Tap untuk mulai", w / 2, h / 2 - 20);
       ctx.fillText(`Skor: ${s.score}   High: ${s.highScore}`, w / 2, h / 2 + 20);
-      animRef.current = requestAnimationFrame(loop);
-      return;
+      animRef.current = requestAnimationFrame(loop); return;
     }
     s.catVel += 0.5; s.catY += s.catVel;
     if (s.catY < 0) { s.catY = 0; s.catVel = 0; }
-    if (s.catY > h - 30) {
-      s.gameOver = true; setGameOver(true);
-      if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("flappyHigh", String(s.highScore)); setHighScore(s.highScore); }
-    }
-    if (animRef.current % 100 === 0) {
-      s.pipes.push({ x: w, top: Math.random() * (h - 180) + 40, passed: false });
-    }
+    if (s.catY > h - 30) { s.gameOver = true; setGameOver(true); if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("flappyHigh", String(s.highScore)); setHighScore(s.highScore); } }
+    if (animRef.current % 100 === 0) s.pipes.push({ x: w, top: Math.random() * (h - 180) + 40, passed: false });
     s.pipes = s.pipes.filter(p => {
       p.x -= s.speed;
       if (!p.passed && p.x + 50 < 80) { p.passed = true; s.score++; setScore(s.score); if (s.score % 5 === 0) s.speed += 0.4; }
-      if (80 + 30 > p.x && 80 < p.x + 50 && (s.catY < p.top || s.catY + 30 > p.top + 140)) {
-        s.gameOver = true; setGameOver(true);
-        if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("flappyHigh", String(s.highScore)); setHighScore(s.highScore); }
-      }
+      if (80 + 30 > p.x && 80 < p.x + 50 && (s.catY < p.top || s.catY + 30 > p.top + 140)) { s.gameOver = true; setGameOver(true); if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("flappyHigh", String(s.highScore)); setHighScore(s.highScore); } }
       return p.x > -50;
     });
-    ctx.fillStyle = "#22c55e";
-    s.pipes.forEach(p => { ctx.fillRect(p.x, 0, 50, p.top); ctx.fillRect(p.x, p.top + 140, 50, h - p.top - 140); });
+    ctx.fillStyle = "#22c55e"; s.pipes.forEach(p => { ctx.fillRect(p.x, 0, 50, p.top); ctx.fillRect(p.x, p.top + 140, 50, h - p.top - 140); });
     ctx.font = "30px Arial"; ctx.fillText("🐱", 80, s.catY + 28);
     ctx.fillStyle = "white"; ctx.font = "bold 24px sans-serif"; ctx.textAlign = "center"; ctx.fillText(String(s.score), w / 2, 40);
     animRef.current = requestAnimationFrame(loop);
   }, []);
 
-  useEffect(() => {
-    animRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [loop]);
+  useEffect(() => { animRef.current = requestAnimationFrame(loop); return () => cancelAnimationFrame(animRef.current); }, [loop]);
 
   const tap = () => {
     if (!gameState.current.started || gameState.current.gameOver) {
       if (gameState.current.gameOver) init();
       gameState.current.started = true; setStarted(true); gameState.current.catVel = -8;
-    } else { gameState.current.catVel = -8; }
+    } else gameState.current.catVel = -8;
   };
 
   return (
@@ -293,11 +216,7 @@ function AvoidGame() {
     if (Math.random() < 0.03) s.balls.push({ x: Math.random() * w, y: -10, r: 8 + Math.random() * 8 });
     s.balls = s.balls.filter(b => {
       b.y += 4;
-      if (Math.hypot(b.x - s.catX, b.y - (h - 40)) < b.r + 20) {
-        s.gameOver = true; setGameOver(true);
-        if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("avoidHigh", String(s.highScore)); setHighScore(s.highScore); }
-        return false;
-      }
+      if (Math.hypot(b.x - s.catX, b.y - (h - 40)) < b.r + 20) { s.gameOver = true; setGameOver(true); if (s.score > s.highScore) { s.highScore = s.score; localStorage.setItem("avoidHigh", String(s.highScore)); setHighScore(s.highScore); } return false; }
       if (b.y > h + 10) { s.score++; setScore(s.score); return false; }
       return true;
     });
@@ -307,10 +226,7 @@ function AvoidGame() {
     animRef.current = requestAnimationFrame(loop);
   }, []);
 
-  useEffect(() => {
-    animRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [loop]);
+  useEffect(() => { animRef.current = requestAnimationFrame(loop); return () => cancelAnimationFrame(animRef.current); }, [loop]);
 
   const move = (clientX: number) => {
     const canvas = canvasRef.current; if (!canvas) return;
@@ -323,8 +239,7 @@ function AvoidGame() {
     <div className="flex flex-col items-center justify-center h-full w-full relative"
       onMouseMove={(e) => move(e.clientX)}
       onTouchMove={(e) => { e.preventDefault(); move(e.touches[0].clientX); }}
-      onTouchStart={(e) => { e.preventDefault(); move(e.touches[0].clientX); }}
-    >
+      onTouchStart={(e) => { e.preventDefault(); move(e.touches[0].clientX); }}>
       <canvas ref={canvasRef} className="w-full max-w-[400px] h-[70vh] rounded-3xl border border-white/10 shadow-2xl" style={{ touchAction: "none" }} />
     </div>
   );
@@ -348,10 +263,7 @@ function GuessGame() {
     setGuess("");
   };
 
-  const restart = () => {
-    setTarget(Math.floor(Math.random() * 100) + 1);
-    setGuess(""); setHint("Tebak angka 1–100"); setAttempts(0); setWon(false);
-  };
+  const restart = () => { setTarget(Math.floor(Math.random() * 100) + 1); setGuess(""); setHint("Tebak angka 1–100"); setAttempts(0); setWon(false); };
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
@@ -359,22 +271,11 @@ function GuessGame() {
         <div className="text-5xl mb-4">🎯</div>
         <div className="text-xl font-bold shimmer-text mb-4">Tebak Angka</div>
         <p className="text-white/60 text-sm mb-4">{hint}</p>
-        <input
-          type="number" value={guess} onChange={(e) => setGuess(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="1–100" disabled={won}
-          className="w-full px-4 py-3 rounded-xl text-white text-center text-lg outline-none bg-white/5 border border-white/10 mb-4"
-        />
+        <input type="number" value={guess} onChange={(e) => setGuess(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="1–100" disabled={won} className="w-full px-4 py-3 rounded-xl text-white text-center text-lg outline-none bg-white/5 border border-white/10 mb-4" />
         {!won ? (
-          <button onClick={submit} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full"
-            style={{ background: "rgba(0,255,200,0.2)", border: "1px solid rgba(0,255,200,0.4)" }}>
-            Tebak
-          </button>
+          <button onClick={submit} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full" style={{ background: "rgba(0,255,200,0.2)", border: "1px solid rgba(0,255,200,0.4)" }}>Tebak</button>
         ) : (
-          <button onClick={restart} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full"
-            style={{ background: "rgba(255,200,0,0.2)", border: "1px solid rgba(255,200,0,0.4)" }}>
-            Main Lagi
-          </button>
+          <button onClick={restart} className="py-2 px-6 rounded-xl btn-shimmer text-sm font-semibold w-full" style={{ background: "rgba(255,200,0,0.2)", border: "1px solid rgba(255,200,0,0.4)" }}>Main Lagi</button>
         )}
         <p className="text-white/40 text-xs mt-3">Percobaan: {attempts}</p>
       </div>
@@ -393,21 +294,13 @@ function ReactionGame() {
   const start = () => {
     setPhase("ready");
     const delay = 1500 + Math.random() * 3000;
-    timeoutRef.current = setTimeout(() => {
-      setStartTime(Date.now());
-      setPhase("clicked");
-    }, delay);
+    timeoutRef.current = setTimeout(() => { setStartTime(Date.now()); setPhase("clicked"); }, delay);
   };
 
   const click = () => {
-    if (phase === "ready") {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      setPhase("tooEarly");
-      return;
-    }
+    if (phase === "ready") { if (timeoutRef.current) clearTimeout(timeoutRef.current); setPhase("tooEarly"); return; }
     if (phase === "clicked") {
-      const ms = Date.now() - startTime;
-      setReaction(ms);
+      const ms = Date.now() - startTime; setReaction(ms);
       if (!best || ms < best) { setBest(ms); localStorage.setItem("reactionBest", String(ms)); }
       setPhase("waiting");
     }
@@ -417,12 +310,8 @@ function ReactionGame() {
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-6">
-      <div
-        onClick={phase === "waiting" ? start : phase === "ready" ? click : (phase === "tooEarly" ? reset : reset)}
-        className={`glass-card p-8 text-center w-full h-64 flex flex-col items-center justify-center cursor-pointer transition-colors ${
-          phase === "ready" ? "bg-red-500/40" : phase === "clicked" ? "bg-green-500/40" : phase === "tooEarly" ? "bg-yellow-500/40" : ""
-        }`}
-      >
+      <div onClick={phase === "waiting" ? start : phase === "ready" ? click : (phase === "tooEarly" ? reset : reset)}
+        className={`glass-card p-8 text-center w-full h-64 flex flex-col items-center justify-center cursor-pointer transition-colors ${phase === "ready" ? "bg-red-500/40" : phase === "clicked" ? "bg-green-500/40" : phase === "tooEarly" ? "bg-yellow-500/40" : ""}`}>
         <div className="text-4xl mb-4">{phase === "waiting" ? "⚡" : phase === "ready" ? "🔴" : phase === "clicked" ? "🟢" : "🟡"}</div>
         {phase === "waiting" && !reaction && <p className="text-white font-bold">Tap untuk mulai</p>}
         {phase === "waiting" && reaction && <p className="text-white font-bold text-xl">{reaction} ms</p>}
@@ -448,33 +337,15 @@ function MemoryGame() {
 
   const flip = (i: number) => {
     if (locked || cards[i].flipped || cards[i].matched) return;
-    const newCards = [...cards];
-    newCards[i].flipped = true;
-    setCards(newCards);
-    const newOpened = [...opened, i];
-    setOpened(newOpened);
+    const newCards = [...cards]; newCards[i].flipped = true; setCards(newCards);
+    const newOpened = [...opened, i]; setOpened(newOpened);
     if (newOpened.length === 2) {
-      setLocked(true);
-      setMoves(m => m + 1);
+      setLocked(true); setMoves(m => m + 1);
       const [a, b] = newOpened;
       if (cards[a].emoji === cards[b].emoji) {
-        setTimeout(() => {
-          const matched = [...cards];
-          matched[a].matched = true;
-          matched[b].matched = true;
-          setCards(matched);
-          setOpened([]);
-          setLocked(false);
-        }, 600);
+        setTimeout(() => { const matched = [...cards]; matched[a].matched = true; matched[b].matched = true; setCards(matched); setOpened([]); setLocked(false); }, 600);
       } else {
-        setTimeout(() => {
-          const flipped = [...cards];
-          flipped[a].flipped = false;
-          flipped[b].flipped = false;
-          setCards(flipped);
-          setOpened([]);
-          setLocked(false);
-        }, 800);
+        setTimeout(() => { const flipped = [...cards]; flipped[a].flipped = false; flipped[b].flipped = false; setCards(flipped); setOpened([]); setLocked(false); }, 800);
       }
     }
   };
@@ -489,13 +360,7 @@ function MemoryGame() {
     <div className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto gap-4">
       <div className="grid grid-cols-4 gap-2 w-full">
         {cards.map((card, i) => (
-          <button
-            key={i}
-            onClick={() => flip(i)}
-            className={`aspect-square rounded-2xl text-3xl flex items-center justify-center transition-all ${
-              card.flipped || card.matched ? "bg-cyan-500/30 border border-cyan-400" : "bg-white/5 border border-white/10"
-            }`}
-          >
+          <button key={i} onClick={() => flip(i)} className={`aspect-square rounded-2xl text-3xl flex items-center justify-center transition-all ${card.flipped || card.matched ? "bg-cyan-500/30 border border-cyan-400" : "bg-white/5 border border-white/10"}`}>
             {(card.flipped || card.matched) ? card.emoji : "❓"}
           </button>
         ))}
@@ -512,9 +377,7 @@ export default function App() {
   const [stage, setStage] = useState<"intro" | "loading" | "app">("intro");
   const [introOut, setIntroOut] = useState(false);
   const [lightning, setLightning] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    "watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "reaksi" | "memory"
-  >("watch");
+  const [activeTab, setActiveTab] = useState<"watch" | "photo" | "game" | "about" | "private" | "flappy" | "hindar" | "tebak" | "reaksi" | "memory">("watch");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ photos: string[]; index: number } | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
@@ -524,33 +387,26 @@ export default function App() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordShake, setPasswordShake] = useState(false);
   const touchStartX = useRef<number | null>(null);
-
   const [showConfetti, setShowConfetti] = useState(false);
   const [likedPhotos, setLikedPhotos] = useState<Record<string, number>>({});
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
-
   const [guestName, setGuestName] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
   const [sending, setSending] = useState(false);
-
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiResponses, setAiResponses] = useState<{ model: string; answer: string }[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
-
   const [time, setTime] = useState(new Date());
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
-
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
   const [isMusicOn, setIsMusicOn] = useState(false);
   useEffect(() => { bgMusicRef.current = new Audio("/Fajri.mp3"); bgMusicRef.current.loop = true; bgMusicRef.current.volume = 0.4; return () => { bgMusicRef.current?.pause(); bgMusicRef.current = null; }; }, []);
   const toggleMusic = () => { const a = bgMusicRef.current; if (!a) return; if (isMusicOn) { a.pause(); setIsMusicOn(false); } else { a.play().then(() => setIsMusicOn(true)).catch(() => {}); } };
-
   const getWIB = () => time.toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
   const getWIBDate = () => time.toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const getWIBHour = () => new Date(time.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })).getHours();
   const greet = () => { const h = getWIBHour(); if (h>=5 && h<11) return "Selamat pagi ☀️"; if (h>=11 && h<15) return "Selamat siang 🌤️"; if (h>=15 && h<18) return "Selamat sore 🌅"; return "Selamat malam 🌙"; };
   const getBackground = () => activeTab === "photo" ? "linear-gradient(135deg, #0f0f0f 0%, #1e1b4b 30%, #d8b4fe 80%, #ffffff 100%)" : "linear-gradient(135deg, #0d3b3b 0%, #1a5c4a 30%, #2b6b3a 60%, #6b8c22 100%)";
-
   useEffect(() => { const v = localStorage.getItem("fajrez_visited"); if (!v) { localStorage.setItem("fajrez_visitors", String(parseInt(localStorage.getItem("fajrez_visitors") || "0") + 1)); localStorage.setItem("fajrez_visited", "true"); } }, []);
   const dailyQuote = (() => { const q = ["Dalam diam aku merakit rindu, hanya untukmu.","Setiap detak jam ini mengingatkanku padamu.","Langit malam tak pernah sepi, selalu ada bintang yang menemani.","Kehadiranmu adalah puisi tanpa kata.","Jarak tak berarti ketika hati saling menggenggam.","Kamu adalah alasan aku percaya pada keajaiban.","Senyummu adalah mentari di pagi paling kelabu.","Aku menyimpanmu di ruang terdalam, tempat harapan bersemayam."]; return q[new Date().getDate() % q.length]; })();
   useEffect(() => { const s = localStorage.getItem("fajrez_likes"); if (s) setLikedPhotos(JSON.parse(s)); }, []);

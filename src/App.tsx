@@ -147,6 +147,13 @@ export default function App() {
   const [aiResponses,setAiResponses]=useState<{model:string;answer:string}[]>([]);
   const [aiLoading,setAiLoading]=useState(false);
   const [time,setTime]=useState(new Date());
+  // LOVE RAIN state
+  const [loveRain,setLoveRain]=useState(false);
+  const triggerLoveRain = () => {
+    setLoveRain(true);
+    setTimeout(() => setLoveRain(false), 4000);
+  };
+
   useEffect(()=>{const t=setInterval(()=>setTime(new Date()),1000);return ()=>clearInterval(t);},[]);
   const bgMusicRef=useRef<HTMLAudioElement|null>(null);
   const [isMusicOn,setIsMusicOn]=useState(false);
@@ -177,6 +184,46 @@ export default function App() {
   const videoUrl=(id:string)=>`https://player.cloudinary.com/embed/?cloud_name=dxkbvpaa1&public_id=${id}&showDownload=false&showInfo=false`;
   const visitorCount=parseInt(localStorage.getItem("fajrez_visitors")||"0",10);
 
+  // LoveRain component (di dalam App)
+  const LoveRain = () => {
+    if (!loveRain) return null;
+    const hearts = Array.from({ length: 60 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      size: 16 + Math.random() * 24,
+      duration: 2 + Math.random() * 2,
+      delay: Math.random() * 1.5,
+      opacity: 0.6 + Math.random() * 0.4,
+    }));
+    return (
+      <div className="fixed inset-0 pointer-events-none z-[80] overflow-hidden">
+        {hearts.map((h) => (
+          <div
+            key={h.id}
+            className="absolute text-red-500"
+            style={{
+              left: `${h.left}%`,
+              top: '-10%',
+              fontSize: `${h.size}px`,
+              opacity: h.opacity,
+              animation: `loveFall ${h.duration}s linear ${h.delay}s forwards`,
+              transform: `rotate(${Math.random() * 40 - 20}deg)`,
+            }}
+          >
+            ❤️
+          </div>
+        ))}
+        <style>{`
+          @keyframes loveFall {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(1.2); opacity: 0; }
+          }
+        `}</style>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen text-white relative overflow-x-hidden pb-24" style={{background:getBackground(),backgroundAttachment:"fixed",userSelect:"none",WebkitTouchCallout:"none",cursor:"none"}}>
       {typeof window!=="undefined"&&window.matchMedia("(pointer:fine)").matches&&<CursorGlow/>}
@@ -194,7 +241,7 @@ export default function App() {
       </div>
       <Particles/>
       
-      {/* ORBIT LOVE */}
+      {/* ORBIT LOVE — versi teratur (semua sinkron) */}
       <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
         <div className="relative w-0 h-0">
           {[...Array(8)].map((_, i) => {
@@ -205,7 +252,7 @@ export default function App() {
                 className="absolute"
                 style={{
                   transform: `rotate(${angle}deg) translateX(150px)`,
-                  animation: `orbitHeart ${6 + i * 0.3}s linear infinite`,
+                  animation: `orbitHeart 6s linear infinite`,
                   fontSize: '2rem',
                   color: '#ff6b6b',
                   textShadow: '0 0 20px rgba(255,107,107,0.6)',
@@ -221,8 +268,10 @@ export default function App() {
 
       {showConfetti&&<Confetti/>}
       {hearts.map(h=><FloatingHeart key={h.id} x={h.x} y={h.y}/>)}
+      
+      {/* LOVE RAIN */}
+      <LoveRain />
 
-      {/* LIGHTNING FIX */}
       {lightning && (
         <div className="fixed inset-0 z-[100] pointer-events-none" style={{background:"radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",animation:"lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out"}} />
       )}
@@ -392,12 +441,20 @@ export default function App() {
           {activeTab==="leaderboard"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><Leaderboard/></section>)}
           {activeTab==="qr"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><QRGenerator/></section>)}
           
+          {/* TAB LOVE dengan tombol Hujan Cinta */}
           {activeTab==="love"&&(
-            <section className="py-24 px-4 anim-slideup flex items-center justify-center" style={{animation:"tabFadeIn 0.4s ease-out"}}>
+            <section className="py-24 px-4 anim-slideup flex flex-col items-center justify-center" style={{animation:"tabFadeIn 0.4s ease-out"}}>
               <div className="text-center">
                 <div className="text-8xl animate-pulse">❤️</div>
                 <h2 className="text-3xl font-bold shimmer-text mt-4">Untukmu</h2>
                 <p className="text-white/60 mt-2">Semua cinta untukmu</p>
+                <button
+                  onClick={triggerLoveRain}
+                  className="mt-8 px-6 py-3 rounded-full text-sm font-semibold glass-card hover:scale-105 transition-transform"
+                  style={{ border: '1px solid rgba(255,107,107,0.4)' }}
+                >
+                  🌧️ Hujan Cinta
+                </button>
               </div>
             </section>
           )}

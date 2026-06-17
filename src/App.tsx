@@ -74,7 +74,7 @@ function Particles() {
     </div>
   );
 }
-// Game components (FlappyCanvasGame, AvoidGame, GuessGame, MemoryGame, Leaderboard, QRGenerator) tetap sama seperti sebelumnya
+// Game components
 function FlappyCanvasGame() {
   const canvasRef=useRef<HTMLCanvasElement>(null);
   const gs=useRef({catY:250,catVel:0,pipes:[] as {x:number;top:number;passed:boolean}[],score:0,high:parseInt(localStorage.getItem("flappyHigh")||"0"),go:false,start:false,speed:2.5});
@@ -194,7 +194,7 @@ export default function App() {
       </div>
       <Particles/>
       
-      {/* ===== ORBIT LOVE (background) ===== */}
+      {/* ORBIT LOVE */}
       <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
         <div className="relative w-0 h-0">
           {[...Array(8)].map((_, i) => {
@@ -221,7 +221,11 @@ export default function App() {
 
       {showConfetti&&<Confetti/>}
       {hearts.map(h=><FloatingHeart key={h.id} x={h.x} y={h.y}/>)}
-      {lightning&&<div className="fixed inset-0 z-[100] pointer-events-none" style={{background:"radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",animation:"lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out"}}/>
+
+      {/* LIGHTNING FIX */}
+      {lightning && (
+        <div className="fixed inset-0 z-[100] pointer-events-none" style={{background:"radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",animation:"lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out"}} />
+      )}
 
       {stage==="intro"&&(
         <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut?"intro-out":""}`} style={{background:"linear-gradient(135deg, #0d3b3b, #1a5c4a, #2b6b3a)",cursor:"auto"}}>
@@ -388,7 +392,6 @@ export default function App() {
           {activeTab==="leaderboard"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><Leaderboard/></section>)}
           {activeTab==="qr"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><QRGenerator/></section>)}
           
-          {/* ===== TAB LOVE ===== */}
           {activeTab==="love"&&(
             <section className="py-24 px-4 anim-slideup flex items-center justify-center" style={{animation:"tabFadeIn 0.4s ease-out"}}>
               <div className="text-center">

@@ -127,7 +127,7 @@ export default function App() {
   const [stage,setStage]=useState<"intro"|"loading"|"app">("intro");
   const [introOut,setIntroOut]=useState(false);
   const [lightning,setLightning]=useState(false);
-  const [activeTab,setActiveTab]=useState<"watch"|"photo"|"random"|"game"|"about"|"private"|"flappy"|"hindar"|"tebak"|"memory"|"leaderboard"|"qr">("watch");
+  const [activeTab,setActiveTab]=useState<"watch"|"photo"|"random"|"game"|"about"|"private"|"flappy"|"hindar"|"tebak"|"memory"|"leaderboard"|"qr"|"love">("watch");
   const [selectedGame,setSelectedGame]=useState<string|null>(null);
   const [preview,setPreview]=useState<{photos:string[];index:number}|null>(null);
   const [lightboxVisible,setLightboxVisible]=useState(false);
@@ -182,7 +182,6 @@ export default function App() {
       {typeof window!=="undefined"&&window.matchMedia("(pointer:fine)").matches&&<CursorGlow/>}
       <style>{`
         @keyframes loadbar{from{width:0%}to{width:100%}}@keyframes fadeScaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.04)}}@keyframes floatUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:1}}@keyframes borderShimmer{0%{border-color:rgba(0,255,200,.3);box-shadow:0 0 12px rgba(0,255,200,.2)}50%{border-color:rgba(0,255,200,.8);box-shadow:0 0 24px rgba(0,255,200,.4)}100%{border-color:rgba(0,255,200,.3);box-shadow:0 0 12px rgba(0,255,200,.2)}}@keyframes rgbBorder{0%{border-color:#0fc;box-shadow:0 0 15px #0fc}33%{border-color:#cf0;box-shadow:0 0 15px #cf0}66%{border-color:#0cf;box-shadow:0 0 15px #0cf}100%{border-color:#0fc;box-shadow:0 0 15px #0fc}}@keyframes avatarGlow{0%,100%{box-shadow:0 0 20px rgba(0,255,200,.4),0 0 40px rgba(0,255,200,.2)}50%{box-shadow:0 0 30px rgba(0,255,200,.6),0 0 60px rgba(0,255,200,.3)}}@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes shimmerText{0%{background-position:-200% center}100%{background-position:200% center}}@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}@keyframes lockPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.1);opacity:1}}@keyframes lightningFlash{0%{opacity:1;transform:scale(1)}10%{opacity:.9;transform:scale(1.02)}20%{opacity:1;transform:scale(1)}30%{opacity:.5;transform:scale(1.01)}40%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1)}}@keyframes tabFadeIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
-        /* ===== ORBIT LOVE KEYFRAMES ===== */
         @keyframes orbitHeart {
           0%   { transform: rotate(0deg) translateX(150px) rotate(0deg); }
           100% { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
@@ -388,6 +387,17 @@ export default function App() {
           {activeTab==="memory"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><MemoryGame/></section>)}
           {activeTab==="leaderboard"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><Leaderboard/></section>)}
           {activeTab==="qr"&&(<section className="py-12 px-4 anim-slideup h-[calc(100dvh-80px)]" style={{animation:"tabFadeIn 0.4s ease-out"}}><QRGenerator/></section>)}
+          
+          {/* ===== TAB LOVE ===== */}
+          {activeTab==="love"&&(
+            <section className="py-24 px-4 anim-slideup flex items-center justify-center" style={{animation:"tabFadeIn 0.4s ease-out"}}>
+              <div className="text-center">
+                <div className="text-8xl animate-pulse">❤️</div>
+                <h2 className="text-3xl font-bold shimmer-text mt-4">Untukmu</h2>
+                <p className="text-white/60 mt-2">Semua cinta untukmu</p>
+              </div>
+            </section>
+          )}
 
           {preview&&(
             <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.95)",backdropFilter:"blur(20px)",opacity:lightboxVisible?1:0,transition:"opacity 0.25s ease"}} onClick={closePreview} onContextMenu={e=>e.preventDefault()} onTouchStart={e=>{touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{if(touchStartX.current===null)return;const diff=touchStartX.current-e.changedTouches[0].clientX;if(Math.abs(diff)>50)diff>0?swipeNext():swipePrev();touchStartX.current=null;}}>
@@ -410,6 +420,7 @@ export default function App() {
               {tab:"game"as const,label:"GAMES",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="17" cy="11" r="0.5" fill="currentColor"/><circle cx="19" cy="13" r="0.5" fill="currentColor"/></svg>},
               {tab:"about"as const,label:"ABOUT",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>},
               {tab:"private"as const,label:"PRIVATE",icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>},
+              {tab:"love"as const,label:"LOVE",icon:<span className="text-lg">❤️</span>},
             ].map(({tab,label,icon})=>(
               <button key={tab} onClick={()=>{playClick();setActiveTab(tab);if(tab!=="game")setSelectedGame(null);}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"3px",padding:"6px 8px",borderRadius:"14px",color:activeTab===tab?"white":"rgba(255,255,255,0.35)",transition:"all 0.2s ease",background:activeTab===tab?"rgba(255,255,255,0.08)":"transparent",boxShadow:activeTab===tab?"0 0 12px rgba(0,255,200,0.3)":"none",transform:activeTab===tab?"scale(1.05)":"scale(1)"}}>
                 {icon}<span style={{fontSize:"7px",letterSpacing:"0.06em",fontWeight:600}}>{label}</span>

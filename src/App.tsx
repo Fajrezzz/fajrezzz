@@ -182,6 +182,11 @@ export default function App() {
       {typeof window!=="undefined"&&window.matchMedia("(pointer:fine)").matches&&<CursorGlow/>}
       <style>{`
         @keyframes loadbar{from{width:0%}to{width:100%}}@keyframes fadeScaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.04)}}@keyframes floatUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:1}}@keyframes borderShimmer{0%{border-color:rgba(0,255,200,.3);box-shadow:0 0 12px rgba(0,255,200,.2)}50%{border-color:rgba(0,255,200,.8);box-shadow:0 0 24px rgba(0,255,200,.4)}100%{border-color:rgba(0,255,200,.3);box-shadow:0 0 12px rgba(0,255,200,.2)}}@keyframes rgbBorder{0%{border-color:#0fc;box-shadow:0 0 15px #0fc}33%{border-color:#cf0;box-shadow:0 0 15px #cf0}66%{border-color:#0cf;box-shadow:0 0 15px #0cf}100%{border-color:#0fc;box-shadow:0 0 15px #0fc}}@keyframes avatarGlow{0%,100%{box-shadow:0 0 20px rgba(0,255,200,.4),0 0 40px rgba(0,255,200,.2)}50%{box-shadow:0 0 30px rgba(0,255,200,.6),0 0 60px rgba(0,255,200,.3)}}@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes shimmerText{0%{background-position:-200% center}100%{background-position:200% center}}@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}@keyframes lockPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.1);opacity:1}}@keyframes lightningFlash{0%{opacity:1;transform:scale(1)}10%{opacity:.9;transform:scale(1.02)}20%{opacity:1;transform:scale(1)}30%{opacity:.5;transform:scale(1.01)}40%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1)}}@keyframes tabFadeIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
+        /* ===== ORBIT LOVE KEYFRAMES ===== */
+        @keyframes orbitHeart {
+          0%   { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+        }
         .anim-fadescale{animation:fadeScaleIn .3s ease-out forwards}.anim-slideup{animation:slideUp .35s ease-out forwards}.intro-out{animation:fadeOut .6s ease-in forwards}.float-1{animation:floatUp .8s ease-out .1s both}.float-2{animation:floatUp .8s ease-out .35s both}.float-3{animation:floatUp .8s ease-out .6s both}.glow-text{animation:glowPulse 2.5s ease-in-out infinite}.btn-shimmer{animation:borderShimmer 2.5s ease-in-out infinite}.avatar-glow{animation:avatarGlow 3s ease-in-out infinite}.card-in-1{animation:cardIn .5s ease-out .1s both}.card-in-2{animation:cardIn .5s ease-out .25s both}.card-in-3{animation:cardIn .5s ease-out .4s both}.card-in-4{animation:cardIn .5s ease-out .55s both}.shimmer-text{background:linear-gradient(90deg,#34d399 0%,#facc15 40%,#fff 50%,#facc15 60%,#34d399 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerText 3s linear infinite}.shake{animation:shake .5s ease-out}.lock-pulse{animation:lockPulse 2s ease-in-out infinite}.rgb-border{border:3px solid #0fc;animation:rgbBorder 4s linear infinite;transition:transform .3s ease}.rgb-border:active{transform:scale(.96)}.glass-card{background:rgba(255,255,255,.05);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:1.5rem;box-shadow:0 10px 30px -10px rgba(0,0,0,.3)}.glass-nav{background:rgba(10,30,25,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.1)}.nav-btn-circle{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;background:rgba(0,255,200,.1);border:1px solid rgba(0,255,200,.4);color:#fff;transition:background .2s,transform .15s}.nav-btn-circle:disabled{color:rgba(255,255,255,.2);cursor:default}.nav-btn-circle:not(:disabled):active{transform:scale(.9)}.social-card{transition:all .3s ease;border-radius:1rem}.social-card:hover{transform:scale(1.02);box-shadow:0 0 20px rgba(0,255,200,.4)}.social-card:active{transform:scale(.97)}.random-card{position:relative;overflow:hidden;border-radius:2rem;transition:all .4s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.05);backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.15)}.random-card:hover{transform:translateY(-8px) scale(1.03);box-shadow:0 25px 50px rgba(255,107,107,.4);border-color:#ff6b6b}.random-card:active{transform:scale(.96)}.random-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,107,107,.3),rgba(255,217,61,.3));opacity:0;transition:opacity .4s}.random-card:hover::after{opacity:1}.random-badge{animation:float 3s ease-in-out infinite}
       `}</style>
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -189,9 +194,35 @@ export default function App() {
         <div className="absolute rounded-full" style={{bottom:"-10%",right:"-10%",width:"70vw",height:"70vw",background:"radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)"}}/>
       </div>
       <Particles/>
+      
+      {/* ===== ORBIT LOVE (background) ===== */}
+      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
+        <div className="relative w-0 h-0">
+          {[...Array(8)].map((_, i) => {
+            const angle = i * 45;
+            return (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  transform: `rotate(${angle}deg) translateX(150px)`,
+                  animation: `orbitHeart ${6 + i * 0.3}s linear infinite`,
+                  fontSize: '2rem',
+                  color: '#ff6b6b',
+                  textShadow: '0 0 20px rgba(255,107,107,0.6)',
+                  opacity: 0.5,
+                }}
+              >
+                ❤️
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {showConfetti&&<Confetti/>}
       {hearts.map(h=><FloatingHeart key={h.id} x={h.x} y={h.y}/>)}
-      {lightning&&<div className="fixed inset-0 z-[100] pointer-events-none" style={{background:"radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",animation:"lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out"}}/>}
+      {lightning&&<div className="fixed inset-0 z-[100] pointer-events-none" style={{background:"radial-gradient(circle at 30% 40%, #ffffff 0%, #ccff00 25%, #00ffcc 50%, #00ccff 80%, transparent 100%)",animation:"lightningFlash 0.8s ease-out forwards, shake 0.8s ease-out"}}/>
 
       {stage==="intro"&&(
         <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${introOut?"intro-out":""}`} style={{background:"linear-gradient(135deg, #0d3b3b, #1a5c4a, #2b6b3a)",cursor:"auto"}}>
